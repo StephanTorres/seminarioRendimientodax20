@@ -61,6 +61,7 @@ jobs:
           if ($null -eq $fallo) { throw 'No debería haber conectado: no hay ningún Analysis Services en localhost:1' }
           Write-Host "Error esperado: $fallo"
           if ($fallo -match 'Could not load|FileNotFound|TypeLoad') { throw "Fallo cargando ensamblados: $fallo" }
+          if ($fallo -match 'No encuentro') { throw "No se intentó la conexión ADOMD a --server: $fallo" }
 
       - uses: actions/upload-artifact@v4
         with:

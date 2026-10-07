@@ -133,7 +133,8 @@ conectado al modelo abierto.
 Descartado para este caso:
 
 - ADOMD.NET no conecta desde Linux a un Analysis Services local por TCP, y Desktop usa
-  autenticación integrada de Windows.
+  autenticación integrada de Windows. **Comprobado:** el puente en Linux (ADOMD.NET 19.114.12)
+  responde *"This feature is supported for a .NET Core client only on Windows systems."*
 - Desktop escucha en el `localhost` de Windows; un contenedor lo ve por otra interfaz.
 - Un contenedor Windows serían varios GB para el mismo problema de red.
 
@@ -166,7 +167,8 @@ la lectura de su código y su documentación. Conviene citarlo en las slides com
   automática, teclado aislado de las slides, token desde `file://` y plan B grabado.
 
 **El workflow de GitHub Actions comprueba en Windows:** tests, publicación, `--help`, modo simulado y
-que AMO/ADOMD cargan en el `.exe` de un solo fichero (fallo esperado de conexión, no de ensamblados).
+que AMO/ADOMD cargan en el `.exe` de un solo fichero e intentan conectar al `--server` indicado (fallo
+esperado de conexión, no de ensamblados).
 
 **Sin probar (necesita tu Windows con Power BI Desktop):**
 

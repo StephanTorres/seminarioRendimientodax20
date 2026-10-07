@@ -21,7 +21,16 @@ public sealed class PowerBiBackend : IDaxBackend
     private string _server = string.Empty;
     private string _database = string.Empty;
 
-    public PowerBiBackend(ILogger<PowerBiBackend> log) => _log = log;
+    // Servidor y modelo pedidos (línea de comandos o último /api/connect): los reintentos los usan.
+    private string? _wantedServer;
+    private string? _wantedDatabase;
+
+    public PowerBiBackend(ILogger<PowerBiBackend> log, BridgeOptions options)
+    {
+        _log = log;
+        _wantedServer = options.Server;
+        _wantedDatabase = options.Database;
+    }
 
     public string Mode => "live";
     public ConnectionInfo? Connection { get; private set; }
@@ -38,7 +47,12 @@ public sealed class PowerBiBackend : IDaxBackend
                 return Connection;
 
             Close();
-            var server = request.Server
+            if (request.Server is not null)
+            {
+                _wantedServer = request.Server;
+                _wantedDatabase = request.Database;
+            }
+            var server = _wantedServer
                 ?? PowerBiInstances.Discover().FirstOrDefault(i => i.Reachable)?.Server
                 ?? throw new InvalidOperationException(
                     "No encuentro ningún Power BI Desktop abierto. Abre un .pbix o arranca el puente con --server localhost:PUERTO.");
@@ -47,7 +61,7 @@ public sealed class PowerBiBackend : IDaxBackend
             {
                 var connection = new AdomdConnection($"Data Source={server};");
                 connection.Open();
-                var database = request.Database ?? FirstCatalog(connection);
+                var database = _wantedDatabase ?? FirstCatalog(connection);
                 connection.ChangeDatabase(database);
                 _connection = connection;
                 _server = server;
