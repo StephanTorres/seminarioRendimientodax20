@@ -14,7 +14,7 @@
 | # | Afirmación original (dispositiva) | Veredicto | Qué decir en 2.0 |
 |---|---|---|---|
 | 1 | Los modos son Import / DirectQuery / Live / Dual | **Incompleto** | Faltan Direct Lake (Fabric), modelos compuestos sobre semantic models, tablas híbridas, agregaciones de usuario y automáticas. "Live connection" es hoy "conexión a un semantic model". Añadir una matriz de decisión. |
-| 2 | "Intenta ordenar las columnas para obtener el mejor ratio de compresión" | **Matizar** | VertiPaq decide el orden por segmento. La palanca real es **reducir cardinalidad**, separar fecha y hora, usar enteros, quitar GUIDs/textos largos, desactivar Auto date/time y revisar el encoding (hint Value/Hash). Ordenar el origen ayuda poco. |
+| 2 | "Intenta ordenar las columnas para obtener el mejor ratio de compresión" | **Mantener como truco empírico** | Es experiencia de campo: ordenar el origen puede mejorar RLE en columnas de baja cardinalidad, aunque VertiPaq reordena por segmento con sus propias heurísticas y el resultado **no está garantizado**. Presentarlo como "prueba y mide" (VertiPaq Analyzer antes/después), junto a las palancas seguras: reducir cardinalidad, separar fecha y hora, usar enteros, quitar GUIDs/textos largos, desactivar Auto date/time y revisar el encoding (hint Value/Hash). |
 | 3 | Diccionario "innecesario" para Int; RLE | **Correcto, pero simplificado** | Añadir value encoding vs hash encoding, y que RLE depende del orden *dentro del segmento*. Introducir segmentos y su efecto. |
 | 4 | Las columnas calculadas comprimen peor | **Vigente con matices** | Se calculan en el refresco, se almacenan y no heredan el orden del origen. Mover la lógica a Power Query o al origen sigue siendo lo recomendable. Con Direct Lake, no hay Power Query en el modelo. La lógica debe estar en el lakehouse o warehouse. |
 | 5 | "Procesamiento de los datos (CPU y RAM)" es una de las 3 áreas a optimizar | **Anunciado y no desarrollado** | El PDF no trata el refresco. Falta query folding, particiones, incremental refresh, paralelismo y framing en Direct Lake. Se añade como sección. |
@@ -87,6 +87,7 @@ Cada bloque termina con **"Y esto con IA, ¿qué?"** (3–5 min, ya incluido en 
 
 **2) VertiPaq: diccionario, RLE, value/hash encoding (12 min)**
 - Mantener los ejemplos DateCode y ShopId, que son buenos.
+- Mantener el consejo de ordenar el origen como **truco de experiencia, no garantizado**, y medir el efecto en vivo (mismo dato ordenado vs sin ordenar).
 - Añadir: segmentos, ordenación automática, `Encoding hint`, columnas que no se usan (ocultarlas no las elimina).
 - Efecto de las columnas calculadas (diapositivas 176–191) y comparación con Power Query.
 
