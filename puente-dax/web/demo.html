@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Puente DAX · laboratorio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;600&display=swap');
+:root {
+  --bg: #050d0a; --fg: #d6efe3; --muted: #7fa595;
+  --se: #3dfc8f; --fe: #ffb347; --cb: #ff5c6c; --info: #5fd4ff;
+  --font-title: 'Chakra Petch', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background:
+    linear-gradient(rgba(61,252,143,.045) 1px, transparent 1px) 0 0 / 80px 80px,
+    linear-gradient(90deg, rgba(61,252,143,.045) 1px, transparent 1px) 0 0 / 80px 80px,
+    var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+}
+main { max-width: 1500px; margin: 0 auto; padding: 32px 24px 60px; }
+h1 { font-family: var(--font-title); font-size: 40px; margin: 0 0 6px; border-left: 6px solid var(--se); padding-left: 16px; }
+p.lead { color: var(--muted); font-size: 18px; max-width: 1000px; line-height: 1.5; }
+code { font-family: var(--font-mono); color: var(--se); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(560px, 1fr)); gap: 22px; margin: 24px 0; }
+@media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Puente DAX · laboratorio</h1>
+  <p class="lead">
+    Dos formas de contar las ventas de más de 10. Ejecuta cada una en <strong>frío</strong> y en <strong>caliente</strong>
+    y compara: la primera provoca un <code>CallbackDataID</code>. Si arriba pone <strong>SIMULADO</strong>,
+    el puente está en modo <code>--mock</code> y los números son de ejemplo.
+  </p>
+
+  <div class="grid">
+    <dax-lab label="Con IF dentro de SUMX">
+      EVALUATE
+      ROW (
+          "Tickets > 10",
+          SUMX ( 'Internet Sales', IF ( 'Internet Sales'[SalesAmount] > 10, 1, 0 ) )
+      )
+    </dax-lab>
+
+    <dax-lab label="Con CALCULATE y filtro de columna">
+      EVALUATE
+      ROW (
+          "Tickets > 10",
+          CALCULATE ( COUNTROWS ( 'Internet Sales' ), 'Internet Sales'[SalesAmount] > 10 )
+      )
+    </dax-lab>
+  </div>
+
+  <dax-benchmark></dax-benchmark>
+</main>
+<script src="dax-lab.js"></script>
+</body>
+</html>

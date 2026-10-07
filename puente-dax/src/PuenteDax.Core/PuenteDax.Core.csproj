@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Lógica pura (sin AMO ni ADOMD): se compila y se prueba en cualquier sistema. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>PuenteDax.Core</RootNamespace>
+  </PropertyGroup>
+</Project>
