@@ -11,6 +11,8 @@
     <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Dax.Model.Extractor" Version="1.12.1" />
+    <PackageReference Include="Dax.ViewModel" Version="1.12.1" />
     <PackageReference Include="Microsoft.AnalysisServices" Version="19.114.12" />
     <PackageReference Include="Microsoft.AnalysisServices.AdomdClient" Version="19.114.12" />
   </ItemGroup>

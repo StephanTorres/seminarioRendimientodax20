@@ -130,6 +130,9 @@ api.MapPost("/connect", (ConnectRequest request, IDaxBackend backend, Cancellati
 api.MapPost("/query", (QueryRequest request, IDaxBackend backend, CancellationToken ct) =>
     Guard(() => backend.QueryAsync(request, ct)));
 
+api.MapGet("/model-stats", (IDaxBackend backend, bool? exact, CancellationToken ct) =>
+    Guard(() => backend.ModelStatsAsync(exact ?? false, ct)));
+
 api.MapPost("/benchmark", (BenchmarkRequest request, IDaxBackend backend, CancellationToken ct) =>
     Guard(() => BenchmarkRunner.RunAsync(backend, request, ct)));
 

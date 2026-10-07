@@ -1,4 +1,7 @@
+using System.Diagnostics;
 using System.Security;
+using Dax.Model.Extractor;
+using Dax.ViewModel;
 using Microsoft.AnalysisServices.AdomdClient;
 using PuenteDax.Core;
 
@@ -15,11 +18,13 @@ public sealed class PowerBiBackend : IDaxBackend
 
     private readonly ILogger<PowerBiBackend> _log;
     private readonly SemaphoreSlim _gate = new(1, 1);
-    private AdomdConnection? _connection;
-    private TraceSession? _trace;
     private IReadOnlyDictionary<int, HashSet<int>> _supported = new Dictionary<int, HashSet<int>>();
     private string _server = string.Empty;
     private string _database = string.Empty;
+
+    // Sesión de administrador y, aparte, una por rol/usuario para las demos de RLS.
+    private DaxSession? _admin;
+    private readonly Dictionary<string, DaxSession> _roleSessions = new(StringComparer.OrdinalIgnoreCase);
 
     // Servidor y modelo pedidos (línea de comandos o último /api/connect): los reintentos los usan.
     private string? _wantedServer;
@@ -41,7 +46,7 @@ public sealed class PowerBiBackend : IDaxBackend
         try
         {
             // Ya conectados a lo pedido (p. ej. una consulta llegó mientras arrancaba): no reconectar.
-            if (Connection is not null && _trace is not null
+            if (Connection is not null && _admin?.Trace is not null
                 && (request.Server is null || request.Server.Equals(_server, StringComparison.OrdinalIgnoreCase))
                 && (request.Database is null || request.Database == _database))
                 return Connection;
@@ -63,11 +68,11 @@ public sealed class PowerBiBackend : IDaxBackend
                 connection.Open();
                 var database = _wantedDatabase ?? FirstCatalog(connection);
                 connection.ChangeDatabase(database);
-                _connection = connection;
                 _server = server;
                 _database = database;
+                _admin = new DaxSession("admin", connection);
                 _supported = SupportedTraceColumns.Read(connection);
-                _trace = StartTrace(includePlan: false);
+                _admin.Trace = StartTrace(_admin, includePlan: false);
             }, ct);
 
             Connection = new ConnectionInfo(_server, _database, PowerBiInstances.SingleDesktopTitle(), Mode);
@@ -88,36 +93,47 @@ public sealed class PowerBiBackend : IDaxBackend
     public async Task<QueryResponse> QueryAsync(QueryRequest request, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(request.Dax)) throw new ArgumentException("La consulta DAX está vacía.");
-        if (_connection is null) await ConnectAsync(new ConnectRequest(), ct);
+        if (_admin is null) await ConnectAsync(new ConnectRequest(), ct);
 
         await _gate.WaitAsync(ct);
         try
         {
-            var connection = _connection ?? throw new InvalidOperationException("No hay conexión con Power BI Desktop.");
+            var admin = _admin ?? throw new InvalidOperationException("No hay conexión con Power BI Desktop.");
+            var session = await Task.Run(() => SessionFor(request.Role, request.EffectiveUser), ct);
 
-            // El plan de consulta añade eventos a la traza: solo se pide cuando hace falta.
-            if (_trace is null || _trace.IncludesPlan != request.IncludePlan)
+            if (!request.Trace)
             {
-                _trace?.Dispose();
-                _trace = null;
-                _trace = await Task.Run(() => StartTrace(request.IncludePlan), ct);
+                // Comprobaciones rápidas: sin traza ni caché fría, solo el tiempo de reloj.
+                var clock = Stopwatch.StartNew();
+                var quick = await Task.Run(() => Execute(session.Connection, request.Dax, Math.Clamp(request.MaxRows, 0, 500)), ct);
+                return new QueryResponse(Mode, false, quick, new ServerTimings { TotalMs = clock.ElapsedMilliseconds }, DateTime.UtcNow);
             }
 
-            if (request.ClearCache) await Task.Run(() => ClearCache(connection), ct);
+            // El plan de consulta añade eventos a la traza: solo se pide cuando hace falta.
+            if (session.Trace is null || session.Trace.IncludesPlan != request.IncludePlan)
+            {
+                session.Trace?.Dispose();
+                session.Trace = null;
+                session.Trace = await Task.Run(() => StartTrace(session, request.IncludePlan), ct);
+            }
+
+            // La caché del SE es del servidor: se limpia con la sesión de administrador.
+            if (request.ClearCache) await Task.Run(() => ClearCache(admin.Connection), ct);
 
             var marker = Guid.NewGuid().ToString("N");
-            var capture = _trace.BeginCapture(marker);
+            var trace = session.Trace;
+            var capture = trace.BeginCapture(marker);
             try
             {
                 var dax = $"/* puente:{marker} */\n{request.Dax}";
-                var result = await Task.Run(() => Execute(connection, dax, Math.Clamp(request.MaxRows, 0, 500)), ct);
+                var result = await Task.Run(() => Execute(session.Connection, dax, Math.Clamp(request.MaxRows, 0, 500)), ct);
                 var events = await capture.WaitAsync(QueryTraceTimeout, ct);
                 var timings = ServerTimingsCalculator.Calculate(events);
                 return new QueryResponse(Mode, request.ClearCache, result, timings, DateTime.UtcNow);
             }
             finally
             {
-                _trace.EndCapture(capture);
+                trace.EndCapture(capture);
             }
         }
         finally
@@ -126,9 +142,80 @@ public sealed class PowerBiBackend : IDaxBackend
         }
     }
 
-    private TraceSession StartTrace(bool includePlan)
+    public async Task<ModelStats> ModelStatsAsync(bool readStatisticsFromData, CancellationToken ct)
     {
-        var connection = _connection ?? throw new InvalidOperationException("No hay conexión.");
+        if (_admin is null) await ConnectAsync(new ConnectRequest(), ct);
+
+        await _gate.WaitAsync(ct);
+        try
+        {
+            var connectionString = $"Data Source={_server};Initial Catalog={_database};";
+            var version = typeof(PowerBiBackend).Assembly.GetName().Version?.ToString(3) ?? "0.1.0";
+            var model = await Task.Run(() =>
+            {
+                try
+                {
+                    return TomExtractor.GetDaxModel(connectionString, "PuenteDax", version, readStatisticsFromData: readStatisticsFromData);
+                }
+                catch (Exception ex) when (readStatisticsFromData)
+                {
+                    // Como DAX Studio: si leer estadísticas de los datos falla, se repite sin ellas.
+                    _log.LogWarning("Estadísticas desde datos no disponibles ({Message}); se repite sin ellas.", ex.Message);
+                    return TomExtractor.GetDaxModel(connectionString, "PuenteDax", version, readStatisticsFromData: false);
+                }
+            }, ct);
+            return ToStats(new VpaModel(model), _database, Mode);
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    internal static ModelStats ToStats(VpaModel vpa, string database, string source)
+    {
+        var tables = vpa.Tables
+            .Select(t => new TableStats(t.TableName, t.RowsCount, t.ColumnsTotalSize, t.RelationshipsSize,
+                t.UserHierarchiesSize, t.TableSize, t.PercentageDatabase))
+            .OrderByDescending(t => t.TotalSize)
+            .ToList();
+        var columns = vpa.Columns
+            .Where(c => !c.IsRowNumber)
+            .Select(c => new ColumnStats(c.Table.TableName, c.ColumnName, c.TableRowsCount, c.ColumnCardinality,
+                c.Encoding, c.DataType, c.DictionarySize, c.DataSize, c.HierarchiesSize, c.TotalSize,
+                c.PercentageDatabase, c.IsHidden))
+            .OrderByDescending(c => c.TotalSize)
+            .ToList();
+        return new ModelStats(source, database, tables.Sum(t => t.TotalSize), tables, columns, DateTime.UtcNow);
+    }
+
+    private DaxSession SessionFor(string? role, string? effectiveUser)
+    {
+        var admin = _admin ?? throw new InvalidOperationException("No hay conexión con Power BI Desktop.");
+        if (string.IsNullOrWhiteSpace(role) && string.IsNullOrWhiteSpace(effectiveUser)) return admin;
+
+        var key = $"{role}|{effectiveUser}";
+        if (_roleSessions.TryGetValue(key, out var existing)) return existing;
+
+        // Igual que "Ver como" de Desktop: la conexión lleva Roles / EffectiveUserName.
+        // La traza (AMO) se abre como administrador sobre esta sesión.
+        var builder = $"Data Source={_server};Initial Catalog={_database};";
+        if (!string.IsNullOrWhiteSpace(role)) builder += $"Roles={Quote(role)};";
+        if (!string.IsNullOrWhiteSpace(effectiveUser)) builder += $"EffectiveUserName={Quote(effectiveUser)};";
+        var connection = new AdomdConnection(builder);
+        connection.Open();
+        var session = new DaxSession(key, connection);
+        _roleSessions[key] = session;
+        _log.LogInformation("Sesión con seguridad aplicada: rol {Role} · usuario {User}", role ?? "-", effectiveUser ?? "-");
+        return session;
+    }
+
+    private static string Quote(string value) =>
+        value.Contains('"') ? throw new ArgumentException("El rol o usuario no puede contener comillas dobles.") : $"\"{value}\"";
+
+    private TraceSession StartTrace(DaxSession session, bool includePlan)
+    {
+        var connection = session.Connection;
         return TraceSession.Start(_server, _database, connection.SessionID, _supported, includePlan,
             ping: () => connection.GetSchemaDataSet("MDSCHEMA_CUBES", new AdomdRestrictionCollection()),
             _log, TraceStartTimeout);
@@ -180,10 +267,10 @@ public sealed class PowerBiBackend : IDaxBackend
 
     private void Close()
     {
-        try { _trace?.Dispose(); } catch (Exception ex) { _log.LogWarning(ex, "Cerrando la traza"); }
-        _trace = null;
-        try { _connection?.Close(); } catch (Exception ex) { _log.LogDebug(ex, "Cerrando la conexión"); }
-        _connection = null;
+        foreach (var session in _roleSessions.Values) session.Dispose(_log);
+        _roleSessions.Clear();
+        _admin?.Dispose(_log);
+        _admin = null;
         Connection = null;
     }
 
@@ -197,6 +284,27 @@ public sealed class PowerBiBackend : IDaxBackend
         finally
         {
             _gate.Release();
+        }
+    }
+
+    /// <summary>Conexión ADOMD con su traza.</summary>
+    private sealed class DaxSession
+    {
+        public DaxSession(string key, AdomdConnection connection)
+        {
+            Key = key;
+            Connection = connection;
+        }
+
+        public string Key { get; }
+        public AdomdConnection Connection { get; }
+        public TraceSession? Trace { get; set; }
+
+        public void Dispose(ILogger log)
+        {
+            try { Trace?.Dispose(); } catch (Exception ex) { log.LogWarning(ex, "Cerrando la traza de {Key}", Key); }
+            Trace = null;
+            try { Connection.Close(); } catch (Exception ex) { log.LogDebug(ex, "Cerrando la conexión de {Key}", Key); }
         }
     }
 }

@@ -498,6 +498,11 @@ code, .mono { font-family: var(--font-mono); font-size: 0.9em; color: var(--acce
   background: var(--surface);
 }
 .demo-list li b { font-family: var(--font-mono); color: var(--accent); font-weight: 500; margin-right: 10px; }
+.demo-list li { display: flex; align-items: baseline; gap: 0; }
+.demo-list li .where { margin-left: auto; padding-left: 24px; flex: none; font: 500 14px var(--font-mono); letter-spacing: 0.14em; color: var(--se); white-space: nowrap; }
+.demo-list li .where.desk { color: var(--fe); }
+.demo-where { margin-top: 18px; font: 500 16px var(--font-mono); letter-spacing: 0.12em; color: var(--muted); }
+.demo-where b { color: var(--se); font-weight: 500; }
 
 /* ─── IA ─── */
 .slide-ia { --accent: var(--info); --line: rgba(95,212,255,0.25); --surface: rgba(95,212,255,0.06); }
@@ -673,6 +678,33 @@ body.spotlight-active { cursor: none; }
   color: var(--accent);
   margin-bottom: 8px;
 }
+
+/* ─── Laboratorios (demos dentro de la presentación) ─── */
+.slide-lab .slide-inner { padding: 34px 56px 58px; gap: 14px; }
+.lab-head { display: flex; align-items: baseline; gap: 26px; }
+.lab-title {
+  font-family: var(--font-title); font-weight: 700; font-size: 40px; line-height: 1.1;
+  color: #f2fff8; border-left: 6px solid var(--accent); padding-left: 18px;
+}
+.lab-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: 20px; }
+.lab-grid.backstage { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+.lab-grid > dax-lab, .lab-grid > dax-vertipaq, .lab-grid > dax-model-check { min-height: 0; height: 100%; }
+.lab-side { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+.lab-side dax-benchmark { flex: 1; min-height: 0; }
+.lab-tip {
+  font-size: 18px; line-height: 1.45; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
+}
+.lab-tip b { color: var(--fg); }
+.lab-tip code { font-size: 0.85em; }
+.code-tabs { display: flex; flex-direction: column; min-height: 0; flex: 1; padding: 0; overflow: hidden; }
+.code-tabs-head { display: flex; gap: 4px; padding: 10px 12px 0; border-bottom: 1px solid var(--line); }
+.code-tabs-head button {
+  font: 600 14px var(--font-mono); color: var(--muted); background: transparent; cursor: pointer;
+  border: 1px solid transparent; border-bottom: 0; border-radius: 8px 8px 0 0; padding: 5px 12px;
+}
+.code-tabs-head button.on { color: #f2fff8; border-color: var(--line); background: rgba(61,252,143,0.06); }
+.code-tabs pre { margin: 0; padding: 14px 16px; font: 13px/1.5 var(--font-mono); color: #cfe9dc; overflow: auto; flex: 1; white-space: pre-wrap; overflow-wrap: anywhere; }
 </style>
 </head>
 <body>
@@ -1005,7 +1037,7 @@ body.spotlight-active { cursor: none; }
 </section>
 
 <!-- ═════════════════ 14 · DEMO BLOQUE 1 ═════════════════ -->
-<section class="slide slide-demo" data-notes="Demo A: diccionario real de DateCode y ShopId con VertiPaq Analyzer. Demo B: modelo antes y después de los 5 pasos, tamaño total y por columna. Demo C: mismo modelo con y sin columna GUID en la tabla de hechos; tamaño en memoria; una consulta que no la usa (su tiempo apenas cambia) y otra que sí, por ejemplo DISTINCTCOUNT. También: mismo dato ordenado y sin ordenar.">
+<section class="slide slide-demo" data-notes="Las demos marcadas AQUÍ se hacen en las diapositivas de laboratorio que siguen, sin salir de la presentación. Demo A: diccionario real de DateCode y ShopId con VertiPaq Analyzer. Demo B: modelo antes y después de los 5 pasos, tamaño total y por columna. Demo C: mismo modelo con y sin columna GUID en la tabla de hechos; tamaño en memoria; una consulta que no la usa (su tiempo apenas cambia) y otra que sí, por ejemplo DISTINCTCOUNT. También: mismo dato ordenado y sin ordenar.">
   <div class="slide-inner">
     <div class="demo-animation">
       <div class="ring ring-1"></div><div class="ring ring-2"></div><div class="ring ring-3"></div>
@@ -1014,10 +1046,77 @@ body.spotlight-active { cursor: none; }
     <div class="demo-mode">MODO DEMO ACTIVADO</div>
     <h2 class="demo-title">DEMO</h2>
     <ul class="demo-list">
-      <li><b>A</b>Diccionario real de DateCode y ShopId con VertiPaq Analyzer</li>
-      <li><b>B</b>Modelo antes/después de los 5 pasos · ordenado vs sin ordenar</li>
-      <li><b>C</b>Con y sin GUID: memoria, consulta que no la usa y consulta que sí (<code>DISTINCTCOUNT</code>)</li>
+      <li><b>A</b><span>Diccionario real de DateCode y ShopId con el analizador VertiPaq</span><span class="where">▶ AQUÍ</span></li>
+      <li><b>B</b><span>Modelo antes/después de los 5 pasos · ordenado vs sin ordenar</span><span class="where">▶ AQUÍ + ⧉ ALT+TAB</span></li>
+      <li><b>C</b><span>Con y sin GUID: memoria, consulta que no la usa y consulta que sí (<code>DISTINCTCOUNT</code>)</span><span class="where">▶ AQUÍ</span></li>
     </ul>
+    <div class="demo-where"><b>▶ AQUÍ</b> = en las diapositivas de laboratorio siguientes, con el Puente DAX · <span style="color:var(--fe)">⧉ DESKTOP</span> = en Power BI Desktop</div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 1 · Diccionario y encoding en tu modelo ─── -->
+<section class="slide slide-lab" data-lab="Diccionario y encoding en tu modelo" data-notes="Demo A dentro de la presentación. Analizar lee tamaños y cardinalidades del modelo abierto (lo mismo que VertiPaq Analyzer). Las columnas marcadas con estrella son las de la demo: compara las claves enteras (encoding VALUE, sin diccionario: el «diccionario innecesario» de la diapositiva 13) con la columna de texto de alta cardinalidad. Saca también la foto «antes» para la demo siguiente.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 1 · <b>Laboratorio</b></div><h2 class="lab-title">Diccionario y encoding en tu modelo</h2></div>
+    <div class="lab-grid">
+      <dax-vertipaq compact focus="Ventas.ClaveFecha, Ventas.ClaveProducto, Ventas.Pedido, Ventas.Importe" top="9" snapshot="antes"></dax-vertipaq>
+      <div class="lab-side">
+        <div class="lab-tip"><b>Qué mirar</b><br>· <b>VALUE</b> vs <b>HASH</b>: las claves enteras no necesitan diccionario.<br>· Cardinalidad frente a tamaño: la columna de texto de pedidos manda.<br>· ★ = columnas de la demo (configurables).<br><br>Pulsa <b>📷 Foto «antes»</b> antes de tocar el modelo.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 1 · Antes y después de los 5 pasos ─── -->
+<section class="slide slide-lab" data-lab="Antes y después de los 5 pasos" data-notes="Demo B. Con la foto «antes» guardada, sal un momento a Power BI Desktop, aplica los 5 pasos (Auto date/time, fecha y hora, claves enteras, quitar columnas, cardinalidad), vuelve, pulsa Analizar y luego Comparar: la columna delta enseña cuánto ha ganado cada cambio. Si no hay tiempo, usa una copia del .pbix ya optimizada.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 1 · <b>Laboratorio</b></div><h2 class="lab-title">Antes y después de los 5 pasos</h2></div>
+    <div class="lab-grid">
+      <dax-vertipaq compact top="12" snapshot="antes" title="VertiPaq · antes / después"></dax-vertipaq>
+      <div class="lab-side">
+        <div class="lab-tip"><b>Guion</b><br>1. <b>Analizar</b> (y foto «antes» si no la tienes).<br>2. Alt+Tab a Desktop: aplica los 5 pasos. <i>Único momento fuera.</i><br>3. Vuelve: <b>Analizar</b> y <b>⇄ Comparar</b>.<br><br>La columna <b>Δ foto</b> enseña lo que ha ganado cada cambio; las columnas eliminadas salen al final.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 1 · Una columna de alta cardinalidad ─── -->
+<section class="slide slide-lab" data-lab="Una columna de alta cardinalidad" data-notes="Demo C. Primera variante: una consulta que no toca la columna de alta cardinalidad (su tiempo apenas depende de ella: almacenamiento columnar). Segunda: DISTINCTCOUNT sobre la columna de texto de pedidos. Tercera: DISTINCTCOUNT sobre una clave entera de baja cardinalidad. Compara en la tabla de la derecha.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 1 · <b>Laboratorio</b></div><h2 class="lab-title">Una columna de alta cardinalidad</h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill label="Cardinalidad" editor-height="170px">
+        <dax-variant label="Cardinalidad · no toca la columna">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Ventas", [Ventas]
+)
+        </dax-variant>
+        <dax-variant label="Cardinalidad · DISTINCTCOUNT texto">
+-- columna de texto de alta cardinalidad
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Pedidos distintos", DISTINCTCOUNT ( {{Ventas.Pedido}} )
+)
+        </dax-variant>
+        <dax-variant label="Cardinalidad · DISTINCTCOUNT entero">
+-- clave entera de baja cardinalidad
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Productos distintos", DISTINCTCOUNT ( {{Ventas.ClaveProducto}} )
+)
+        </dax-variant>
+      </dax-lab>
+      <div class="lab-side">
+        <dax-benchmark compact filter="Cardinalidad ·" title="Comparativa en vivo"></dax-benchmark>
+        <div class="lab-tip">Lo que la consulta <b>no toca</b> no se escanea; lo que toca, cuesta según su <b>cardinalidad</b>.</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1156,7 +1255,7 @@ body.spotlight-active { cursor: none; }
 </section>
 
 <!-- ═════════════════ 21 · DEMO BLOQUE 2 ═════════════════ -->
-<section class="slide slide-demo" data-notes="Demo: Performance Analyzer, DAX Studio, Server Timings. Ejecutar la misma consulta en frío y en caliente: en caliente las consultas SE se resuelven desde la caché y el tiempo de SE cae, mientras el FE trabaja igual. Rematar con Run Benchmark.">
+<section class="slide slide-demo" data-notes="Las demos marcadas AQUÍ se hacen en las diapositivas de laboratorio que siguen, sin salir de la presentación. Demo: Performance Analyzer, DAX Studio, Server Timings. Ejecutar la misma consulta en frío y en caliente: en caliente las consultas SE se resuelven desde la caché y el tiempo de SE cae, mientras el FE trabaja igual. Rematar con Run Benchmark.">
   <div class="slide-inner">
     <div class="demo-animation">
       <div class="ring ring-1"></div><div class="ring ring-2"></div><div class="ring ring-3"></div>
@@ -1165,9 +1264,37 @@ body.spotlight-active { cursor: none; }
     <div class="demo-mode">MODO DEMO ACTIVADO</div>
     <h2 class="demo-title">DEMO</h2>
     <ul class="demo-list">
-      <li><b>1</b>Performance Analyzer → DAX Studio → Server Timings</li>
-      <li><b>2</b>Frío vs caliente: el SE tira de caché, el FE trabaja igual · <em>Run Benchmark</em></li>
+      <li><b>1</b><span>Performance Analyzer → copiar la consulta → Server Timings (DAX Studio o aquí)</span><span class="where desk">⧉ DESKTOP → ▶ AQUÍ</span></li>
+      <li><b>2</b><span>Frío vs caliente: el SE tira de caché, el FE trabaja igual · <em>Benchmark</em></span><span class="where">▶ AQUÍ</span></li>
     </ul>
+    <div class="demo-where"><b>▶ AQUÍ</b> = en las diapositivas de laboratorio siguientes, con el Puente DAX · <span style="color:var(--fe)">⧉ DESKTOP</span> = en Power BI Desktop</div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 2 · Frío, caliente y benchmark ─── -->
+<section class="slide slide-lab" data-lab="Frío, caliente y benchmark" data-notes="Consulta típica de un visual. Ejecuta en frío: limpia la caché y mide. Luego en caliente: las consultas SE salen como aciertos de caché (filas grises) y el FE trabaja igual. Benchmark hace varias ejecuciones de cada tipo y da la mediana, igual que Run Benchmark de DAX Studio. El resultado va solo a la plantilla.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 2 · <b>Laboratorio</b></div><h2 class="lab-title">Frío, caliente y benchmark</h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill label="Visual · ventas y margen por año y categoría" editor-height="260px">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Coste] = SUM ( {{Ventas.Coste}} )
+    MEASURE {{Ventas}}[Margen %] = DIVIDE ( [Ventas] - [Coste], [Ventas] )
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    {{Producto.Categoria}},
+    "Ventas", [Ventas],
+    "Margen %", [Margen %]
+)
+ORDER BY {{Fecha.Año}}, {{Producto.Categoria}}
+      </dax-lab>
+      <div class="lab-side">
+        <dax-benchmark compact filter="Visual ·" title="Plantilla benchmark"></dax-benchmark>
+        <div class="lab-tip"><b>▶ Frío</b> → <b>▶ Caliente</b> → <b>⏱ Benchmark</b>.<br>En caliente el <b>SE</b> tira de caché; el <b>FE</b> trabaja igual.</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1358,7 +1485,7 @@ plan y cómo comprobar que es idéntico.</pre>
 </section>
 
 <!-- ═════════════════ 31 · DEMO BLOQUE 3 ═════════════════ -->
-<section class="slide slide-demo" data-notes="Demo 1: dimensión tiempo en todos los sabores (DAX, Power Query, SQL), recortada a 7 minutos, comparando tamaño. Demo 2: cálculos de tiempo con grupo de cálculo y formato dinámico. Demo 3: rendimiento de las distintas opciones con la plantilla benchmark. Demo 4 nueva: mismo informe, mismo AA, con tabla de fechas clásica frente a calendario.">
+<section class="slide slide-demo" data-notes="Las demos marcadas AQUÍ se hacen en las diapositivas de laboratorio que siguen, sin salir de la presentación. Demo 1: dimensión tiempo en todos los sabores (DAX, Power Query, SQL), recortada a 7 minutos, comparando tamaño. Demo 2: cálculos de tiempo con grupo de cálculo y formato dinámico. Demo 3: rendimiento de las distintas opciones con la plantilla benchmark. Demo 4 nueva: mismo informe, mismo AA, con tabla de fechas clásica frente a calendario.">
   <div class="slide-inner">
     <div class="demo-animation">
       <div class="ring ring-1"></div><div class="ring ring-2"></div><div class="ring ring-3"></div>
@@ -1367,11 +1494,203 @@ plan y cómo comprobar que es idéntico.</pre>
     <div class="demo-mode">MODO DEMO ACTIVADO</div>
     <h2 class="demo-title">DEMO</h2>
     <ul class="demo-list">
-      <li><b>1</b>Dimensión tiempo en todos los sabores (DAX, PQ, SQL) · tamaño</li>
-      <li><b>2</b>Cálculos de tiempo con grupo de cálculo + formato dinámico</li>
-      <li><b>3</b>Rendimiento de cada opción → plantilla <code>benchmark</code></li>
-      <li><b>4</b>Mismo AA: tabla de fechas clásica vs calendario</li>
+      <li><b>1</b><span>Dimensión tiempo en todos los sabores (DAX, PQ, SQL) · tamaño</span><span class="where">▶ AQUÍ</span></li>
+      <li><b>2</b><span>Cálculos de tiempo con grupo de cálculo + formato dinámico</span><span class="where desk">⧉ DESKTOP</span></li>
+      <li><b>3</b><span>Rendimiento de cada opción → plantilla <code>benchmark</code></span><span class="where">▶ AQUÍ</span></li>
+      <li><b>4</b><span>Mismo AA: tabla de fechas clásica vs calendario</span><span class="where">▶ AQUÍ</span></li>
     </ul>
+    <div class="demo-where"><b>▶ AQUÍ</b> = en las diapositivas de laboratorio siguientes, con el Puente DAX · <span style="color:var(--fe)">⧉ DESKTOP</span> = en Power BI Desktop</div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 3 · La dimensión tiempo, en vivo ─── -->
+<section class="slide slide-lab" data-lab="La dimensión tiempo, en vivo" data-notes="Demo 1. La misma dimensión en DAX (se ejecuta aquí y se ven sus filas en la pestaña Resultado), Power Query y T-SQL (a la derecha, para comparar). Debate: dónde se crea y qué atributos necesita el negocio.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 3 · <b>Laboratorio</b></div><h2 class="lab-title">La dimensión tiempo, en vivo</h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill label="Calendario · DAX" editor-height="300px">
+EVALUATE
+VAR _fechas = CALENDAR ( DATE ( 2024, 1, 1 ), DATE ( 2024, 12, 31 ) )
+RETURN
+    ADDCOLUMNS (
+        _fechas,
+        "Año", YEAR ( [Date] ),
+        "Mes", MONTH ( [Date] ),
+        "Nombre mes", FORMAT ( [Date], "mmmm" ),
+        "Trimestre", "T" &amp; QUARTER ( [Date] ),
+        "Semana ISO", WEEKNUM ( [Date], 21 ),
+        "Día semana", WEEKDAY ( [Date], 2 ),
+        "Laborable", WEEKDAY ( [Date], 2 ) &lt;= 5,
+        "Año fiscal", "AF" &amp; YEAR ( EDATE ( [Date], 6 ) )
+    )
+      </dax-lab>
+      <div class="lab-side">
+        <div class="code-tabs lab-tip">
+          <div class="code-tabs-head"><button class="on" data-code="pq">Power Query</button><button data-code="sql">T-SQL</button></div>
+          <pre data-pane="pq">let
+    Inicio = #date(2024, 1, 1),
+    Fin = #date(2024, 12, 31),
+    Dias = Duration.Days(Fin - Inicio) + 1,
+    Fechas = List.Dates(Inicio, Dias, #duration(1, 0, 0, 0)),
+    Tabla = Table.FromList(Fechas, Splitter.SplitByNothing(), {"Fecha"}),
+    Tipada = Table.TransformColumnTypes(Tabla, {{"Fecha", type date}}),
+    ConAnio = Table.AddColumn(Tipada, "Año", each Date.Year([Fecha]), Int64.Type),
+    ConMes = Table.AddColumn(ConAnio, "Mes", each Date.Month([Fecha]), Int64.Type)
+in
+    ConMes</pre>
+          <pre data-pane="sql" hidden>WITH fechas AS (
+    SELECT CAST('2024-01-01' AS date) AS Fecha
+    UNION ALL
+    SELECT DATEADD(DAY, 1, Fecha)
+    FROM fechas WHERE Fecha &lt; '2024-12-31'
+)
+SELECT Fecha,
+       YEAR(Fecha)               AS Anio,
+       MONTH(Fecha)              AS Mes,
+       DATEPART(ISO_WEEK, Fecha) AS SemanaISO
+FROM fechas
+OPTION (MAXRECURSION 400);</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 3 · Año anterior: todas las variantes ─── -->
+<section class="slide slide-lab" data-lab="Año anterior: todas las variantes" data-notes="Demo 3 y 4. Ejecuta cada variante en frío y compara a la derecha. Cifras del seminario original (diapositiva 25): v1 32 ms, v2 17, v3 9, grupo de cálculo 47 y 40. v3, el grupo de cálculo y el calendario necesitan objetos de tu modelo: si faltan, la pestaña sale con borde discontinuo y la slide Backstage dice qué configurar.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 3 · <b>Laboratorio</b></div><h2 class="lab-title">Año anterior: todas las variantes</h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill label="Año anterior (AA)" editor-height="230px">
+        <dax-variant label="AA · v1 SAMEPERIODLASTYEAR">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( {{Fecha.Fecha}} ) )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+        <dax-variant label="AA · v2 offset por año">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        VAR _anio = SELECTEDVALUE ( {{Fecha.Año}} )
+        RETURN
+            CALCULATE ( [Ventas], REMOVEFILTERS ( {{Fecha}} ), {{Fecha.Año}} = _anio - 1, VALUES ( {{Fecha.Mes}} ) )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+        <dax-variant label="AA · v3 fecha equivalente" note="Necesita en tu modelo la columna de fecha equivalente (fecha − 1 año) y su relación inactiva (claves AA.*)">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE ( [Ventas], USERELATIONSHIP ( {{AA.FechaEquivalente}}, {{AA.FechaVentas}} ) )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+        <dax-variant label="AA · grupo de cálculo" note="Necesita el grupo de cálculo de tu demo y una medida del modelo (claves GC.*)">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}}, {{Fecha.Mes}},
+    "Ventas", {{GC.Medida}},
+    "Ventas AA", CALCULATE ( {{GC.Medida}}, {{GC.Columna}} = {{GC.ItemAA}} )
+)
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+        <dax-variant label="AA · OFFSET">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE (
+            [Ventas],
+            OFFSET ( -1, ALLSELECTED ( {{Fecha.Año}}, {{Fecha.Mes}} ), ORDERBY ( {{Fecha.Año}} ), PARTITIONBY ( {{Fecha.Mes}} ) )
+        )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+        <dax-variant label="AA · calendario" note="Inteligencia de tiempo basada en calendarios (preview, Desktop sept. 2025 o posterior): define el calendario en tu modelo (clave Calendario)">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( {{Calendario}} ) )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+      </dax-lab>
+      <div class="lab-side">
+        <dax-benchmark compact filter="AA ·" title="AA · comparativa"></dax-benchmark>
+        <div class="lab-tip">Original (diap. 25): v1 <b>32</b> · v2 <b>17</b> · v3 <b>9</b> · GC <b>47 / 40</b> ms.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 3 · Acumulado anual: variantes ─── -->
+<section class="slide slide-lab" data-lab="Acumulado anual: variantes" data-notes="Cifras originales (diapositiva 26): TOTALYTD 33 ms y la tabla intermedia 8 ms. TOTALYTD y DATESYTD deberían dar el mismo plan; la versión sin inteligencia de tiempo enseña lo que hacen por debajo. La tabla intermedia y el calendario necesitan objetos de tu modelo.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 3 · <b>Laboratorio</b></div><h2 class="lab-title">Acumulado anual: variantes</h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill label="Acumulado anual (YTD)" editor-height="230px">
+        <dax-variant label="YTD · v1 TOTALYTD">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas YTD] =
+        TOTALYTD ( [Ventas], {{Fecha.Fecha}} )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas YTD", [Ventas YTD] )
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+        <dax-variant label="YTD · DATESYTD">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas YTD] =
+        CALCULATE ( [Ventas], DATESYTD ( {{Fecha.Fecha}} ) )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas YTD", [Ventas YTD] )
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+        <dax-variant label="YTD · sin inteligencia de tiempo">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas YTD] =
+        VAR _fin = MAX ( {{Fecha.Fecha}} )
+        RETURN
+            CALCULATE ( [Ventas], REMOVEFILTERS ( {{Fecha}} ), {{Fecha.Año}} = YEAR ( _fin ), {{Fecha.Fecha}} &lt;= _fin )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas YTD", [Ventas YTD] )
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+        <dax-variant label="YTD · v2 tabla intermedia" note="Necesita tu tabla intermedia con el YTD explotado y su relación inactiva (claves YTD.*)">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas YTD] =
+        CALCULATE ( [Ventas], USERELATIONSHIP ( {{YTD.Desde}}, {{YTD.Hasta}} ) )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas YTD", [Ventas YTD] )
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+        <dax-variant label="YTD · calendario" note="Inteligencia de tiempo basada en calendarios (preview, Desktop sept. 2025 o posterior): define el calendario en tu modelo (clave Calendario)">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas YTD] =
+        TOTALYTD ( [Ventas], {{Calendario}} )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas YTD", [Ventas YTD] )
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+      </dax-lab>
+      <div class="lab-side">
+        <dax-benchmark compact filter="YTD ·" title="YTD · comparativa"></dax-benchmark>
+        <div class="lab-tip">Original (diap. 26): TOTALYTD <b>33</b> · tabla intermedia <b>8</b> ms.</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1561,7 +1880,7 @@ plan y cómo comprobar que es idéntico.</pre>
 </section>
 
 <!-- ═════════════════ 40 · DEMO BLOQUE 4 ═════════════════ -->
-<section class="slide slide-demo" data-notes="Demos existentes: multi-idioma de literales y contenido; MxN frente a parámetros de campo; multi-moneda sencilla y compleja. Nuevas: USERCULTURE() cambiando la salida sin tocar el slicer; formato dinámico con el símbolo de moneda.">
+<section class="slide slide-demo" data-notes="Las demos marcadas AQUÍ se hacen en las diapositivas de laboratorio que siguen, sin salir de la presentación. Demos existentes: multi-idioma de literales y contenido; MxN frente a parámetros de campo; multi-moneda sencilla y compleja. Nuevas: USERCULTURE() cambiando la salida sin tocar el slicer; formato dinámico con el símbolo de moneda.">
   <div class="slide-inner">
     <div class="demo-animation">
       <div class="ring ring-1"></div><div class="ring ring-2"></div><div class="ring ring-3"></div>
@@ -1570,11 +1889,108 @@ plan y cómo comprobar que es idéntico.</pre>
     <div class="demo-mode">MODO DEMO ACTIVADO</div>
     <h2 class="demo-title">DEMO</h2>
     <ul class="demo-list">
-      <li><b>1</b>Literales + contenido · MxN vs parámetros de campo</li>
-      <li><b>2</b>Multi-moneda sencilla y compleja</li>
-      <li><b>3</b><code>USERCULTURE()</code> cambiando la salida sin tocar el slicer</li>
-      <li><b>4</b>Formato dinámico con el símbolo de moneda</li>
+      <li><b>1</b><span>Literales + contenido · MxN vs parámetros de campo</span><span class="where">▶ AQUÍ</span></li>
+      <li><b>2</b><span>Multi-moneda sencilla y compleja</span><span class="where">▶ AQUÍ</span></li>
+      <li><b>3</b><span><code>USERCULTURE()</code> cambiando la salida sin tocar el slicer</span><span class="where">▶ AQUÍ</span></li>
+      <li><b>4</b><span>Formato dinámico con el símbolo de moneda</span><span class="where desk">⧉ DESKTOP</span></li>
     </ul>
+    <div class="demo-where"><b>▶ AQUÍ</b> = en las diapositivas de laboratorio siguientes, con el Puente DAX · <span style="color:var(--fe)">⧉ DESKTOP</span> = en Power BI Desktop</div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 4 · Multi-idioma ─── -->
+<section class="slide slide-lab" data-lab="Multi-idioma" data-notes="USERCULTURE devuelve la cultura de la conexión: la base para elegir idioma sin slicer. El parámetro de campo acaba en una consulta directa a la columna del idioma; la solución MxN pasa por la tabla de traducciones. Cifras originales (diapositiva 34): MxN 111 ms y 105 consultas SE frente a 11 ms y 1 consulta.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 4 · <b>Laboratorio</b></div><h2 class="lab-title">Multi-idioma</h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill label="Multi-idioma" editor-height="200px">
+        <dax-variant label="Idioma · USERCULTURE()">
+EVALUATE ROW ( "USERCULTURE()", USERCULTURE () )
+        </dax-variant>
+        <dax-variant label="Idioma · parámetro de campo">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Producto.NombreES}}, "Ventas", [Ventas] )
+ORDER BY [Ventas] DESC
+        </dax-variant>
+        <dax-variant label="Idioma · MxN traducciones" note="Necesita tu tabla de traducciones relacionada MxN (claves Idioma.*)">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Idioma.Texto}},
+    TREATAS ( { {{Idioma.Elegido}} }, {{Idioma.Columna}} ),
+    "Ventas", [Ventas]
+)
+        </dax-variant>
+        <dax-variant label="Idioma · tu consulta">
+-- Pega aquí la consulta de tu demo (o escríbela en directo).
+-- Puedes usar las claves de PUENTE_DAX_MODELO entre llaves dobles (p. ej. Ventas.Importe).
+EVALUATE ROW ( "Pendiente", "pega tu consulta" )
+        </dax-variant>
+      </dax-lab>
+      <div class="lab-side">
+        <dax-benchmark compact filter="Idioma ·" title="Multi-idioma · comparativa"></dax-benchmark>
+        <div class="lab-tip">Original (diap. 34): MxN <b>111 ms · 105 SE</b> · parámetros de campo <b>11 ms · 1 SE</b>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 4 · Multi-moneda ─── -->
+<section class="slide slide-lab" data-lab="Multi-moneda" data-notes="Las tres aproximaciones de la diapositiva 39 sobre tu modelo: ambas monedas en el hecho, campos fijos con SWITCH y conversión con tabla de cambios al grano moneda-fecha. Todas usan objetos de tu demo (claves Moneda.*, Cambio.* y Ventas.Importe*). Cifras originales: 75, 33 y 9 ms.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 4 · <b>Laboratorio</b></div><h2 class="lab-title">Multi-moneda</h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill label="Multi-moneda" editor-height="230px">
+        <dax-variant label="Moneda · ambas monedas" note="Necesita las columnas de importe por moneda en el hecho (Ventas.ImporteEUR / USD)">
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Ventas EUR", SUM ( {{Ventas.ImporteEUR}} ),
+    "Ventas USD", SUM ( {{Ventas.ImporteUSD}} )
+)
+        </dax-variant>
+        <dax-variant label="Moneda · campos fijos + SWITCH" note="Necesita la tabla de moneda destino y los importes por moneda (Moneda.*, Ventas.Importe*)">
+DEFINE
+    MEASURE {{Ventas}}[Ventas moneda] =
+        SWITCH (
+            SELECTEDVALUE ( {{Moneda.Columna}} ),
+            "EUR", SUM ( {{Ventas.ImporteEUR}} ),
+            "USD", SUM ( {{Ventas.ImporteUSD}} ),
+            SUM ( {{Ventas.ImporteLocal}} )
+        )
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    TREATAS ( { {{Moneda.Elegida}} }, {{Moneda.Columna}} ),
+    "Ventas", [Ventas moneda]
+)
+        </dax-variant>
+        <dax-variant label="Moneda · tabla de cambios" note="Esqueleto del patrón: ajústalo a tu tabla de cambios (claves Cambio.*)">
+DEFINE
+    -- Patrón de la diap. 36: factor de origen a base por fecha, al grano moneda-fecha.
+    -- Es un esqueleto: ajústalo a tu modelo (claves Cambio.*).
+    MEASURE {{Ventas}}[Ventas en base] =
+        SUMX (
+            SUMMARIZE ( {{Ventas}}, {{Cambio.FechaVentas}}, {{Cambio.MonedaVentas}} ),
+            CALCULATE ( SUM ( {{Ventas.ImporteLocal}} ) ) * CALCULATE ( MAX ( {{Cambio.Factor}} ) )
+        )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, "Ventas en base", [Ventas en base] )
+        </dax-variant>
+        <dax-variant label="Moneda · tu consulta">
+-- Pega aquí la consulta de tu demo (o escríbela en directo).
+-- Puedes usar las claves de PUENTE_DAX_MODELO entre llaves dobles (p. ej. Ventas.Importe).
+EVALUATE ROW ( "Pendiente", "pega tu consulta" )
+        </dax-variant>
+      </dax-lab>
+      <div class="lab-side">
+        <dax-benchmark compact filter="Moneda ·" title="Multi-moneda · comparativa"></dax-benchmark>
+        <div class="lab-tip">Original (diap. 39): MxN solo a base <b>75</b> · campos fijos + SWITCH <b>33</b> · ambas monedas <b>9</b> ms.</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1841,7 +2257,7 @@ plan y cómo comprobar que es idéntico.</pre>
 </section>
 
 <!-- ═════════════════ 51 · DEMO BLOQUE 5 ═════════════════ -->
-<section class="slide slide-demo" data-notes="Demo 1: ruptura de DAX Fusion con multi-moneda y cómo evitarla; volver a grabarla con el motor actual porque la horizontal fusion puede haber cambiado el resultado. Demo 2: detectar y eliminar un callback. Demo 3: FILTER sobre hechos frente a CALCULATE con predicado de columna, comparando filas y KB; si el optimizador las resuelve igual, también es una lección: probar después con un predicado que use una medida.">
+<section class="slide slide-demo" data-notes="Las demos marcadas AQUÍ se hacen en las diapositivas de laboratorio que siguen, sin salir de la presentación. Demo 1: ruptura de DAX Fusion con multi-moneda y cómo evitarla; volver a grabarla con el motor actual porque la horizontal fusion puede haber cambiado el resultado. Demo 2: detectar y eliminar un callback. Demo 3: FILTER sobre hechos frente a CALCULATE con predicado de columna, comparando filas y KB; si el optimizador las resuelve igual, también es una lección: probar después con un predicado que use una medida.">
   <div class="slide-inner">
     <div class="demo-animation">
       <div class="ring ring-1"></div><div class="ring ring-2"></div><div class="ring ring-3"></div>
@@ -1850,10 +2266,152 @@ plan y cómo comprobar que es idéntico.</pre>
     <div class="demo-mode">MODO DEMO ACTIVADO</div>
     <h2 class="demo-title">DEMO</h2>
     <ul class="demo-list">
-      <li><b>1</b>Ruptura de DAX Fusion con multi-moneda… con el motor actual</li>
-      <li><b>2</b>Detectar y eliminar un callback</li>
-      <li><b>3</b><code>FILTER</code> sobre hechos vs <code>CALCULATE</code> con predicado de columna · filas y KB</li>
+      <li><b>1</b><span>Ruptura de DAX Fusion con multi-moneda… con el motor actual</span><span class="where">▶ AQUÍ</span></li>
+      <li><b>2</b><span>Detectar y eliminar un callback</span><span class="where">▶ AQUÍ</span></li>
+      <li><b>3</b><span><code>FILTER</code> sobre hechos vs <code>CALCULATE</code> con predicado de columna · filas y KB</span><span class="where">▶ AQUÍ</span></li>
     </ul>
+    <div class="demo-where"><b>▶ AQUÍ</b> = en las diapositivas de laboratorio siguientes, con el Puente DAX · <span style="color:var(--fe)">⧉ DESKTOP</span> = en Power BI Desktop</div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 5 · DAX Fusion: vertical y horizontal ─── -->
+<section class="slide slide-lab" data-lab="DAX Fusion: vertical y horizontal" data-notes="Vertical: cuatro agregaciones con el mismo filtro deberían salir en una sola consulta SE. Rota: cada medida con un filtro distinto sobre columnas diferentes, varias consultas SE. Horizontal: la misma medida filtrada por tres años distintos se fusiona en una consulta agrupada por año. Mira el número de consultas SE.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 5 · <b>Laboratorio</b></div><h2 class="lab-title">DAX Fusion: vertical y horizontal</h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill label="DAX Fusion" editor-height="230px">
+        <dax-variant label="Fusión · vertical">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Coste] = SUM ( {{Ventas.Coste}} )
+    MEASURE {{Ventas}}[Unidades] = SUM ( {{Ventas.Cantidad}} )
+    MEASURE {{Ventas}}[Líneas] = COUNTROWS ( {{Ventas}} )
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Ventas", [Ventas], "Coste", [Coste], "Unidades", [Unidades], "Líneas", [Líneas]
+)
+        </dax-variant>
+        <dax-variant label="Fusión · rota">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas grandes] = CALCULATE ( [Ventas], {{Ventas.Importe}} &gt; 1000 )
+    MEASURE {{Ventas}}[Coste multiunidad] = CALCULATE ( SUM ( {{Ventas.Coste}} ), {{Ventas.Cantidad}} &gt; 1 )
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Ventas", [Ventas], "Ventas grandes", [Ventas grandes], "Coste multiunidad", [Coste multiunidad]
+)
+        </dax-variant>
+        <dax-variant label="Fusión · horizontal">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Producto.Categoria}},
+    "Año A", CALCULATE ( [Ventas], {{Fecha.Año}} = {{Demo.AñoA}} ),
+    "Año B", CALCULATE ( [Ventas], {{Fecha.Año}} = {{Demo.AñoB}} ),
+    "Año C", CALCULATE ( [Ventas], {{Fecha.Año}} = {{Demo.AñoC}} )
+)
+        </dax-variant>
+        <dax-variant label="Fusión · tu consulta (multi-moneda)">
+-- Pega aquí la consulta de tu demo (o escríbela en directo).
+-- Puedes usar las claves de PUENTE_DAX_MODELO entre llaves dobles (p. ej. Ventas.Importe).
+EVALUATE ROW ( "Pendiente", "pega tu consulta" )
+        </dax-variant>
+      </dax-lab>
+      <div class="lab-side">
+        <dax-benchmark compact filter="Fusión ·" title="Fusion · comparativa"></dax-benchmark>
+        <div class="lab-tip">La métrica clave aquí es <b>Nº SE</b>: vertical y horizontal deberían dar <b>1</b>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 5 · Callbacks: detectar y eliminar ─── -->
+<section class="slide slide-lab" data-lab="Callbacks: detectar y eliminar" data-notes="La primera variante es el ejemplo de la diapositiva 51: SUMX con IF. Si genera callback, la fila xmSQL sale en rojo con CallbackDataID. La reescritura con CALCULATE devuelve BLANK donde la original devuelve 0: la variante + 0 da el mismo resultado; compara su coste. ROUND dentro del iterador es otro sospechoso habitual.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 5 · <b>Laboratorio</b></div><h2 class="lab-title">Callbacks: detectar y eliminar</h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill label="Callbacks" editor-height="200px">
+        <dax-variant label="Callback · SUMX + IF">
+-- ejemplo de la diapositiva 51
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Tickets &gt; 10", SUMX ( {{Ventas}}, IF ( {{Ventas.Importe}} &gt; 10, 1, 0 ) )
+)
+        </dax-variant>
+        <dax-variant label="Callback · CALCULATE + filtro">
+-- devuelve BLANK donde la original devuelve 0
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Tickets &gt; 10", CALCULATE ( COUNTROWS ( {{Ventas}} ), {{Ventas.Importe}} &gt; 10 )
+)
+        </dax-variant>
+        <dax-variant label="Callback · CALCULATE + 0">
+-- mismo resultado que la original
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Tickets &gt; 10", CALCULATE ( COUNTROWS ( {{Ventas}} ), {{Ventas.Importe}} &gt; 10 ) + 0
+)
+        </dax-variant>
+        <dax-variant label="Callback · ROUND en el iterador">
+-- otro sospechoso habitual
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Importe redondeado", SUMX ( {{Ventas}}, ROUND ( {{Ventas.Importe}}, 0 ) )
+)
+        </dax-variant>
+      </dax-lab>
+      <div class="lab-side">
+        <dax-benchmark compact filter="Callback ·" title="Callbacks · comparativa"></dax-benchmark>
+        <div class="lab-tip">Callback = fila <b style='color:var(--cb)'>roja</b> con <b>CallbackDataID</b>, como en DAX Studio.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 5 · Materialización ─── -->
+<section class="slide slide-lab" data-lab="Materialización" data-notes="Con un predicado simple, FILTER y CALCULATE suelen dar el mismo plan: compruébalo en Consultas SE. La tercera variante usa una medida dentro de FILTER: transición de contexto por cada producto. Mira filas y KB de las cachés de datos.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 5 · <b>Laboratorio</b></div><h2 class="lab-title">Materialización</h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill label="Materialización" editor-height="200px">
+        <dax-variant label="Materialización · FILTER sobre el hecho">
+-- FILTER itera la tabla de hechos
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Tickets &gt; 10", COUNTROWS ( FILTER ( {{Ventas}}, {{Ventas.Importe}} &gt; 10 ) )
+)
+        </dax-variant>
+        <dax-variant label="Materialización · CALCULATE con predicado">
+-- filtro de columna
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Tickets &gt; 10", CALCULATE ( COUNTROWS ( {{Ventas}} ), {{Ventas.Importe}} &gt; 10 )
+)
+        </dax-variant>
+        <dax-variant label="Materialización · FILTER con medida">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Productos &gt; 10.000", COUNTROWS ( FILTER ( VALUES ( {{Ventas.ClaveProducto}} ), [Ventas] &gt; 10000 ) )
+)
+        </dax-variant>
+      </dax-lab>
+      <div class="lab-side">
+        <dax-benchmark compact filter="Materialización ·" title="Materialización · comparativa"></dax-benchmark>
+        <div class="lab-tip">Indicador principal: <b>filas · KB</b> de las cachés que el SE entrega al FE.</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1969,7 +2527,7 @@ ROW (
 </section>
 
 <!-- ═════════════════ 57 · DEMO BLOQUE 6 ═════════════════ -->
-<section class="slide slide-demo" data-notes="Demo 1: una expresión de RLS con ORs entre columnas frente a una alternativa más simple, por ejemplo IN sobre una columna o una tabla de permisos. Ejecutar la misma consulta con el rol aplicado (propiedad Roles en la cadena de conexión de DAX Studio, a confirmar) y comparar Server Timings. Demo 2: la misma lógica escrita con una UDF, en modo VAL y en modo EXPR; medir y comparar planes.">
+<section class="slide slide-demo" data-notes="Las demos marcadas AQUÍ se hacen en las diapositivas de laboratorio que siguen, sin salir de la presentación. Demo 1: una expresión de RLS con ORs entre columnas frente a una alternativa más simple, por ejemplo IN sobre una columna o una tabla de permisos. Ejecutar la misma consulta con el rol aplicado (propiedad Roles en la cadena de conexión de DAX Studio, a confirmar) y comparar Server Timings. Demo 2: la misma lógica escrita con una UDF, en modo VAL y en modo EXPR; medir y comparar planes.">
   <div class="slide-inner">
     <div class="demo-animation">
       <div class="ring ring-1"></div><div class="ring ring-2"></div><div class="ring ring-3"></div>
@@ -1978,9 +2536,90 @@ ROW (
     <div class="demo-mode">MODO DEMO ACTIVADO</div>
     <h2 class="demo-title">DEMO</h2>
     <ul class="demo-list">
-      <li><b>1</b>RLS con ORs vs alternativa simple (<code>IN</code> / tabla de permisos) · consulta con el rol aplicado</li>
-      <li><b>2</b>Misma lógica con UDF: <code>VAL</code> vs <code>EXPR</code> · comparar planes</li>
+      <li><b>1</b><span>RLS con ORs vs alternativa simple (<code>IN</code> / tabla de permisos) · consulta con el rol aplicado</span><span class="where">▶ AQUÍ</span></li>
+      <li><b>2</b><span>Misma lógica con UDF: <code>VAL</code> vs <code>EXPR</code> · comparar planes</span><span class="where">▶ AQUÍ</span></li>
     </ul>
+    <div class="demo-where"><b>▶ AQUÍ</b> = en las diapositivas de laboratorio siguientes, con el Puente DAX · <span style="color:var(--fe)">⧉ DESKTOP</span> = en Power BI Desktop</div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 6 · RLS con ORs ─── -->
+<section class="slide slide-lab" data-lab="RLS con ORs" data-notes="La misma consulta sin rol, con el rol que usa ORs entre columnas y con el rol simplificado (IN o tabla de permisos). El puente abre la conexión con el rol aplicado, como «Ver como» de Desktop. La expresión del rol se paga en cada consulta: compara tiempo y consultas SE.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 6 · <b>Laboratorio</b></div><h2 class="lab-title">RLS con ORs</h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill label="RLS" editor-height="200px">
+        <dax-variant label="RLS · sin rol (administrador)">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Ventas", [Ventas]
+)
+        </dax-variant>
+        <dax-variant label="RLS · rol con OR" note="Rol de tu modelo con ORs entre columnas (clave Rol.ConOR)" role="{{Rol.ConOR}}">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Ventas", [Ventas]
+)
+        </dax-variant>
+        <dax-variant label="RLS · rol simple" note="Rol de tu modelo simplificado con IN o tabla de permisos (clave Rol.Simple)" role="{{Rol.Simple}}">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Ventas", [Ventas]
+)
+        </dax-variant>
+      </dax-lab>
+      <div class="lab-side">
+        <dax-benchmark compact filter="RLS ·" title="RLS · comparativa"></dax-benchmark>
+        <div class="lab-tip">Cada variante se ejecuta con su <b>rol aplicado</b>: los roles se definen en Desktop.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 6 · UDF: VAL frente a EXPR ─── -->
+<section class="slide slide-lab" data-lab="UDF: VAL frente a EXPR" data-notes="La misma lógica sin UDF, con UDF en modo VAL (el argumento se evalúa una vez, en el contexto de quien llama) y en modo EXPR (se evalúa donde se usa, y puede hacerlo varias veces). Las UDF sirven para reutilizar, no para acelerar: compara planes y tiempos.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 6 · <b>Laboratorio</b></div><h2 class="lab-title">UDF: VAL frente a EXPR</h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill label="UDF" editor-height="200px">
+        <dax-variant label="UDF · sin UDF">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Coste] = SUM ( {{Ventas.Coste}} )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, "Margen %", DIVIDE ( [Ventas] - [Coste], [Ventas] ) )
+        </dax-variant>
+        <dax-variant label="UDF · VAL">
+DEFINE
+    FUNCTION MargenPct = ( ventas : SCALAR VAL, coste : SCALAR VAL ) =&gt; DIVIDE ( ventas - coste, ventas )
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Coste] = SUM ( {{Ventas.Coste}} )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, "Margen %", MargenPct ( [Ventas], [Coste] ) )
+        </dax-variant>
+        <dax-variant label="UDF · EXPR">
+DEFINE
+    FUNCTION MargenPct = ( ventas : SCALAR EXPR, coste : SCALAR EXPR ) =&gt; DIVIDE ( ventas - coste, ventas )
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Coste] = SUM ( {{Ventas.Coste}} )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, "Margen %", MargenPct ( [Ventas], [Coste] ) )
+        </dax-variant>
+      </dax-lab>
+      <div class="lab-side">
+        <dax-benchmark compact filter="UDF ·" title="UDF · comparativa"></dax-benchmark>
+        <div class="lab-tip">Mismo resultado en las tres; mira si <b>EXPR</b> evalúa más veces.</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -2050,6 +2689,24 @@ ROW (
   </div>
 </section>
 
+<!-- ─── Backstage: preparación (no se proyecta) ─── -->
+<section class="slide slide-lab" data-nofooter="1" data-lab="Backstage" data-notes="Preparación antes de la charla, no se proyecta. 1) Arranca el puente desde Herramientas externas de Power BI Desktop con el modelo de demo abierto. 2) Comprueba el modelo: cada clave de PUENTE_DAX_MODELO en verde. Las rojas se corrigen en el bloque de configuración al final del HTML. 3) Ensaya todas las demos: cada medición en vivo queda grabada en este navegador. 4) Exporta grabaciones.js y déjalo junto a la presentación: es el plan B si el puente falla en directo, incluso abriendo el HTML como fichero.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Preparación · <b>no se proyecta</b></div><h2 class="lab-title">Backstage</h2></div>
+    <div class="lab-grid backstage">
+      <dax-model-check></dax-model-check>
+      <div class="lab-side">
+        <div class="lab-tip"><b>Antes de la charla</b><br>
+          1. Abre el modelo de demo y pulsa <b>Puente DAX</b> en Herramientas externas.<br>
+          2. <b>▶ Comprobar</b>: las claves en rojo se corrigen en <code>PUENTE_DAX_MODELO</code> (final del HTML).<br>
+          3. Ensaya cada laboratorio: cada medición en vivo queda grabada.<br>
+          4. <b>⤓ grabaciones.js</b> junto al HTML = plan B aunque el puente falle.</div>
+        <dax-benchmark export title="Todas las mediciones"></dax-benchmark>
+      </div>
+    </div>
+  </div>
+</section>
+
 <div id="stage-footer">DATA SATURDAY MADRID 2026 · RENDIMIENTO DAX 2.0</div>
 </div><!-- /stage -->
 </div><!-- /presentation-container -->
@@ -2090,6 +2747,68 @@ ROW (
 
 <!-- Contador de slides -->
 <div id="slide-counter" style="position:fixed; bottom:0.8rem; left:1rem; z-index:5000; font-family:var(--font-mono); font-size:0.75rem; opacity:0.5;"></div>
+
+
+<!-- ═══ Puente DAX: configuración del modelo de demo ═══════════════════════════
+     Las demos usan {{Clave}} y se adaptan a tu modelo cambiando SOLO este bloque.
+     Por defecto: AdventureWorksDW ('Internet Sales'[SalesAmount], como la diapositiva 51).
+     La slide Backstage (la última) comprueba cada nombre contra el modelo abierto. -->
+<script>
+window.PUENTE_DAX_MODELO = {
+  // ── Modelo base ──
+  'Ventas':               "'Internet Sales'",
+  'Ventas.Importe':       "'Internet Sales'[SalesAmount]",
+  'Ventas.Coste':         "'Internet Sales'[TotalProductCost]",
+  'Ventas.Cantidad':      "'Internet Sales'[OrderQuantity]",
+  'Ventas.ClaveFecha':    "'Internet Sales'[OrderDateKey]",
+  'Ventas.ClaveProducto': "'Internet Sales'[ProductKey]",
+  'Ventas.Pedido':        "'Internet Sales'[SalesOrderNumber]",
+  'Fecha':                "'Date'",
+  'Fecha.Fecha':          "'Date'[FullDateAlternateKey]",
+  'Fecha.Año':            "'Date'[CalendarYear]",
+  'Fecha.Mes':            "'Date'[MonthNumberOfYear]",
+  'Producto.Categoria':   "'Product Category'[EnglishProductCategoryName]",
+  'Producto.NombreES':    "'Product'[SpanishProductName]",
+  'Demo.AñoA': 2011, 'Demo.AñoB': 2012, 'Demo.AñoC': 2013,
+
+  // ── Objetos de tus demos (créalos en tu modelo o cambia los nombres) ──
+  'AA.FechaEquivalente':  "'Date'[DateEquivalente]",          // v3: fecha − 1 año
+  'AA.FechaVentas':       "'Internet Sales'[OrderDate]",      // v3: relación inactiva con la anterior
+  'GC.Medida':            "[Ventas]",                         // medida del modelo
+  'GC.Columna':           "'Inteligencia de tiempo'[Cálculo]",
+  'GC.ItemAA':            '"AA"',
+  'Calendario':           "'Gregoriano'",                     // inteligencia de tiempo con calendarios (preview)
+  'YTD.Desde':            "'YTD Explotado'[Fecha]",
+  'YTD.Hasta':            "'Internet Sales'[OrderDate]",
+  'Idioma.Texto':         "'Traducciones'[Texto]",
+  'Idioma.Columna':       "'Traducciones'[Idioma]",
+  'Idioma.Elegido':       '"es-ES"',
+  'Moneda.Columna':       "'Moneda destino'[Código]",
+  'Moneda.Elegida':       '"EUR"',
+  'Ventas.ImporteEUR':    "'Internet Sales'[Importe EUR]",
+  'Ventas.ImporteUSD':    "'Internet Sales'[Importe USD]",
+  'Ventas.ImporteLocal':  "'Internet Sales'[Importe local]",
+  'Cambio.FechaVentas':   "'Internet Sales'[OrderDateKey]",
+  'Cambio.MonedaVentas':  "'Internet Sales'[CurrencyKey]",
+  'Cambio.Factor':        "'Tipo de cambio'[Factor]",
+  'Rol.ConOR':            'Zona con OR',
+  'Rol.Simple':           'Zona simple',
+};
+</script>
+<!-- Plan B: mediciones grabadas en los ensayos (se generan desde la slide Backstage). -->
+<script src="grabaciones.js" onerror="void 0"></script>
+<script src="puente-dax/web/dax-lab.js"></script>
+<script>
+// Pestañas de código de los laboratorios
+document.addEventListener('click', function (e) {
+  var b = e.target.closest && e.target.closest('.code-tabs [data-code]');
+  if (!b) return;
+  var box = b.closest('.code-tabs');
+  box.querySelectorAll('[data-code]').forEach(function (x) { x.classList.toggle('on', x === b); });
+  box.querySelectorAll('[data-pane]').forEach(function (p) { p.hidden = p.getAttribute('data-pane') !== b.getAttribute('data-code'); });
+  b.blur();
+});
+</script>
 
 <script>
 /* ─── Resaltado DAX (sin dependencias, funciona offline) ─── */

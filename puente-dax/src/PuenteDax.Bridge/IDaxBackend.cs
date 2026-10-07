@@ -9,6 +9,9 @@ public interface IDaxBackend : IAsyncDisposable
     ConnectionInfo? Connection { get; }
     Task<ConnectionInfo> ConnectAsync(ConnectRequest request, CancellationToken ct);
     Task<QueryResponse> QueryAsync(QueryRequest request, CancellationToken ct);
+
+    /// <summary>Tamaños y cardinalidades del modelo (lo que enseña VertiPaq Analyzer).</summary>
+    Task<ModelStats> ModelStatsAsync(bool readStatisticsFromData, CancellationToken ct);
 }
 
 public static class BenchmarkRunner

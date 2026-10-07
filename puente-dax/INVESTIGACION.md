@@ -156,6 +156,10 @@ DAX Studio es **Ms-RL** (Microsoft Reciprocal License), que es recíproca a nive
 **no copia ficheros de DAX Studio**: es una reimplementación propia del mismo procedimiento, basada en
 la lectura de su código y su documentación. Conviene citarlo en las slides como referencia.
 
+Las estadísticas del modelo (`/api/model-stats`, `<dax-vertipaq>`) usan las librerías de
+**VertiPaq Analyzer** (`Dax.Model.Extractor` y `Dax.ViewModel`, de SQLBI, licencia **MIT**) como
+paquetes NuGet, igual que hace DAX Studio.
+
 ## 12. Qué está probado y qué no
 
 **Probado aquí (Linux):**
@@ -165,6 +169,10 @@ la lectura de su código y su documentación. Conviene citarlo en las slides com
 - API en modo simulado: token, CORS, `Host`, benchmark y traspaso de modelo entre instancias.
 - Widget de punta a punta con Playwright: frío/caliente, callback resaltado, benchmark, plan, plantilla
   automática, teclado aislado de las slides, token desde `file://` y plan B grabado.
+- La presentación completa servida por el puente (`--www`), con Playwright: las 15 diapositivas de
+  laboratorio ejecutan todas sus variantes, el analizador VertiPaq hace foto y comparación, Backstage
+  comprueba el modelo y prueba las 41 variantes, las flechas siguen moviendo las slides tras pulsar
+  un botón, no hay desbordes ni errores JS, y con el puente caído sale la grabación de `grabaciones.js`.
 
 **El workflow de GitHub Actions comprueba en Windows:** tests, publicación, `--help`, modo simulado y
 que AMO/ADOMD cargan en el `.exe` de un solo fichero e intentan conectar al `--server` indicado (fallo
@@ -182,6 +190,9 @@ esperado de conexión, no de ensamblados).
 - [ ] El ExecutionMetrics llega (pestaña *Métricas*).
 - [ ] Al cerrar con Ctrl+C la traza desaparece. Con DAX Studio: `SELECT * FROM $SYSTEM.DISCOVER_TRACES`.
 - [ ] El traspaso de modelo al pulsar el botón desde un segundo `.pbix`.
+- [ ] *Analizar* en `<dax-vertipaq>` da los mismos tamaños y cardinalidades que VertiPaq Analyzer en DAX Studio.
+- [ ] Las variantes con `role` se ejecutan con el rol aplicado (comparar con «Ver como» de Desktop) y la traza las captura.
+- [ ] **Probar demos** en Backstage pasa en verde con el modelo de la demo (UDF, calendarios y grupo de cálculo incluidos).
 
 ## 13. Riesgos y límites
 
@@ -191,5 +202,8 @@ esperado de conexión, no de ensamblados).
   benchmark (mediana de varias ejecuciones) y la misma máquina.
 - **La traza añade algo de coste**, sobre todo con el plan activado. Para tiempos finos, mide sin plan.
 - **Una consulta a la vez:** el puente serializa las peticiones de una misma sesión.
-- **RLS:** no implementado. DAX Studio lo hace con `Roles`/`EffectiveUserName` en la conexión. Sería la
-  siguiente mejora para la demo de ORs en RLS del bloque 6.
+- **RLS:** cada rol (o usuario efectivo) abre su propia conexión con `Roles`/`EffectiveUserName`, como
+  DAX Studio, y su propia traza filtrada por sesión. La caché se limpia con la conexión de administrador.
+- **Funciones en preview:** las demos de calendarios (`SAMEPERIODLASTYEAR(<calendario>)`,
+  `TOTALYTD(<expr>, <calendario>)`) necesitan Desktop de septiembre de 2025 o posterior con la opción
+  de vista previa activada. Backstage → *Probar demos* lo detecta antes de la charla.

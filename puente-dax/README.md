@@ -37,46 +37,90 @@ modelo al que ya corre y se cierra.
 
 Para compilarlo tú: `dotnet publish src/PuenteDax.Bridge -c Release -r win-x64 -o publish/PuenteDax`.
 
-## Uso en las diapositivas
+## Las demos del workshop, dentro de la presentación
+
+`rendimiento-dax-2.0-datasaturday-madrid-2026.html` (raíz del repositorio) lleva las demos integradas:
+detrás de cada portada **DEMO** vienen sus diapositivas de **Laboratorio** (15 en total) y, al final,
+una diapositiva **Backstage** para preparar la charla. En las portadas, cada demo va marcada como
+**▶ AQUÍ** (se hace en la presentación) o **⧉ DESKTOP** (hay que pasar a Power BI Desktop).
+
+| Bloque | Laboratorios |
+|---|---|
+| 1 · VertiPaq | Diccionario y encoding (analizador VertiPaq) · Antes y después de los 5 pasos (foto y comparación) · Columna de alta cardinalidad |
+| 2 · Medir | Frío, caliente y benchmark |
+| 3 · Tiempo | Dimensión tiempo (DAX en vivo, PQ y T-SQL al lado) · Año anterior (6 variantes) · Acumulado anual (5 variantes) |
+| 4 · Idioma y moneda | Multi-idioma · Multi-moneda |
+| 5 · Motor | DAX Fusion vertical/horizontal · Callbacks · Materialización |
+| 6 · Seguridad y UDF | RLS con ORs (consulta con el rol aplicado) · UDF `VAL` frente a `EXPR` |
+
+**Cómo usarla:**
+
+1. Abre el `.pbix` de la demo y pulsa **Puente DAX** en *Herramientas externas* (instalado con
+   `-Www` apuntando a la carpeta del repositorio), o arranca
+   `PuenteDax.exe --www <carpeta del repositorio> --open`. Abre
+   `http://127.0.0.1:5199/rendimiento-dax-2.0-datasaturday-madrid-2026.html`.
+2. Ve a **Backstage** (`End`):
+   - **▶ Comprobar** verifica que existen en tu modelo las tablas, columnas, medidas y roles de
+     `window.PUENTE_DAX_MODELO`, el bloque de configuración del final del HTML. Por defecto apunta
+     a AdventureWorksDW; las claves en rojo se corrigen allí (es lo único que hay que tocar).
+   - **▶ Probar demos** ejecuta una vez cada variante de todas las diapositivas y dice cuáles fallan.
+3. Ensaya las demos: cada medición **en vivo** queda grabada en el navegador. Pulsa
+   **⤓ grabaciones.js** y deja el fichero junto al HTML: es el plan B. Si el puente falla durante la
+   charla, cada laboratorio enseña su medición grabada (marcada **GRABADO**), incluso abriendo el
+   HTML como fichero.
+
+Durante la charla: clic en la variante → **▶ Frío** / **▶ Caliente** / **⏱ Benchmark**. Tras pulsar un
+botón, las flechas y el espacio siguen moviendo las diapositivas; mientras se escribe en el editor,
+no (`Esc` devuelve el teclado a la presentación, `Ctrl+Enter` ejecuta en frío).
+
+## Widgets para otras diapositivas
 
 ```html
 <script src="http://127.0.0.1:5199/lab/dax-lab.js"></script>
+<script>window.PUENTE_DAX_MODELO = { 'Ventas.Importe': "'Internet Sales'[SalesAmount]" };</script>
 
-<dax-lab label="AA v1 · SAMEPERIODLASTYEAR" cold="5" warm="5">
-  EVALUATE
-  SUMMARIZECOLUMNS ( 'Date'[Calendar Year], "AA", [Ventas AA v1] )
+<dax-lab label="AA" cold="5" warm="5">
+  <dax-variant label="AA · v1">
+    EVALUATE SUMMARIZECOLUMNS ( 'Date'[CalendarYear], "Ventas", SUM ( {{Ventas.Importe}} ) )
+  </dax-variant>
+  <dax-variant label="AA · con rol" role="Zona norte">…</dax-variant>
 </dax-lab>
 
-<dax-benchmark></dax-benchmark>
+<dax-benchmark filter="AA ·"></dax-benchmark>
+<dax-vertipaq focus="Ventas.Importe" snapshot="antes"></dax-vertipaq>
+<dax-model-check></dax-model-check>
 ```
 
-| Atributo de `<dax-lab>` | Para qué |
+| Elemento | Para qué |
 |---|---|
-| `label` | Nombre de la variante (también en la plantilla benchmark) |
-| `cold`, `warm` | Ejecuciones del botón Benchmark (3 y 3 por defecto) |
-| `plan` | Marca de inicio la casilla de plan de consulta |
-| `rows` | Filas del resultado a enseñar (20) |
-| `bridge`, `token` | Solo si no se usan los valores por defecto |
-| `recorded` | URL de una medición grabada (plan B si el puente falla) |
+| `<dax-lab>` | Consulta con Server Timings. Atributos: `label`, `cold`/`warm` (Benchmark, 3 y 3), `plan`, `rows` (20), `compact`, `fill`, `editor-height`, `panel-height`, `bridge`, `token`, `recorded` |
+| `<dax-variant>` | Variantes dentro de un `<dax-lab>` (pestañas). `label`, `note`, `role` y `user` (la consulta se ejecuta con ese rol o `EffectiveUserName`, como «Ver como» de Desktop) |
+| `<dax-benchmark>` | Plantilla *benchmark* rellenada sola. `filter="Prefijo ·"` (varios con `\|`), `export` añade el botón ⤓ grabaciones.js. *Copiar* la deja lista para Excel |
+| `<dax-vertipaq>` | Tamaños, cardinalidades y encoding (VertiPaq Analyzer). `focus` (claves o columnas a destacar), `top`, `table`, `snapshot` (nombre de la foto), `exact` (cardinalidad leyendo los datos) |
+| `<dax-model-check>` | Comprueba `PUENTE_DAX_MODELO` y prueba todas las demos de la página |
 
-- **Botones:** ▶ Frío (limpia caché), ▶ Caliente, ⏱ Benchmark, ⤓ guardar la medición en JSON.
-- **Teclado:** `Ctrl+Enter` ejecuta en frío. Mientras escribes en el widget, las teclas no mueven
-  las diapositivas; `Esc` devuelve el control a la presentación.
-- **`<dax-benchmark>`:** la plantilla *benchmark* del workshop, rellenada sola con cada medición.
-  Se guarda en el navegador; *Copiar* la deja lista para pegar en Excel.
-- **Plan B sin puente:** guarda la medición con ⤓ durante la preparación y pégala dentro del widget.
-  Funciona incluso abriendo la slide como fichero:
-
-  ```html
-  <dax-lab label="AA v1">
-    EVALUATE …
-    <script type="application/json" data-recorded>{ …contenido del JSON guardado… }</script>
-  </dax-lab>
-  ```
+- **Plantillas:** `{{Clave}}` en el DAX (y en `role`/`user`) se sustituye por
+  `window.PUENTE_DAX_MODELO[Clave]`. Si falta una clave, la pestaña sale con borde discontinuo y el
+  widget lo avisa en lugar de ejecutar.
+- **Plan B, por orden:** grabación incrustada en la variante
+  (`<script type="application/json" data-recorded>…</script>`, lo que guarda el botón ⤓),
+  `window.PUENTE_DAX_RECORDINGS` (el `grabaciones.js` exportado), las mediciones en vivo guardadas en
+  el navegador y el atributo `recorded="url"`.
 
 **Token:** las páginas servidas por el propio puente (`--www`, o `/lab/demo.html`) lo obtienen
 solas. Abiertas como fichero o desde otro servidor, el widget lo pide una vez (sale en la consola
 del puente) o se fija con `-Token` al instalar.
+
+### API
+
+| Ruta | Qué hace |
+|---|---|
+| `GET /api/health` | Estado y modelo conectado |
+| `GET /api/instances` | Power BI Desktop abiertos |
+| `POST /api/connect` | `{ server, database }` |
+| `POST /api/query` | `{ dax, clearCache, includePlan, maxRows, trace, role, effectiveUser }` → resultado y Server Timings |
+| `POST /api/benchmark` | `{ dax, cold, warm }` → ejecuciones y medianas |
+| `GET /api/model-stats` | Estadísticas VertiPaq del modelo (`?exact=true` lee cardinalidades de los datos) |
 
 ## Opciones de `PuenteDax.exe`
 
@@ -97,7 +141,7 @@ del puente) o se fija con `-Token` al instalar.
   (defensa frente a DNS rebinding).
 - La API exige el token (`X-Puente-Token`). CORS solo admite `file://`, orígenes locales y los
   que se añadan con `--allow-origin`.
-- Solo ejecuta consultas DAX de lectura y `ClearCache` sobre el modelo conectado.
+- Solo ejecuta consultas DAX de lectura, `ClearCache` y lecturas de metadatos/DMV sobre el modelo conectado.
 - Al cerrar (Ctrl+C) elimina la traza del servidor.
 
 ## Desarrollo
@@ -108,6 +152,9 @@ del puente) o se fija con `-Token` al instalar.
 | `tests/PuenteDax.Core.Tests` | Tests del cálculo con eventos sintéticos (`dotnet test`) |
 | `src/PuenteDax.Bridge` | API HTTP, traza AMO, ejecución ADOMD, simulador, descubrimiento de Desktop |
 | `web/` | `dax-lab.js` (widgets) y `demo.html`, embebidos en el `.exe` (`/lab/…`) |
+
+Dependencias: `Microsoft.AnalysisServices` y `Microsoft.AnalysisServices.AdomdClient` (Microsoft),
+`Dax.Model.Extractor` y `Dax.ViewModel` (VertiPaq Analyzer, licencia MIT) para las estadísticas del modelo.
 | `instalar/` | Instalador como External Tool, desinstalador e icono |
 
 En Linux/macOS compila y funciona en modo `--mock`. La conexión real a Power BI Desktop solo es posible

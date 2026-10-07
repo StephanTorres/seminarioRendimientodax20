@@ -35,7 +35,17 @@ public sealed class MockBackend : IDaxBackend
         if (string.IsNullOrWhiteSpace(request.Dax)) throw new ArgumentException("La consulta DAX está vacía.");
         Connection ??= await ConnectAsync(new ConnectRequest(), ct);
 
-        var events = Simulate(request.Dax, request.ClearCache, request.IncludePlan, Interlocked.Increment(ref _runs));
+        if (!request.Trace)
+        {
+            await Task.Delay(30, ct);
+            var check = new ResultSet(new[] { "[n]" }, new[] { new object?[] { 1 } }, 1, false);
+            return new QueryResponse(Mode, false, check, new ServerTimings { TotalMs = 30 }, DateTime.UtcNow);
+        }
+
+        // Con rol, la expresión de seguridad se suma a cada consulta: el simulador añade su coste.
+        var dax = string.IsNullOrWhiteSpace(request.Role) ? request.Dax : request.Dax + "\n-- rol: " + request.Role;
+        var events = Simulate(dax, request.ClearCache, request.IncludePlan, Interlocked.Increment(ref _runs),
+            securityCost: string.IsNullOrWhiteSpace(request.Role) ? 0 : request.Role.Contains("or", StringComparison.OrdinalIgnoreCase) ? 2 : 1);
         var timings = ServerTimingsCalculator.Calculate(events);
         await Task.Delay(TimeSpan.FromMilliseconds(Math.Min(timings.TotalMs, 1500)), ct);
 
@@ -46,13 +56,45 @@ public sealed class MockBackend : IDaxBackend
 
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
-    private static List<TraceRecord> Simulate(string dax, bool cold, bool includePlan, int run)
+    public async Task<ModelStats> ModelStatsAsync(bool readStatisticsFromData, CancellationToken ct)
+    {
+        await Task.Delay(400, ct);
+        // Modelo inventado con nombres de AdventureWorksDW, para preparar las slides sin Power BI.
+        var columns = new List<ColumnStats>
+        {
+            Col("Internet Sales", "SalesOrderNumber", 60_398, 27_659, "HASH", "String", 1_300_000, 160_000, 0),
+            Col("Internet Sales", "SalesAmount", 60_398, 290, "HASH", "Decimal", 12_000, 75_000, 0),
+            Col("Internet Sales", "TotalProductCost", 60_398, 120, "HASH", "Decimal", 6_000, 60_000, 0),
+            Col("Internet Sales", "OrderDateKey", 60_398, 1_124, "VALUE", "Int64", 120, 31_000, 0),
+            Col("Internet Sales", "ProductKey", 60_398, 158, "VALUE", "Int64", 120, 24_000, 0),
+            Col("Internet Sales", "CustomerKey", 60_398, 18_484, "VALUE", "Int64", 120, 64_000, 0),
+            Col("Internet Sales", "OrderQuantity", 60_398, 1, "VALUE", "Int64", 120, 2_000, 0),
+            Col("Internet Sales", "OrderDate", 60_398, 1_124, "HASH", "DateTime", 30_000, 31_000, 0),
+            Col("Date", "FullDateAlternateKey", 3_652, 3_652, "HASH", "DateTime", 70_000, 9_000, 0),
+            Col("Date", "CalendarYear", 3_652, 10, "VALUE", "Int64", 120, 600, 0),
+            Col("Date", "MonthNumberOfYear", 3_652, 12, "VALUE", "Int64", 120, 600, 0),
+            Col("Product", "EnglishProductName", 606, 504, "HASH", "String", 42_000, 1_200, 0),
+            Col("Product", "SpanishProductName", 606, 504, "HASH", "String", 41_000, 1_200, 0),
+            Col("Product Category", "EnglishProductCategoryName", 4, 4, "HASH", "String", 300, 120, 0),
+        };
+        var total = columns.Sum(c => c.TotalSize);
+        columns = columns.Select(c => c with { PercentDatabase = (double)c.TotalSize / total }).OrderByDescending(c => c.TotalSize).ToList();
+        var tables = columns.GroupBy(c => c.Table)
+            .Select(g => new TableStats(g.Key, g.First().Rows, g.Sum(c => c.TotalSize), 0, 0, g.Sum(c => c.TotalSize), (double)g.Sum(c => c.TotalSize) / total))
+            .OrderByDescending(t => t.TotalSize).ToList();
+        return new ModelStats(Mode, Connection?.Database ?? "Contoso", total, tables, columns, DateTime.UtcNow);
+
+        static ColumnStats Col(string table, string column, long rows, long cardinality, string encoding, string type, long dictionary, long data, long hierarchies) =>
+            new(table, column, rows, cardinality, encoding, type, dictionary, data, hierarchies, dictionary + data + hierarchies, 0, false);
+    }
+
+    private static List<TraceRecord> Simulate(string dax, bool cold, bool includePlan, int run, int securityCost = 0)
     {
         var rng = new Random(StableHash(dax));
         var jitter = new Random(StableHash(dax) ^ run);
         var callback = IteratorWithCondition.IsMatch(dax);
         var timeIntel = TimeIntelligence.IsMatch(dax);
-        var seCount = 1 + rng.Next(2) + (callback ? 1 : 0) + (timeIntel ? 3 : 0);
+        var seCount = 1 + rng.Next(2) + (callback ? 1 : 0) + (timeIntel ? 3 : 0) + securityCost;
 
         var t0 = DateTime.UtcNow;
         var activity = Guid.NewGuid().ToString();
