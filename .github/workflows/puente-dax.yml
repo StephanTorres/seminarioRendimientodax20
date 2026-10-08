@@ -1,0 +1,69 @@
+name: Puente DAX
+
+on:
+  push:
+    paths:
+      - 'puente-dax/**'
+      - '.github/workflows/puente-dax.yml'
+  workflow_dispatch:
+
+jobs:
+  windows:
+    name: Compilar, probar y empaquetar (win-x64)
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: puente-dax
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Tests del cálculo FE/SE
+        run: dotnet test tests/PuenteDax.Core.Tests -c Release
+
+      - name: Publicar ejecutable autocontenido
+        run: dotnet publish src/PuenteDax.Bridge -c Release -r win-x64 -o publish/PuenteDax
+
+      - name: Añadir instalador e icono
+        shell: pwsh
+        run: Copy-Item instalar/* publish/PuenteDax/ -Force
+
+      - name: Prueba de humo (simulado y carga de AMO/ADOMD)
+        shell: pwsh
+        run: |
+          $exe = Resolve-Path publish/PuenteDax/PuenteDax.exe
+          & $exe --help | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw '--help falló' }
+
+          # Modo simulado: la API responde y calcula tiempos
+          $mock = Start-Process $exe -ArgumentList '--mock','--token','ci','--port','5199' -PassThru
+          Start-Sleep -Seconds 5
+          $h = Invoke-RestMethod http://127.0.0.1:5199/api/health
+          if ($h.mode -ne 'mock') { throw "health: $($h | ConvertTo-Json)" }
+          $body = '{"dax":"EVALUATE ROW(\"x\", SUMX(Ventas, IF(Ventas[Importe] > 10, 1, 0)))"}'
+          $q = Invoke-RestMethod -Method Post http://127.0.0.1:5199/api/query -Headers @{ 'X-Puente-Token' = 'ci' } -ContentType 'application/json' -Body $body
+          if ($q.timings.callbacks -lt 1) { throw 'el simulador debería marcar un callback' }
+          Stop-Process $mock
+
+          # Modo real sin Power BI: AMO y ADOMD deben cargar y fallar solo por no haber servidor
+          $live = Start-Process $exe -ArgumentList '--server','localhost:1','--token','ci','--port','5198' -PassThru
+          Start-Sleep -Seconds 5
+          $fallo = $null
+          try {
+            Invoke-RestMethod -Method Post http://127.0.0.1:5198/api/query -Headers @{ 'X-Puente-Token' = 'ci' } -ContentType 'application/json' -Body '{"dax":"EVALUATE ROW(\"x\",1)"}' | Out-Null
+          } catch {
+            $fallo = "$($_.ErrorDetails.Message)"
+          }
+          Stop-Process $live
+          if ($null -eq $fallo) { throw 'No debería haber conectado: no hay ningún Analysis Services en localhost:1' }
+          Write-Host "Error esperado: $fallo"
+          if ($fallo -match 'Could not load|FileNotFound|TypeLoad') { throw "Fallo cargando ensamblados: $fallo" }
+          if ($fallo -match 'No encuentro') { throw "No se intentó la conexión ADOMD a --server: $fallo" }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PuenteDax-win-x64
+          path: puente-dax/publish/PuenteDax
