@@ -118,6 +118,8 @@ internal sealed class TraceSession : IDisposable
         try
         {
             var record = Map(e);
+            if (record is not null && _capture is not null)
+                _log.LogDebug("Evento {Kind}/{Subclass} activity={Activity} texto={Length} caracteres", record.Kind, record.Subclass, record.ActivityId, record.TextData.Length);
             if (record is not null) _capture?.Add(record);
         }
         catch (Exception ex)
@@ -235,12 +237,20 @@ internal sealed class QueryCapture
     {
         var index = Interlocked.Increment(ref _counter);
         _events.Enqueue((index, record));
-        if (record.Kind == TraceKind.QueryBegin && record.TextData.Contains(_marker, StringComparison.Ordinal))
+        if (record.Kind == TraceKind.QueryBegin
+            && (record.TextData.Contains(_marker, StringComparison.Ordinal)
+                // Algunos motores (p. ej. Power BI Desktop) quitan el comentario inicial del texto del evento.
+                // La traza ya está filtrada a la sesión del puente, que serializa las consultas: el primer
+                // QueryBegin tras abrir la captura es el nuestro.
+                || _activityId is null))
         {
             _beginIndex = index;
             _activityId ??= record.ActivityId;
         }
-        else if (record.Kind == TraceKind.QueryEnd && record.TextData.Contains(_marker, StringComparison.Ordinal))
+        else if (record.Kind == TraceKind.QueryEnd
+                 && (record.TextData.Contains(_marker, StringComparison.Ordinal)
+                     // Algunos motores no repiten el texto de la consulta en QueryEnd: se casa por ActivityID.
+                     || (_activityId is not null && record.ActivityId == _activityId)))
         {
             _endIndex = index;
             _activityId ??= record.ActivityId;
@@ -278,10 +288,18 @@ internal sealed class QueryCapture
         var end = _endIndex;
         return _events
             .OrderBy(e => e.Index)
-            .Where(e => !string.IsNullOrEmpty(activity) && !string.IsNullOrEmpty(e.Record.ActivityId)
-                ? e.Record.ActivityId == activity
-                : begin > 0 && e.Index >= begin && (end < 0 || e.Index <= end))
-            .Where(e => e.Record.Kind is not (TraceKind.QueryBegin or TraceKind.QueryEnd) || e.Record.TextData.Contains(_marker, StringComparison.Ordinal))
+            .Where(e =>
+            {
+                var sameActivity = !string.IsNullOrEmpty(activity) && e.Record.ActivityId == activity;
+                // ExecutionMetrics no lleva SessionID: solo se acepta por ActivityID (puede llegar antes del QueryBegin).
+                if (e.Record.Kind == TraceKind.ExecutionMetrics) return sameActivity;
+                // Algunos motores (p. ej. Power BI Desktop) dan a los eventos del SE un ActivityID distinto al de la
+                // consulta: se aceptan también por estar entre nuestro QueryBegin y QueryEnd (la sesión serializa).
+                return sameActivity || (begin > 0 && e.Index >= begin && (end < 0 || e.Index <= end));
+            })
+            .Where(e => e.Record.Kind is not (TraceKind.QueryBegin or TraceKind.QueryEnd)
+                        || e.Record.TextData.Contains(_marker, StringComparison.Ordinal)
+                        || (!string.IsNullOrEmpty(activity) && e.Record.ActivityId == activity))
             .Select(e => e.Record)
             .ToList();
     }
