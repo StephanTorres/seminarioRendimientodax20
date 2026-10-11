@@ -223,6 +223,19 @@
             "width": 234
           },
           "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 4359.1,
+            "y": 390.25
+          },
+          "nodeIndex": "Fecha",
+          "nodeLineageTag": "179e2b98-7384-4d34-be28-4b60301a0076",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
         }
       ],
       "name": "Todas las tablas",

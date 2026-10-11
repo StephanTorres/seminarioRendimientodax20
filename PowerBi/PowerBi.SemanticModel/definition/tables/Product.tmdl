@@ -332,7 +332,7 @@ table Product
 		mode: import
 		source =
 				let
-				    Origen = Sql.Database("VTH0135", "AdventureWorksDW"),
+				    Origen = Sql.Database(Servidor, BaseDatos),
 				    dbo_DimProduct = Origen{[Schema="dbo",Item="DimProduct"]}[Data],
 				    #"Se expandió DimProductSubcategory" = Table.ExpandRecordColumn(dbo_DimProduct, "DimProductSubcategory", {"EnglishProductSubcategoryName", "SpanishProductSubcategoryName", "FrenchProductSubcategoryName", "DimProductCategory"}, {"DimProductSubcategory.EnglishProductSubcategoryName", "DimProductSubcategory.SpanishProductSubcategoryName", "DimProductSubcategory.FrenchProductSubcategoryName", "DimProductSubcategory.DimProductCategory"}),
 				    #"Se expandió DimProductSubcategory.DimProductCategory" = Table.ExpandRecordColumn(#"Se expandió DimProductSubcategory", "DimProductSubcategory.DimProductCategory", {"EnglishProductCategoryName", "SpanishProductCategoryName", "FrenchProductCategoryName"}, {"DimProductSubcategory.DimProductCategory.EnglishProductCategoryName", "DimProductSubcategory.DimProductCategory.SpanishProductCategoryName", "DimProductSubcategory.DimProductCategory.FrenchProductCategoryName"}),

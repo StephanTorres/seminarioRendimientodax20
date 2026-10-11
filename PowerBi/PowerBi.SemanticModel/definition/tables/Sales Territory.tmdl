@@ -38,7 +38,7 @@ table 'Sales Territory'
 		mode: import
 		source =
 				let
-				    Origen = Sql.Database("VTH0135", "AdventureWorksDW"),
+				    Origen = Sql.Database(Servidor, BaseDatos),
 				    dbo_DimSalesTerritory = Origen{[Schema="dbo",Item="DimSalesTerritory"]}[Data],
 				    #"Columnas quitadas" = Table.RemoveColumns(dbo_DimSalesTerritory,{"DimEmployee", "DimGeography", "FactInternetSales", "FactResellerSales", "SalesTerritoryAlternateKey", "SalesTerritoryImage"})
 				in

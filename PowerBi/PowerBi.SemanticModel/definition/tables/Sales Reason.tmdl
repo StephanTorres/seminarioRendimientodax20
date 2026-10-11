@@ -30,7 +30,7 @@ table 'Sales Reason'
 		mode: import
 		source =
 				let
-				    Origen = Sql.Database("VTH0135", "AdventureWorksDW"),
+				    Origen = Sql.Database(Servidor, BaseDatos),
 				    dbo_DimSalesReason = Origen{[Schema="dbo",Item="DimSalesReason"]}[Data],
 				    #"Columnas quitadas" = Table.RemoveColumns(dbo_DimSalesReason,{"SalesReasonAlternateKey", "FactInternetSalesReason"})
 				in

@@ -1,0 +1,28 @@
+/// Servidor SQL de origen de las demos
+expression Servidor = "A01P0717" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 30c3e052-0f8a-466f-a5b7-6195cbbe1b90
+
+/// Base con las dimensiones (AdventureWorksDW2022)
+expression BaseDatos = "AdventureWorksDW2022" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 6012e141-c8d4-41a1-966a-999176523ef5
+
+/// Base con los hechos sinteticos (datos-sinteticos/01-crear-datos-sinteticos.sql)
+expression BaseDatosHechos = "RendimientoDax" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 97be5d9b-08e6-41e9-9264-78bec8e906de
+
+/// Primer año de la dimensión Fecha
+expression _StartYear = 2011 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]
+	lineageTag: ded165f6-08bc-4286-8ba5-c6830db69ff2
+
+/// Último año de la dimensión Fecha
+expression _EndYear = 2026 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]
+	lineageTag: 1bd34a86-2f38-40ef-b3c7-d464cd56a4bf
+
+/// Mes de inicio del año fiscal (1 = natural)
+expression _FiscalStartMonth = 1 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]
+	lineageTag: 7321e813-a2b4-4d0e-a0ac-46e363d93910
+
+/// Start o End: año con el que se nombra el año fiscal
+expression _FiscalYearBasis = "End" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: ac76356e-5d7a-4a91-8f6b-b0fecaba1576
+

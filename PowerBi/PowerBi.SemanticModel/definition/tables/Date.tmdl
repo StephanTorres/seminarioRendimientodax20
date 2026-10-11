@@ -1,4 +1,6 @@
+/// OBSOLETA: sustituida por 'Fecha'. Conserva fechas duplicadas y 29-feb ficticios. Pendiente de borrar cuando se confirme.
 table Date
+	isHidden
 	lineageTag: eaa33b7b-fe44-4640-8452-c7365e47cd23
 	dataCategory: Time
 

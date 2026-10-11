@@ -113,3 +113,16 @@ relationship 15ab4632-4efc-4c45-9492-2155fe921e97
 	fromColumn: 'Internet Sales'.OrderDateKey
 	toColumn: _Date_Mxn.DateKeyMxn
 
+relationship 'Ventas FechaPedido a Fecha'
+	fromColumn: 'Internet Sales'.FechaPedido
+	toColumn: Fecha.Date
+
+relationship 'Ventas FechaAA a Fecha (inactiva)'
+	isActive: false
+	fromColumn: 'Internet Sales'.FechaAA
+	toColumn: Fecha.Date
+
+relationship 'Tipo de cambio a Fecha'
+	fromColumn: _Currency_Rate.DateKey
+	toColumn: Fecha.idFecha
+

@@ -122,7 +122,7 @@ table Customer
 		mode: import
 		source =
 				let
-				    Origen = Sql.Database("VTH0135", "AdventureWorksDW"),
+				    Origen = Sql.Database(Servidor, BaseDatos),
 				    dbo_DimCustomer = Origen{[Schema="dbo",Item="DimCustomer"]}[Data],
 				    #"Columnas quitadas" = Table.RemoveColumns(dbo_DimCustomer,{"CustomerAlternateKey", "Title"}),
 				    #"Columnas combinadas" = Table.CombineColumns(#"Columnas quitadas",{"FirstName", "MiddleName", "LastName"},Combiner.CombineTextByDelimiter(" ", QuoteStyle.None),"Name"),

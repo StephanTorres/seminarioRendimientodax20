@@ -56,9 +56,9 @@ table _Currency_Rate
 		mode: import
 		source =
 				let
-				    Origen = Sql.Database("VTH0135", "AdventureWorksDW"),
+				    Origen = Sql.Database(Servidor, BaseDatosHechos),
 				    dbo_FactCurrencyRate = Origen{[Schema="dbo",Item="FactCurrencyRate"]}[Data],
-				    #"Columnas quitadas" = Table.RemoveColumns(dbo_FactCurrencyRate,{"Date", "DimCurrency", "DimDate"})
+				    #"Columnas quitadas" = Table.RemoveColumns(dbo_FactCurrencyRate,{"Date"})
 				in
 				    #"Columnas quitadas"
 

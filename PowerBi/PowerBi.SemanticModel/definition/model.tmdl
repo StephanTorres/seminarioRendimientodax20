@@ -13,7 +13,7 @@ annotation PBI_QueryOrder = ["Internet Sales","_Currency_Rate","Currency","Custo
 
 annotation __TEdtr = 1
 
-annotation PBI_ProTooling = ["DevMode"]
+annotation PBI_ProTooling = ["DevMode","MCP-PBIModeling"]
 
 ref table 'Internet Sales'
 ref table _Currency_Rate
@@ -33,6 +33,7 @@ ref table 'Multi Idioma Promotion'
 ref table Idiomas
 ref table 'Currency  Destination'
 ref table 'Fecha y Hora'
+ref table Fecha
 
 ref cultureInfo es-ES
 

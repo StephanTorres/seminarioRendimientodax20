@@ -96,7 +96,7 @@ table Promotion
 		mode: import
 		source =
 				let
-				    Origen = Sql.Database("VTH0135", "AdventureWorksDW"),
+				    Origen = Sql.Database(Servidor, BaseDatos),
 				    dbo_DimPromotion = Origen{[Schema="dbo",Item="DimPromotion"]}[Data],
 				    #"Columnas quitadas" = Table.RemoveColumns(dbo_DimPromotion,{"PromotionAlternateKey", "StartDate", "EndDate", "MinQty", "MaxQty", "FactInternetSales", "FactResellerSales"})
 				in

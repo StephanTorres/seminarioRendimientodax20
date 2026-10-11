@@ -5,28 +5,35 @@ table 'Internet Sales'
 			SUM('Internet Sales'[OrderQuantity]) 
 			```
 		formatString: 0
+		displayFolder: 1 Base
 		lineageTag: 36f40bac-8a20-4bb4-a5d6-3310275fcc8f
 
 	measure 'Standard Cost' = SUM('Internet Sales'[ProductStandardCost])
+		displayFolder: 1 Base
 		lineageTag: 265d2053-420e-476b-baec-482f34ef4002
 
 	measure 'Total Cost' = SUM('Internet Sales'[TotalProductCost])
+		displayFolder: 1 Base
 		lineageTag: a69e6387-4808-4fbd-b3e5-360b53de9001
 
 	measure 'Sales Amount' = SUM('Internet Sales'[SalesAmount])
+		displayFolder: 1 Base
 		lineageTag: c62b078d-e870-4120-8614-6853e3e0da18
 
 	measure Freight = SUM('Internet Sales'[_Freight])
 		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		displayFolder: 1 Base
 		lineageTag: 7fbc37ce-316d-48db-9e69-5f2f0d4c00dd
 
 		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
 
 	measure 'Tax Amount' = SUM('Internet Sales'[TaxAmt])
+		displayFolder: 1 Base
 		lineageTag: c0125c14-2c1c-4121-9d2f-7b4a670e54e8
 
 	measure Profit = [Sales Amount]-[Total Cost]
 		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
+		displayFolder: 1 Base
 		lineageTag: 56a1fc92-90cc-4744-b4cc-d9b812c4af16
 
 		changedProperty = FormatString
@@ -35,40 +42,41 @@ table 'Internet Sales'
 
 	measure 'Profit %' = divide([Profit],[Sales Amount])
 		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		displayFolder: 1 Base
 		lineageTag: 185ae505-5638-4f33-a7fe-fe19e5c2ce3f
 
 		changedProperty = FormatString
 
 	measure 'Order Quantity (AA v1)' = CALCULATE( [Order Quantity], SAMEPERIODLASTYEAR('Date'[Date]))
-		displayFolder: AA
+		displayFolder: 2 Año anterior\v1
 		lineageTag: 8f0ef176-02c9-4425-b625-c4833318313c
 
 	measure 'Standard Cost (AA v1)' = CALCULATE( [Standard Cost], SAMEPERIODLASTYEAR('Date'[Date]))
-		displayFolder: AA
+		displayFolder: 2 Año anterior\v1
 		lineageTag: f43dfa23-8c39-4b2d-8ba4-f8b272aef87a
 
 	measure 'Total Cost (AA v1)' = CALCULATE( [Total Cost], SAMEPERIODLASTYEAR('Date'[Date]))
-		displayFolder: AA
+		displayFolder: 2 Año anterior\v1
 		lineageTag: 1860b4ab-f47d-4f14-a034-aba0a660d7e8
 
 	measure 'Sales Amount (AA v1)' = CALCULATE( [Sales Amount], SAMEPERIODLASTYEAR('Date'[Date]))
-		displayFolder: AA
+		displayFolder: 2 Año anterior\v1
 		lineageTag: 2aab6624-5b2b-4808-9f35-c5e757d44a65
 
 	measure 'Freight (AA v1)' = CALCULATE( [Freight], SAMEPERIODLASTYEAR('Date'[Date]))
-		displayFolder: AA
+		displayFolder: 2 Año anterior\v1
 		lineageTag: af47239d-b0fc-4e89-90ab-5ba6c0a8907e
 
 	measure 'Tax Amount (AA v1)' = CALCULATE( [Tax Amount], SAMEPERIODLASTYEAR('Date'[Date]))
-		displayFolder: AA
+		displayFolder: 2 Año anterior\v1
 		lineageTag: 9e8e2e65-bced-467f-b6fd-ee7434812c1e
 
 	measure 'Profit (AA v1)' = CALCULATE( [Profit], SAMEPERIODLASTYEAR('Date'[Date]))
-		displayFolder: AA
+		displayFolder: 2 Año anterior\v1
 		lineageTag: fce0499d-8804-4f3b-bae5-6409bd6a5b3d
 
 	measure 'Profit % (AA v1)' = CALCULATE( [Profit %], SAMEPERIODLASTYEAR('Date'[Date]))
-		displayFolder: AA
+		displayFolder: 2 Año anterior\v1
 		lineageTag: ba501d28-4df7-48b1-a819-a818dae7e41d
 
 	measure 'Order Quantity (AA v2)' = ```
@@ -77,7 +85,7 @@ table 'Internet Sales'
 			 return _resultado
 			```
 		formatString: #,##0.00
-		displayFolder: AA 2
+		displayFolder: 2 Año anterior\v2
 		lineageTag: 58b30eeb-2282-44ad-8dff-88ad40e904c3
 
 	measure 'Standard Cost (AA v2)' =
@@ -88,7 +96,7 @@ table 'Internet Sales'
 			RETURN
 			    _resultado
 		formatString: #,##0.00
-		displayFolder: AA 2
+		displayFolder: 2 Año anterior\v2
 		lineageTag: b8476d77-f6b9-406d-8ff3-f95d5bc780b2
 
 	measure 'Total Cost (AA v2)' =
@@ -99,7 +107,7 @@ table 'Internet Sales'
 			RETURN
 			    _resultado
 		formatString: #,##0.00
-		displayFolder: AA 2
+		displayFolder: 2 Año anterior\v2
 		lineageTag: 47edf5f3-e9b5-4e10-9bce-a17cf2a622bb
 
 		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
@@ -112,7 +120,7 @@ table 'Internet Sales'
 			RETURN
 			    _resultado
 		formatString: #,##0.00
-		displayFolder: AA 2
+		displayFolder: 2 Año anterior\v2
 		lineageTag: 72fc430c-edbc-4593-a725-6f49e1e80857
 
 	measure 'Freight (AA v2)' =
@@ -123,7 +131,7 @@ table 'Internet Sales'
 			RETURN
 			    _resultado
 		formatString: #,##0.00
-		displayFolder: AA 2
+		displayFolder: 2 Año anterior\v2
 		lineageTag: 9e0bb0d2-fe4c-4e24-9aa2-7658d98cad49
 
 	measure 'Tax Amount (AA v2)' =
@@ -134,7 +142,7 @@ table 'Internet Sales'
 			RETURN
 			    _resultado
 		formatString: #,##0.00
-		displayFolder: AA 2
+		displayFolder: 2 Año anterior\v2
 		lineageTag: 913fed50-c3bb-480c-9367-2c211431a677
 
 	measure 'Profit (AA v2)' =
@@ -145,7 +153,7 @@ table 'Internet Sales'
 			RETURN
 			    _resultado
 		formatString: #,##0.00
-		displayFolder: AA 2
+		displayFolder: 2 Año anterior\v2
 		lineageTag: 78db491c-9801-48aa-9b84-840791f6d4cc
 
 	measure 'Profit % (AA v2)' =
@@ -156,44 +164,44 @@ table 'Internet Sales'
 			RETURN
 			    _resultado
 		formatString: #,##0.00
-		displayFolder: AA 2
+		displayFolder: 2 Año anterior\v2
 		lineageTag: 1a12ed59-9308-4807-8389-0835a6a619b7
 
 	measure 'Order Quantity (AA v3)' = CALCULATE([Order Quantity],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
-		displayFolder: AA3
+		displayFolder: 2 Año anterior\v3
 		lineageTag: bdfa19ba-925e-4a88-a2e3-09355b945926
 
 	measure 'Standard Cost (AA v3)' = CALCULATE([Standard Cost],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
-		displayFolder: AA3
+		displayFolder: 2 Año anterior\v3
 		lineageTag: 254bf196-1929-4ebd-a6e4-e66d6d8a6f25
 
 	measure 'Total Cost (AA v3)' = CALCULATE([Total Cost],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
-		displayFolder: AA3
+		displayFolder: 2 Año anterior\v3
 		lineageTag: 5ae89603-8a5d-4d42-a77c-c144a28b3def
 
 	measure 'Sales Amount (AA v3)' = CALCULATE([Sales Amount],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
-		displayFolder: AA3
+		displayFolder: 2 Año anterior\v3
 		lineageTag: 697c93a7-724a-44de-bc4c-2a4404d99ed6
 
 	measure 'Freight (AA v3)' = CALCULATE([Freight],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
-		displayFolder: AA3
+		displayFolder: 2 Año anterior\v3
 		lineageTag: d125a068-d4c5-450b-9cad-60cb4a65469f
 
 	measure 'Tax Amount (AA v3)' = CALCULATE([Tax Amount],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
-		displayFolder: AA3
+		displayFolder: 2 Año anterior\v3
 		lineageTag: ff748afc-0cb8-41a7-9e66-e5e15a9e0fb3
 
 	measure 'Profit (AA v3)' = CALCULATE([Profit],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
-		displayFolder: AA3
+		displayFolder: 2 Año anterior\v3
 		lineageTag: b10b2523-f33c-4d73-b092-41eaf6b325f2
 
 	measure 'Profit % (AA v3)' = CALCULATE([Profit %],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
-		displayFolder: AA3
+		displayFolder: 2 Año anterior\v3
 		lineageTag: 87a5fbed-df20-456d-aa70-7ccf6ec31df3
 
 	measure 'Tax Amount (YTD 1)' = TOTALYTD([Tax Amount],'Date'[Date])
 		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
-		displayFolder: YTD
+		displayFolder: 3 Acumulados YTD
 		lineageTag: 489222ea-c7fb-49d0-90eb-130d315280a6
 
 		changedProperty = FormatString
@@ -202,7 +210,7 @@ table 'Internet Sales'
 
 	measure 'Total Cost (YTD 1)' = totalytd([Total Cost],'Date'[Date])
 		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
-		displayFolder: YTD
+		displayFolder: 3 Acumulados YTD
 		lineageTag: e07e589d-8a93-4d37-a26e-c85542f5f2c6
 
 		changedProperty = FormatString
@@ -218,14 +226,14 @@ table 'Internet Sales'
 			 var _Res3=CALCULATE([Tax Amount],USERELATIONSHIP('Date'[DateKey],_Date_Mxn[DateKey]))
 			return _res
 		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
-		displayFolder: YTD
+		displayFolder: 3 Acumulados YTD
 		lineageTag: ea2d4732-4fd9-4b96-be7f-0aee942c93a0
 
 		changedProperty = FormatString
 
 	measure 'Total Cost (YTD 2)' = CALCULATE([Total Cost], USERELATIONSHIP(_Date_Mxn[DateKeyMxn],'Internet Sales'[OrderDateKey]))
 		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
-		displayFolder: YTD
+		displayFolder: 3 Acumulados YTD
 		lineageTag: 599a63f6-ea02-4169-baed-4652e62ddd30
 
 		changedProperty = FormatString
@@ -259,7 +267,7 @@ table 'Internet Sales'
 			
 			```
 		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
-		displayFolder: Currency
+		displayFolder: 4 Moneda
 		lineageTag: 27b3a6fc-74d0-4099-a64a-a1b6e3aa368f
 
 		changedProperty = FormatString
@@ -268,7 +276,7 @@ table 'Internet Sales'
 
 	measure 'Total Sales Currency V2' = SUMX('Internet Sales',DIVIDE('Internet Sales'[Sales Amount],'Internet Sales'[_Currency_Rate.AverageRate]))
 		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
-		displayFolder: Currency
+		displayFolder: 4 Moneda
 		lineageTag: 8b5a422e-6be2-45ee-82cf-f6822934300c
 
 		changedProperty = FormatString
@@ -277,7 +285,7 @@ table 'Internet Sales'
 
 	measure 'Total Sales Currency v3' = sum('Internet Sales'[Sales Amount Dolar])
 		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
-		displayFolder: Currency
+		displayFolder: 4 Moneda
 		lineageTag: 64b03ee7-02d5-4843-b52d-31cb41af296c
 
 		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
@@ -288,18 +296,21 @@ table 'Internet Sales'
 			var _Resultado= SWITCH(_moneda,36,sum('Internet Sales'[Sales Amount Dolar]),100,sum('Internet Sales'[Sales Amount Euro]))
 			return _Resultado
 		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		displayFolder: 4 Moneda
 		lineageTag: ea59abb0-d732-4414-a337-69061a7ad92f
 
 		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
 
 	measure 'Total Sales Currency Dolar' = sum('Internet Sales'[Sales Amount Dolar])
 		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		displayFolder: 4 Moneda
 		lineageTag: b3cd9fa4-b279-4c24-9f1a-e0657a1684eb
 
 		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
 
 	measure 'Total Sales Currency Euro' = sum('Internet Sales'[Sales Amount Euro])
 		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		displayFolder: 4 Moneda
 		lineageTag: db063e22-2668-4b50-a51f-0e94708ddd66
 
 		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
@@ -309,6 +320,7 @@ table 'Internet Sales'
 			  Calculate( [Tax Amount], offset(-1,allselected('Date'[Calendar year]), orderby('Date'[Calendar year], asc)))
 			```
 		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		displayFolder: 2 Año anterior\v4
 		lineageTag: 88bb74cb-be79-426a-8c8a-712dbb9aa793
 
 		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
@@ -318,61 +330,79 @@ table 'Internet Sales'
 			  Calculate( [Total Cost], offset(-1,allselected('Date'[Calendar year]), orderby('Date'[Calendar year], asc)))
 			```
 		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		displayFolder: 2 Año anterior\v4
 		lineageTag: 5c0ad74a-57fc-45d3-ae8b-90674951fe68
 
 		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
 
 	measure #filas = COUNTROWS('Internet Sales')
 		formatString: 0
+		displayFolder: 1 Base
 		lineageTag: ccdc12a6-7fb5-421b-b37b-0ade838a2e3d
 
 	measure 'Fecha y hora medida' = UTCNOW()
 		formatString: General Date
+		displayFolder: 5 Idioma y auxiliares
 		lineageTag: 275c1390-bd47-4dbb-9868-662f6d1abe5b
 
 	measure '#filas x 2' = [#filas]*2
+		displayFolder: 6 Copias "x 2"
 		lineageTag: c443155e-8532-4f8a-bb15-aabce61e0468
 
 	measure 'Fecha y hora medida x 2' = [Fecha y hora medida]*2
+		displayFolder: 6 Copias "x 2"
 		lineageTag: 65a4eb8f-0adf-4c42-9e0b-ce65f358c273
 
 	measure 'Freight x 2' = [Freight]*2
+		displayFolder: 6 Copias "x 2"
 		lineageTag: 87446a0b-f2df-409a-a77b-1f4201b1b653
 
 	measure 'Order Quantity x 2' = [Order Quantity]*2
+		displayFolder: 6 Copias "x 2"
 		lineageTag: 40488295-a154-48d4-a8f6-a95e732f2531
 
 	measure 'Profit x 2' = [Profit]*2
+		displayFolder: 6 Copias "x 2"
 		lineageTag: 80ead8e7-e36c-411e-8b6f-9c5ee4230a71
 
 	measure 'Profit % x 2' = [Profit %]*2
+		displayFolder: 6 Copias "x 2"
 		lineageTag: c7d0bdbb-d3fa-4af5-b940-8a37509308d0
 
 	measure 'Sales Amount x 2' = [Sales Amount]*2
+		displayFolder: 6 Copias "x 2"
 		lineageTag: c3c00f61-b0f7-41f9-98bc-458ff9ba7a56
 
 	measure 'Standard Cost x 2' = [Standard Cost]*2
+		displayFolder: 6 Copias "x 2"
 		lineageTag: d8ad14e6-6ef8-43ec-8688-83d9eb695cd3
 
 	measure 'Tax Amount x 2' = [Tax Amount]*2
+		displayFolder: 6 Copias "x 2"
 		lineageTag: b8c4a44d-89e1-43fb-85a2-f310433e7d1c
 
 	measure 'Tax Amount (AA v4) x 2' = [Tax Amount (AA v4)]*2
+		displayFolder: 6 Copias "x 2"
 		lineageTag: bfc0b466-fdb6-43cf-bf4c-5ea8c56e425a
 
 	measure 'Total Cost x 2' = [Total Cost]*2
+		displayFolder: 6 Copias "x 2"
 		lineageTag: 205f576c-7ee0-4b57-9ab1-12680e695a96
 
 	measure 'Total Cost (AA v) x 2' = [Total Cost (AA v)]*2
+		displayFolder: 6 Copias "x 2"
 		lineageTag: 6894685c-2037-422a-a980-9e5bb9df5d6c
 
 	measure 'Total Sales Currency Dolar x 2' = [Total Sales Currency Dolar]*2
+		displayFolder: 6 Copias "x 2"
 		lineageTag: 288797bc-5e4e-416a-bc79-f07191415249
 
 	measure 'Total Sales Currency Euro x 2' = [Total Sales Currency Euro]*2
+		displayFolder: 6 Copias "x 2"
 		lineageTag: d4e34a76-27fc-4e0e-88ed-801514fdb506
 
 	measure 'Total Sales Currency v4 x 2' = [Total Sales Currency v4]*2
+		displayFolder: 6 Copias "x 2"
 		lineageTag: a4f06f5d-4ae3-43e9-8732-fb75fd511a88
 
 	measure 'Producto traducido' = ```
@@ -382,6 +412,7 @@ table 'Internet Sales'
 			     1, max('Product'[EnglishProductName]),2,max('Product'[SpanishProductName]),max('Product'[EnglishProductName]))
 			return _nombreproductotraducido   
 			```
+		displayFolder: 5 Idioma y auxiliares
 		lineageTag: 4ed897d9-142f-47c5-8401-e94367e0c576
 
 	column ProductKey
@@ -630,20 +661,36 @@ table 'Internet Sales'
 
 		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
 
+	/// Fecha del pedido derivada de OrderDateKey. Relación activa con Fecha[Date].
+	column FechaPedido
+		dataType: dateTime
+		isHidden
+		formatString: Short Date
+		displayFolder: Claves
+		lineageTag: 4c912027-08f1-44cb-b956-04c8a7b89c24
+		summarizeBy: none
+		sourceColumn: FechaPedido
+
+	/// FechaPedido + 1 año (29-feb acumulado en 28-feb). Relación inactiva con Fecha[Date]; se activa con USERELATIONSHIP.
+	column FechaAA
+		dataType: dateTime
+		isHidden
+		formatString: Short Date
+		displayFolder: Claves
+		lineageTag: cceddd9c-65b4-4c01-95bb-3cd1cc1a07c0
+		summarizeBy: none
+		sourceColumn: FechaAA
+
 	partition 'Internet Sales-9947076a-1393-497e-bef9-607c82a101d2' = m
 		mode: import
 		source =
 				let
-				    Origen = Sql.Database("VTH0135", "AdventureWorksDW"),
-				    dbo_FactInternetSales = Origen{[Schema="dbo",Item="FactInternetSales"]}[Data],
-				    #"Otras columnas quitadas" = Table.SelectColumns(dbo_FactInternetSales,{"ProductKey", "OrderDateKey", "DueDateKey", "ShipDateKey", "CustomerKey", "PromotionKey", "CurrencyKey", "SalesTerritoryKey", "SalesOrderNumber", "SalesOrderLineNumber", "RevisionNumber", "OrderQuantity", "UnitPrice", "DiscountAmount", "ProductStandardCost", "TotalProductCost", "SalesAmount", "TaxAmt", "Freight"}),
-				    #"Valor reemplazado" = Table.ReplaceValue(#"Otras columnas quitadas","SO","",Replacer.ReplaceText,{"SalesOrderNumber"}),
-				    #"Valor reemplazado1" = Table.ReplaceValue(#"Valor reemplazado","xd","0",Replacer.ReplaceText,{"SalesOrderNumber"}),
-				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Valor reemplazado1",{{"SalesOrderNumber", Int64.Type}, {"SalesOrderLineNumber", Int64.Type}}),
-				    #"Personalizada agregada" = Table.AddColumn(#"Tipo cambiado", "SalesKey", each [SalesOrderNumber]*100+[SalesOrderLineNumber]),
-				    #"Tipo cambiado1" = Table.TransformColumnTypes(#"Personalizada agregada",{{"SalesKey", Int64.Type}}),
-				    #"Columnas quitadas" = Table.RemoveColumns(#"Tipo cambiado1",{"SalesOrderNumber", "SalesOrderLineNumber"}),
-				    #"Consultas combinadas" = Table.NestedJoin(#"Columnas quitadas", {"OrderDateKey", "CurrencyKey"}, _Currency_Rate, {"DateKey", "CurrencyKey"}, "_Currency_Rate", JoinKind.LeftOuter),
+				    Origen = Sql.Database(Servidor, BaseDatosHechos),
+				    dbo_vFactInternetSales = Origen{[Schema="dbo",Item="vFactInternetSales"]}[Data],
+				    #"Otras columnas quitadas" = Table.SelectColumns(dbo_vFactInternetSales,{"ProductKey", "OrderDateKey", "DueDateKey", "ShipDateKey", "CustomerKey", "PromotionKey", "CurrencyKey", "SalesTerritoryKey", "RevisionNumber", "OrderQuantity", "UnitPrice", "DiscountAmount", "ProductStandardCost", "TotalProductCost", "SalesAmount", "TaxAmt", "Freight", "FechaPedido"}),
+				    #"FechaPedido tipada" = Table.TransformColumnTypes(#"Otras columnas quitadas",{{"FechaPedido", type date}}),
+				    #"FechaAA agregada" = Table.AddColumn(#"FechaPedido tipada", "FechaAA", each Date.AddYears([FechaPedido], 1), type date),
+				    #"Consultas combinadas" = Table.NestedJoin(#"FechaAA agregada", {"OrderDateKey", "CurrencyKey"}, _Currency_Rate, {"DateKey", "CurrencyKey"}, "_Currency_Rate", JoinKind.LeftOuter),
 				    #"Se expandió _Currency_Rate" = Table.ExpandTableColumn(#"Consultas combinadas", "_Currency_Rate", {"AverageRate"}, {"_Currency_Rate.AverageRate"}),
 				    #"Columnas con nombre cambiado" = Table.RenameColumns(#"Se expandió _Currency_Rate",{{"Freight", "_Freight"}}),
 				    #"Personalizada agregada1" = Table.AddColumn(#"Columnas con nombre cambiado", "Sales Amount Dolar", each [SalesAmount]/[_Currency_Rate.AverageRate]),
@@ -654,10 +701,9 @@ table 'Internet Sales'
 				    #"Se expandió _Currency_Rate1" = Table.ExpandTableColumn(#"Consultas combinadas1", "_Currency_Rate", {"AverageRate"}, {"_Currency_Rate.AverageRate.1"}),
 				    #"Personalizada agregada3" = Table.AddColumn(#"Se expandió _Currency_Rate1", "Sales Amount Euro", each [Sales Amount Dolar]*[_Currency_Rate.AverageRate.1]),
 				    #"Columnas quitadas1" = Table.RemoveColumns(#"Personalizada agregada3",{"eurokey", "_Currency_Rate.AverageRate.1"}),
-				    #"Tipo cambiado4" = Table.TransformColumnTypes(#"Columnas quitadas1",{{"Sales Amount Euro", Currency.Type}}),
-				    #"Removed Columns" = Table.RemoveColumns(#"Tipo cambiado4",{"SalesKey"})
+				    #"Tipo cambiado4" = Table.TransformColumnTypes(#"Columnas quitadas1",{{"Sales Amount Euro", Currency.Type}})
 				in
-				    #"Removed Columns"
+				    #"Tipo cambiado4"
 
 	annotation PBI_ResultType = Table
 

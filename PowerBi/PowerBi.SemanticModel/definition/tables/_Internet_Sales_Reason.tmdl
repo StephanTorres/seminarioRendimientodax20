@@ -32,7 +32,7 @@ table _Internet_Sales_Reason
 		mode: import
 		source =
 				let
-				    Origen = Sql.Database("VTH0135", "AdventureWorksDW"),
+				    Origen = Sql.Database(Servidor, BaseDatos),
 				    dbo_FactInternetSalesReason = Origen{[Schema="dbo",Item="FactInternetSalesReason"]}[Data],
 				    #"Columnas quitadas" = Table.RemoveColumns(dbo_FactInternetSalesReason,{"DimSalesReason", "FactInternetSales"}),
 				    #"Valor reemplazado" = Table.ReplaceValue(#"Columnas quitadas","SO","",Replacer.ReplaceText,{"SalesOrderNumber"}),
