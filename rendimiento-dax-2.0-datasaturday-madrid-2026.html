@@ -1682,7 +1682,7 @@ ROW (
 </section>
 
 <!-- ─── Laboratorio · Bloque 3 · Año anterior (3/5): calendarios ─── -->
-<section class="slide slide-lab" data-lab="AA 3/5 · Funciones de calendario" data-notes="Demo 1, alternativa 3: inteligencia de tiempo basada en calendarios (preview, Desktop de septiembre de 2025 o posterior). La pregunta no es el resultado sino el camino: aunque el visual pida solo año-mes, ¿el motor baja al día? En Storage Engine, la etiqueta AGRUPA marca las consultas SE cuyo xmSQL agrupa por la columna de fecha. Repite lo mismo con SAMEPERIODLASTYEAR clásico y con el offset: si el calendario baja a día y los otros no (o al revés), esa es la conversación. Después el cuadre, para ver qué hace el calendario con el 29 de febrero.">
+<section class="slide slide-lab" data-lab="AA 3/5 · Funciones de calendario" data-notes="Demo 1, alternativa 3: inteligencia de tiempo basada en calendarios (preview, Desktop de septiembre de 2025 o posterior). La pregunta no es el resultado sino el camino: aunque el visual pida solo año-mes, ¿el motor baja al día? En Storage Engine, la etiqueta AGRUPA marca las consultas SE cuyo xmSQL agrupa por la columna de fecha. Repite lo mismo con SAMEPERIODLASTYEAR clásico y con el offset: si el calendario baja a día y los otros no (o al revés), esa es la conversación. Después el cuadre, para ver qué hace el calendario con el 29 de febrero. Medido en el ensayo: a nivel de mes coincide con los demás, pero a nivel de día alinea por posición en el año, así que tras el 29 de febrero cada día mira al día anterior del año pasado (el 1 de marzo de 2021 ve el 29 de febrero de 2020, el 31 de diciembre de 2021 ve el 30 de diciembre de 2020).">
   <div class="slide-inner">
     <div class="lab-head"><div class="tag">Año anterior · <b>3 de 5</b></div><h2 class="lab-title">Funciones de calendario <span class="badge check">preview 🔎</span></h2></div>
     <div class="lab-grid">
@@ -1732,7 +1732,7 @@ ROW (
       </dax-lab>
       <div class="lab-side">
         <dax-benchmark compact filter="AA ·" title="Año anterior · comparativa"></dax-benchmark>
-        <div class="lab-tip"><b>La pregunta</b><br>Pedimos solo <b>año-mes</b>: ¿baja el motor al <b>día</b>?<br>· Storage Engine → etiqueta <b>AGRUPA</b> en el xmSQL.<br>· Repite con la 1 y la 2 y compara.<br>· Copia el plan físico al LLM y pídele que lo explique.</div>
+        <div class="lab-tip"><b>La pregunta</b><br>Pedimos solo <b>año-mes</b>: ¿baja el motor al <b>día</b>?<br>· Storage Engine → etiqueta <b>AGRUPA</b> en el xmSQL.<br>· Repite con la 1 y la 2 y compara.<br>· Mira el <b>día a día</b> tras el 29-feb: ¿cada día mira al mismo día del año pasado?<br>· Copia el plan físico al LLM y pídele que lo explique.</div>
       </div>
     </div>
   </div>
@@ -1792,17 +1792,19 @@ ROW (
           <div class="code-tabs-head"><button class="on" data-code="pq">Power Query</button><button data-code="dax">DAX</button><button data-code="sql">T-SQL</button></div>
           <pre data-pane="pq">// FechaAA = fecha del pedido + 1 año.
 // El 29-feb se acumula en el 28-feb siguiente.
+// Date.AddYears se pliega a SQL (DATEADD): no pesa en el refresco.
 Table.AddColumn(
     Hechos, "FechaAA",
-    each Date.AddYears([OrderDate], 1), type date)</pre>
+    each Date.AddYears([FechaPedido], 1), type date)</pre>
           <pre data-pane="dax" hidden>-- Columna calculada (pesa en el refresco):
-FechaAA = EDATE ( 'Internet Sales'[OrderDate], 12 )
+FechaAA = EDATE ( 'Internet Sales'[FechaPedido], 12 )
 
--- Relación: 'Date'[FullDateAlternateKey] 1 → * 'Internet Sales'[FechaAA]
+-- Relación: 'Fecha'[Date] 1 → * 'Internet Sales'[FechaAA]
 -- Inactiva: la medida la activa con USERELATIONSHIP.</pre>
           <pre data-pane="sql" hidden>-- En la vista del origen:
 SELECT f.*,
-       DATEADD(YEAR, 1, f.OrderDate) AS FechaAA   -- 29-feb → 28-feb
+       CAST(CONVERT(char(8), f.OrderDateKey) AS date) AS FechaPedido,
+       DATEADD(YEAR, 1, CAST(CONVERT(char(8), f.OrderDateKey) AS date)) AS FechaAA   -- 29-feb → 28-feb
 FROM   dbo.FactInternetSales AS f;</pre>
         </div>
         <dax-benchmark compact filter="AA ·" title="Año anterior · comparativa"></dax-benchmark>
@@ -2989,19 +2991,19 @@ window.PUENTE_DAX_MODELO = {
   'Ventas.ClaveFecha':    "'Internet Sales'[OrderDateKey]",
   'Ventas.ClaveProducto': "'Internet Sales'[ProductKey]",
   'Ventas.Pedido':        "'Internet Sales'[SalesOrderNumber]",
-  'Fecha':                "'Date'",
-  'Fecha.Fecha':          "'Date'[FullDateAlternateKey]",
-  'Fecha.Año':            "'Date'[CalendarYear]",
-  'Fecha.Mes':            "'Date'[MonthNumberOfYear]",
-  'Fecha.Dia':            "'Date'[DayNumberOfMonth]",
+  'Fecha':                "'Fecha'",
+  'Fecha.Fecha':          "'Fecha'[Date]",
+  'Fecha.Año':            "'Fecha'[Year]",
+  'Fecha.Mes':            "'Fecha'[Month]",
+  'Fecha.Dia':            "'Fecha'[Day]",
   'Producto.Categoria':   "'Product Category'[EnglishProductCategoryName]",
   'Producto.NombreES':    "'Product'[SpanishProductName]",
   'Demo.AñoA': 2011, 'Demo.AñoB': 2012, 'Demo.AñoC': 2013,
-  'Demo.AñoBisiesto': 2012,   // año bisiesto con datos de ventas
-  'Demo.AñoSiguiente': 2013,  // el año siguiente: su febrero tiene 28 días y mira a uno de 29
+  'Demo.AñoBisiesto': 2020,   // año bisiesto con datos de ventas (en el modelo sintético: 2012, 2016, 2020 y 2024)
+  'Demo.AñoSiguiente': 2021,  // el año siguiente: su febrero tiene 28 días y mira a uno de 29
 
   // ── Objetos de tus demos (créalos en tu modelo o cambia los nombres) ──
-  'AA.FechaAA':           "'Internet Sales'[OrderDateAA]",    // columna de los hechos: fecha del pedido + 1 año (29-feb → 28-feb), relación inactiva con 'Date'
+  'AA.FechaAA':           "'Internet Sales'[FechaAA]",        // columna de los hechos: fecha del pedido + 1 año (29-feb → 28-feb), relación inactiva con 'Fecha'
   'AA.FechaEquivalente':  "'Date'[DateEquivalente]",          // variante antigua v3: fecha − 1 año (ya no se usa)
   'AA.FechaVentas':       "'Internet Sales'[OrderDate]",      // variante antigua v3
   'GC.Medida':            "[Ventas]",                         // medida del modelo

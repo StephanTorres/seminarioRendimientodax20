@@ -1,0 +1,1740 @@
+[
+ {
+  "label": "AA · SPLY · año-mes",
+  "bench": {
+   "runs": [
+    {
+     "cache": "cold",
+     "iteration": 1,
+     "totalMs": 1013,
+     "formulaEngineMs": 68,
+     "storageEngineMs": 945,
+     "storageEngineQueries": 4,
+     "cacheHits": 0
+    },
+    {
+     "cache": "cold",
+     "iteration": 2,
+     "totalMs": 1176,
+     "formulaEngineMs": 75,
+     "storageEngineMs": 1101,
+     "storageEngineQueries": 4,
+     "cacheHits": 0
+    },
+    {
+     "cache": "cold",
+     "iteration": 3,
+     "totalMs": 843,
+     "formulaEngineMs": 52,
+     "storageEngineMs": 791,
+     "storageEngineQueries": 4,
+     "cacheHits": 0
+    },
+    {
+     "cache": "warm",
+     "iteration": 1,
+     "totalMs": 16,
+     "formulaEngineMs": 16,
+     "storageEngineMs": 0,
+     "storageEngineQueries": 3,
+     "cacheHits": 3
+    },
+    {
+     "cache": "warm",
+     "iteration": 2,
+     "totalMs": 26,
+     "formulaEngineMs": 26,
+     "storageEngineMs": 0,
+     "storageEngineQueries": 3,
+     "cacheHits": 3
+    },
+    {
+     "cache": "warm",
+     "iteration": 3,
+     "totalMs": 23,
+     "formulaEngineMs": 23,
+     "storageEngineMs": 0,
+     "storageEngineQueries": 3,
+     "cacheHits": 3
+    }
+   ],
+   "summary": {
+    "cold": {
+     "runs": 3,
+     "medianTotalMs": 1013,
+     "medianFormulaEngineMs": 68,
+     "medianStorageEngineMs": 945,
+     "minTotalMs": 843,
+     "maxTotalMs": 1176
+    },
+    "warm": {
+     "runs": 3,
+     "medianTotalMs": 23,
+     "medianFormulaEngineMs": 23,
+     "medianStorageEngineMs": 0,
+     "minTotalMs": 16,
+     "maxTotalMs": 26
+    }
+   },
+   "firstCold": {
+    "source": "live",
+    "coldCache": true,
+    "result": {
+     "columns": [
+      "Fecha[Year]",
+      "Fecha[Month]",
+      "[Ventas]",
+      "[Ventas AA]"
+     ],
+     "rows": [
+      [
+       2011,
+       1,
+       302399211.8247,
+       null
+      ],
+      [
+       2011,
+       2,
+       288915450.721,
+       null
+      ],
+      [
+       2011,
+       3,
+       316843587.0586,
+       null
+      ],
+      [
+       2011,
+       4,
+       322886039.1706,
+       null
+      ],
+      [
+       2011,
+       5,
+       365225310.7235,
+       null
+      ]
+     ],
+     "rowCount": 192,
+     "truncated": true
+    },
+    "timings": {
+     "totalMs": 1013,
+     "formulaEngineMs": 68,
+     "storageEngineMs": 945,
+     "storageEngineCpuMs": 4469,
+     "parallelism": 4.73,
+     "storageEngineQueries": 4,
+     "cacheHits": 0,
+     "callbacks": 0,
+     "rows": 17823,
+     "kBytes": 166,
+     "queries": [
+      {
+       "line": 1,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 47,
+       "durationMs": 391,
+       "cpuMs": 1781,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"DENSE\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0], COUNT()\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date];\r\n"
+      },
+      {
+       "line": 2,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 47,
+       "durationMs": 391,
+       "cpuMs": 1781,
+       "rows": 285,
+       "kBytes": 5,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 4560]\r\n"
+      },
+      {
+       "line": 3,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 440,
+       "durationMs": 1,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"DENSE\";\r\nSELECT\r\n[Fecha].[Date] AS [Fecha$Date],\r\nCOUNT()\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 4,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 440,
+       "durationMs": 1,
+       "cpuMs": 0,
+       "rows": 5847,
+       "kBytes": 46,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Date] AS [Fecha$Date]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 5847, 46776]\r\n"
+      },
+      {
+       "line": 5,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 444,
+       "durationMs": 1,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"C32\";\r\nSELECT\r\n[Fecha].[Date] AS [Fecha$Date], [Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month]\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 6,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 444,
+       "durationMs": 1,
+       "cpuMs": 0,
+       "rows": 5844,
+       "kBytes": 23,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Date] AS [Fecha$Date], [Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 5844, 23376]\r\n"
+      },
+      {
+       "line": 7,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 447,
+       "durationMs": 553,
+       "cpuMs": 2688,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"DENSE\";\r\nSELECT\r\n[Fecha].[Date] AS [Fecha$Date],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0], COUNT()\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date]\r\nWHERE\r\n\t[Fecha].[Date] INB (40544.000000, 40545.000000, 40546.000000, 40547.000000, 40548.000000, 40549.000000, 40550.000000, 40551.000000, 40552.000000, 40553.000000...[5479 total values, not all displayed]);\r\n"
+      },
+      {
+       "line": 8,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 447,
+       "durationMs": 553,
+       "cpuMs": 2688,
+       "rows": 5847,
+       "kBytes": 92,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Date] AS [Fecha$Date],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date]\r\nWHERE\r\n\t[Fecha].[Date] IN (41498.000000, 45490.000000, 44492.000000, 42496.000000, 43494.000000, 44451.000000, 43453.000000, 45449.000000, 42455.000000, 41457.000000...[5479 total values, not all displayed]);\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 5847, 93552]\r\n"
+      }
+     ],
+     "logicalPlan": null,
+     "physicalPlan": null,
+     "executionMetrics": "{\n\t\"timeStart\": \"2026-10-11T21:02:56.547Z\",\n\t\"timeEnd\": \"2026-10-11T21:02:57.560Z\",\n\n\t\"durationMs\": 1013,\n\t\"vertipaqJobCpuTimeMs\": 4469,\n\t\"queryProcessingCpuTimeMs\": 78,\n\t\"totalCpuTimeMs\": 4547,\n\t\"executionDelayMs\": 0,\n\n\t\"approximatePeakMemConsumptionKB\": 6318,\n\n\t\"commandType\": \"Statement\",\n\t\"queryDialect\": 3,\n\t\"queryResultRows\": 192\n}"
+    },
+    "measuredAt": "2026-10-11T21:03:00.5134239Z"
+   },
+   "lastWarm": {
+    "source": "live",
+    "coldCache": false,
+    "result": {
+     "columns": [
+      "Fecha[Year]",
+      "Fecha[Month]",
+      "[Ventas]",
+      "[Ventas AA]"
+     ],
+     "rows": [
+      [
+       2011,
+       1,
+       302399211.8247,
+       null
+      ],
+      [
+       2011,
+       2,
+       288915450.721,
+       null
+      ],
+      [
+       2011,
+       3,
+       316843587.0586,
+       null
+      ],
+      [
+       2011,
+       4,
+       322886039.1706,
+       null
+      ],
+      [
+       2011,
+       5,
+       365225310.7235,
+       null
+      ]
+     ],
+     "rowCount": 192,
+     "truncated": true
+    },
+    "timings": {
+     "totalMs": 23,
+     "formulaEngineMs": 23,
+     "storageEngineMs": 0,
+     "storageEngineCpuMs": 0,
+     "parallelism": null,
+     "storageEngineQueries": 3,
+     "cacheHits": 3,
+     "callbacks": 0,
+     "rows": 11976,
+     "kBytes": 120,
+     "queries": [
+      {
+       "line": 1,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 7,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date];\r\n"
+      },
+      {
+       "line": 2,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 7,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 285,
+       "kBytes": 5,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 4560]\r\n"
+      },
+      {
+       "line": 3,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 7,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Date] AS [Fecha$Date], [Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month]\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 4,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 7,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 5844,
+       "kBytes": 23,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Date] AS [Fecha$Date], [Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 5844, 23376]\r\n"
+      },
+      {
+       "line": 5,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 13,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Date] AS [Fecha$Date],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date]\r\nWHERE\r\n\t[Fecha].[Date] IN (41498.000000, 45490.000000, 44492.000000, 42496.000000, 43494.000000, 44451.000000, 43453.000000, 45449.000000, 42455.000000, 41457.000000...[5479 total values, not all displayed]);\r\n"
+      },
+      {
+       "line": 6,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 13,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 5847,
+       "kBytes": 92,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Date] AS [Fecha$Date],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date]\r\nWHERE\r\n\t[Fecha].[Date] IN (41498.000000, 45490.000000, 44492.000000, 42496.000000, 43494.000000, 44451.000000, 43453.000000, 45449.000000, 42455.000000, 41457.000000...[5479 total values, not all displayed]);\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 5847, 93552]\r\n"
+      }
+     ],
+     "logicalPlan": null,
+     "physicalPlan": null,
+     "executionMetrics": "{\n\t\"timeStart\": \"2026-10-11T21:03:13.125Z\",\n\t\"timeEnd\": \"2026-10-11T21:03:13.147Z\",\n\n\t\"durationMs\": 22,\n\t\"vertipaqJobCpuTimeMs\": 0,\n\t\"queryProcessingCpuTimeMs\": 31,\n\t\"totalCpuTimeMs\": 31,\n\t\"executionDelayMs\": 0,\n\n\t\"approximatePeakMemConsumptionKB\": 1032,\n\n\t\"commandType\": \"Statement\",\n\t\"queryDialect\": 3,\n\t\"queryResultRows\": 192\n}"
+    },
+    "measuredAt": "2026-10-11T21:03:15.2179098Z"
+   }
+  }
+ },
+ {
+  "label": "AA · Offset · año-mes",
+  "bench": {
+   "runs": [
+    {
+     "cache": "cold",
+     "iteration": 1,
+     "totalMs": 1136,
+     "formulaEngineMs": 56,
+     "storageEngineMs": 1080,
+     "storageEngineQueries": 5,
+     "cacheHits": 0
+    },
+    {
+     "cache": "cold",
+     "iteration": 2,
+     "totalMs": 1110,
+     "formulaEngineMs": 61,
+     "storageEngineMs": 1049,
+     "storageEngineQueries": 5,
+     "cacheHits": 0
+    },
+    {
+     "cache": "cold",
+     "iteration": 3,
+     "totalMs": 1180,
+     "formulaEngineMs": 59,
+     "storageEngineMs": 1121,
+     "storageEngineQueries": 5,
+     "cacheHits": 0
+    },
+    {
+     "cache": "warm",
+     "iteration": 1,
+     "totalMs": 16,
+     "formulaEngineMs": 16,
+     "storageEngineMs": 0,
+     "storageEngineQueries": 5,
+     "cacheHits": 5
+    },
+    {
+     "cache": "warm",
+     "iteration": 2,
+     "totalMs": 9,
+     "formulaEngineMs": 8,
+     "storageEngineMs": 1,
+     "storageEngineQueries": 5,
+     "cacheHits": 5
+    },
+    {
+     "cache": "warm",
+     "iteration": 3,
+     "totalMs": 13,
+     "formulaEngineMs": 13,
+     "storageEngineMs": 0,
+     "storageEngineQueries": 5,
+     "cacheHits": 5
+    }
+   ],
+   "summary": {
+    "cold": {
+     "runs": 3,
+     "medianTotalMs": 1136,
+     "medianFormulaEngineMs": 59,
+     "medianStorageEngineMs": 1080,
+     "minTotalMs": 1110,
+     "maxTotalMs": 1180
+    },
+    "warm": {
+     "runs": 3,
+     "medianTotalMs": 13,
+     "medianFormulaEngineMs": 13,
+     "medianStorageEngineMs": 0,
+     "minTotalMs": 9,
+     "maxTotalMs": 16
+    }
+   },
+   "firstCold": {
+    "source": "live",
+    "coldCache": true,
+    "result": {
+     "columns": [
+      "Fecha[Year]",
+      "Fecha[Month]",
+      "[Ventas]",
+      "[Ventas AA]"
+     ],
+     "rows": [
+      [
+       2011,
+       1,
+       302399211.8247,
+       null
+      ],
+      [
+       2011,
+       2,
+       288915450.721,
+       null
+      ],
+      [
+       2011,
+       3,
+       316843587.0586,
+       null
+      ],
+      [
+       2011,
+       4,
+       322886039.1706,
+       null
+      ],
+      [
+       2011,
+       5,
+       365225310.7235,
+       null
+      ]
+     ],
+     "rowCount": 192,
+     "truncated": true
+    },
+    "timings": {
+     "totalMs": 1136,
+     "formulaEngineMs": 56,
+     "storageEngineMs": 1080,
+     "storageEngineCpuMs": 5766,
+     "parallelism": 5.34,
+     "storageEngineQueries": 5,
+     "cacheHits": 0,
+     "callbacks": 0,
+     "rows": 889,
+     "kBytes": 15,
+     "queries": [
+      {
+       "line": 1,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 47,
+       "durationMs": 370,
+       "cpuMs": 1922,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"DENSE\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0], COUNT()\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date];\r\n"
+      },
+      {
+       "line": 2,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 47,
+       "durationMs": 370,
+       "cpuMs": 1922,
+       "rows": 285,
+       "kBytes": 5,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 4560]\r\n"
+      },
+      {
+       "line": 3,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 420,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"DENSE\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nCOUNT()\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 4,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 420,
+       "durationMs": 1,
+       "cpuMs": 0,
+       "rows": 285,
+       "kBytes": 3,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 2280]\r\n"
+      },
+      {
+       "line": 5,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 420,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"DENSE\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year],\r\nCOUNT()\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 6,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 420,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 19,
+       "kBytes": 1,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 19, 152]\r\n"
+      },
+      {
+       "line": 7,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 420,
+       "durationMs": 710,
+       "cpuMs": 3844,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"DENSE\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0], COUNT()\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date]\r\nWHERE\r\n\t[Fecha].[Year] INB (2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020...[15 total values, not all displayed]);\r\n"
+      },
+      {
+       "line": 8,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 420,
+       "durationMs": 710,
+       "cpuMs": 3844,
+       "rows": 285,
+       "kBytes": 5,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date]\r\nWHERE\r\n\t[Fecha].[Year] IN (2022, 2023, 2024, 2011, 2025, 2012, 2013, 2014, 2015, 2016...[15 total values, not all displayed]);\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 4560]\r\n"
+      },
+      {
+       "line": 9,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 1130,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"DENSE\";\r\nSELECT\r\n[Fecha].[Month] AS [Fecha$Month],\r\nCOUNT()\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 10,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 1130,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 15,
+       "kBytes": 1,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Month] AS [Fecha$Month]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 15, 120]\r\n"
+      }
+     ],
+     "logicalPlan": null,
+     "physicalPlan": null,
+     "executionMetrics": "{\n\t\"timeStart\": \"2026-10-11T21:03:15.235Z\",\n\t\"timeEnd\": \"2026-10-11T21:03:16.370Z\",\n\n\t\"durationMs\": 1135,\n\t\"vertipaqJobCpuTimeMs\": 5766,\n\t\"queryProcessingCpuTimeMs\": 31,\n\t\"totalCpuTimeMs\": 5797,\n\t\"executionDelayMs\": 0,\n\n\t\"approximatePeakMemConsumptionKB\": 4273,\n\n\t\"commandType\": \"Statement\",\n\t\"queryDialect\": 3,\n\t\"queryResultRows\": 192\n}"
+    },
+    "measuredAt": "2026-10-11T21:03:19.4312201Z"
+   },
+   "lastWarm": {
+    "source": "live",
+    "coldCache": false,
+    "result": {
+     "columns": [
+      "Fecha[Year]",
+      "Fecha[Month]",
+      "[Ventas]",
+      "[Ventas AA]"
+     ],
+     "rows": [
+      [
+       2011,
+       1,
+       302399211.8247,
+       null
+      ],
+      [
+       2011,
+       2,
+       288915450.721,
+       null
+      ],
+      [
+       2011,
+       3,
+       316843587.0586,
+       null
+      ],
+      [
+       2011,
+       4,
+       322886039.1706,
+       null
+      ],
+      [
+       2011,
+       5,
+       365225310.7235,
+       null
+      ]
+     ],
+     "rowCount": 192,
+     "truncated": true
+    },
+    "timings": {
+     "totalMs": 13,
+     "formulaEngineMs": 13,
+     "storageEngineMs": 0,
+     "storageEngineCpuMs": 0,
+     "parallelism": null,
+     "storageEngineQueries": 5,
+     "cacheHits": 5,
+     "callbacks": 0,
+     "rows": 889,
+     "kBytes": 15,
+     "queries": [
+      {
+       "line": 1,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 10,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date];\r\n"
+      },
+      {
+       "line": 2,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 10,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 285,
+       "kBytes": 5,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 4560]\r\n"
+      },
+      {
+       "line": 3,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 10,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month]\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 4,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 10,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 285,
+       "kBytes": 3,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 2280]\r\n"
+      },
+      {
+       "line": 5,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 10,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year]\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 6,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 10,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 19,
+       "kBytes": 1,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 19, 152]\r\n"
+      },
+      {
+       "line": 7,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 10,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date]\r\nWHERE\r\n\t[Fecha].[Year] IN (2022, 2023, 2024, 2011, 2025, 2012, 2013, 2014, 2015, 2016...[15 total values, not all displayed]);\r\n"
+      },
+      {
+       "line": 8,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 10,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 285,
+       "kBytes": 5,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date]\r\nWHERE\r\n\t[Fecha].[Year] IN (2022, 2023, 2024, 2011, 2025, 2012, 2013, 2014, 2015, 2016...[15 total values, not all displayed]);\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 4560]\r\n"
+      },
+      {
+       "line": 9,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 10,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Month] AS [Fecha$Month]\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 10,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 10,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 15,
+       "kBytes": 1,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Month] AS [Fecha$Month]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 15, 120]\r\n"
+      }
+     ],
+     "logicalPlan": null,
+     "physicalPlan": null,
+     "executionMetrics": "{\n\t\"timeStart\": \"2026-10-11T21:03:32.013Z\",\n\t\"timeEnd\": \"2026-10-11T21:03:32.026Z\",\n\n\t\"durationMs\": 13,\n\t\"vertipaqJobCpuTimeMs\": 0,\n\t\"queryProcessingCpuTimeMs\": 16,\n\t\"totalCpuTimeMs\": 16,\n\t\"executionDelayMs\": 0,\n\n\t\"approximatePeakMemConsumptionKB\": 0,\n\n\t\"commandType\": \"Statement\",\n\t\"queryDialect\": 3,\n\t\"queryResultRows\": 192\n}"
+    },
+    "measuredAt": "2026-10-11T21:03:34.1117437Z"
+   }
+  }
+ },
+ {
+  "label": "AA · Calendario · año-mes",
+  "bench": {
+   "runs": [
+    {
+     "cache": "cold",
+     "iteration": 1,
+     "totalMs": 1550,
+     "formulaEngineMs": 54,
+     "storageEngineMs": 1496,
+     "storageEngineQueries": 7,
+     "cacheHits": 1
+    },
+    {
+     "cache": "cold",
+     "iteration": 2,
+     "totalMs": 1553,
+     "formulaEngineMs": 78,
+     "storageEngineMs": 1475,
+     "storageEngineQueries": 7,
+     "cacheHits": 1
+    },
+    {
+     "cache": "cold",
+     "iteration": 3,
+     "totalMs": 1419,
+     "formulaEngineMs": 53,
+     "storageEngineMs": 1366,
+     "storageEngineQueries": 7,
+     "cacheHits": 1
+    },
+    {
+     "cache": "warm",
+     "iteration": 1,
+     "totalMs": 16,
+     "formulaEngineMs": 15,
+     "storageEngineMs": 1,
+     "storageEngineQueries": 7,
+     "cacheHits": 7
+    },
+    {
+     "cache": "warm",
+     "iteration": 2,
+     "totalMs": 14,
+     "formulaEngineMs": 13,
+     "storageEngineMs": 1,
+     "storageEngineQueries": 7,
+     "cacheHits": 7
+    },
+    {
+     "cache": "warm",
+     "iteration": 3,
+     "totalMs": 20,
+     "formulaEngineMs": 20,
+     "storageEngineMs": 0,
+     "storageEngineQueries": 7,
+     "cacheHits": 7
+    }
+   ],
+   "summary": {
+    "cold": {
+     "runs": 3,
+     "medianTotalMs": 1550,
+     "medianFormulaEngineMs": 54,
+     "medianStorageEngineMs": 1475,
+     "minTotalMs": 1419,
+     "maxTotalMs": 1553
+    },
+    "warm": {
+     "runs": 3,
+     "medianTotalMs": 16,
+     "medianFormulaEngineMs": 15,
+     "medianStorageEngineMs": 1,
+     "minTotalMs": 14,
+     "maxTotalMs": 20
+    }
+   },
+   "firstCold": {
+    "source": "live",
+    "coldCache": true,
+    "result": {
+     "columns": [
+      "Fecha[Year]",
+      "Fecha[Month]",
+      "[Ventas]",
+      "[Ventas AA]"
+     ],
+     "rows": [
+      [
+       2011,
+       1,
+       302399211.8247,
+       null
+      ],
+      [
+       2011,
+       2,
+       288915450.721,
+       null
+      ],
+      [
+       2011,
+       3,
+       316843587.0586,
+       null
+      ],
+      [
+       2011,
+       4,
+       322886039.1706,
+       null
+      ],
+      [
+       2011,
+       5,
+       365225310.7235,
+       null
+      ]
+     ],
+     "rowCount": 192,
+     "truncated": true
+    },
+    "timings": {
+     "totalMs": 1550,
+     "formulaEngineMs": 54,
+     "storageEngineMs": 1496,
+     "storageEngineCpuMs": 7203,
+     "parallelism": 4.81,
+     "storageEngineQueries": 7,
+     "cacheHits": 1,
+     "callbacks": 0,
+     "rows": 4963,
+     "kBytes": 45,
+     "queries": [
+      {
+       "line": 1,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 47,
+       "durationMs": 350,
+       "cpuMs": 1828,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"DENSE\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0], COUNT()\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date];\r\n"
+      },
+      {
+       "line": 2,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 47,
+       "durationMs": 350,
+       "cpuMs": 1828,
+       "rows": 285,
+       "kBytes": 5,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 4560]\r\n"
+      },
+      {
+       "line": 3,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 397,
+       "durationMs": 1,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"C32\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month], [Fecha].[MonthKey] AS [Fecha$MonthKey]\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 4,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 397,
+       "durationMs": 1,
+       "cpuMs": 0,
+       "rows": 192,
+       "kBytes": 1,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month], [Fecha].[MonthKey] AS [Fecha$MonthKey]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 192, 768]\r\n"
+      },
+      {
+       "line": 5,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 397,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month], [Fecha].[MonthKey] AS [Fecha$MonthKey]\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 6,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 397,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 192,
+       "kBytes": 1,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month], [Fecha].[MonthKey] AS [Fecha$MonthKey]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 192, 768]\r\n"
+      },
+      {
+       "line": 7,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 400,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"DENSE\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year],\r\nCOUNT()\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 8,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 397,
+       "durationMs": 3,
+       "cpuMs": 0,
+       "rows": 19,
+       "kBytes": 1,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 19, 152]\r\n"
+      },
+      {
+       "line": 9,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 400,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"DENSE\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[MonthKey] AS [Fecha$MonthKey],\r\nCOUNT()\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 10,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 400,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 3705,
+       "kBytes": 29,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[MonthKey] AS [Fecha$MonthKey]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 3705, 29640]\r\n"
+      },
+      {
+       "line": 11,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 400,
+       "durationMs": 1143,
+       "cpuMs": 5375,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"DENSE\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0], COUNT()\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date]\r\nWHERE\r\n\t([Fecha].[Month], [Fecha].[Year]) IN32 {(7, 2016), (9, 2021), (5, 2011), (2, 2024), (7, 2022), (12, 2014), (5, 2017), (3, 2012), (10, 2015), (12, 2020)...[180 total tuples, not all displayed]};\r\n"
+      },
+      {
+       "line": 12,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 400,
+       "durationMs": 1143,
+       "cpuMs": 5375,
+       "rows": 285,
+       "kBytes": 5,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date]\r\nWHERE\r\n\t([Fecha].[Month], [Fecha].[Year]) IN {(7, 2016), (9, 2021), (5, 2011), (2, 2024), (7, 2022), (12, 2014), (5, 2017), (3, 2012), (10, 2015), (12, 2020)...[180 total tuples, not all displayed]};\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 4560]\r\n"
+      },
+      {
+       "line": 13,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 1547,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"DENSE\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nCOUNT()\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 14,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 1547,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 285,
+       "kBytes": 3,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 2280]\r\n"
+      }
+     ],
+     "logicalPlan": null,
+     "physicalPlan": null,
+     "executionMetrics": "{\n\t\"timeStart\": \"2026-10-11T21:03:34.117Z\",\n\t\"timeEnd\": \"2026-10-11T21:03:35.668Z\",\n\n\t\"durationMs\": 1551,\n\t\"vertipaqJobCpuTimeMs\": 7203,\n\t\"queryProcessingCpuTimeMs\": 47,\n\t\"totalCpuTimeMs\": 7250,\n\t\"executionDelayMs\": 0,\n\n\t\"approximatePeakMemConsumptionKB\": 5419,\n\n\t\"commandType\": \"Statement\",\n\t\"queryDialect\": 3,\n\t\"queryResultRows\": 192\n}"
+    },
+    "measuredAt": "2026-10-11T21:03:38.3259561Z"
+   },
+   "lastWarm": {
+    "source": "live",
+    "coldCache": false,
+    "result": {
+     "columns": [
+      "Fecha[Year]",
+      "Fecha[Month]",
+      "[Ventas]",
+      "[Ventas AA]"
+     ],
+     "rows": [
+      [
+       2011,
+       1,
+       302399211.8247,
+       null
+      ],
+      [
+       2011,
+       2,
+       288915450.721,
+       null
+      ],
+      [
+       2011,
+       3,
+       316843587.0586,
+       null
+      ],
+      [
+       2011,
+       4,
+       322886039.1706,
+       null
+      ],
+      [
+       2011,
+       5,
+       365225310.7235,
+       null
+      ]
+     ],
+     "rowCount": 192,
+     "truncated": true
+    },
+    "timings": {
+     "totalMs": 20,
+     "formulaEngineMs": 20,
+     "storageEngineMs": 0,
+     "storageEngineCpuMs": 0,
+     "parallelism": null,
+     "storageEngineQueries": 7,
+     "cacheHits": 7,
+     "callbacks": 0,
+     "rows": 4963,
+     "kBytes": 45,
+     "queries": [
+      {
+       "line": 1,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 10,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date];\r\n"
+      },
+      {
+       "line": 2,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 10,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 285,
+       "kBytes": 5,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 4560]\r\n"
+      },
+      {
+       "line": 3,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 10,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month], [Fecha].[MonthKey] AS [Fecha$MonthKey]\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 4,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 10,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 192,
+       "kBytes": 1,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month], [Fecha].[MonthKey] AS [Fecha$MonthKey]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 192, 768]\r\n"
+      },
+      {
+       "line": 5,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 10,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month], [Fecha].[MonthKey] AS [Fecha$MonthKey]\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 6,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 10,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 192,
+       "kBytes": 1,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month], [Fecha].[MonthKey] AS [Fecha$MonthKey]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 192, 768]\r\n"
+      },
+      {
+       "line": 7,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 13,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year]\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 8,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 13,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 19,
+       "kBytes": 1,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 19, 152]\r\n"
+      },
+      {
+       "line": 9,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 13,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[MonthKey] AS [Fecha$MonthKey]\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 10,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 13,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 3705,
+       "kBytes": 29,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[MonthKey] AS [Fecha$MonthKey]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 3705, 29640]\r\n"
+      },
+      {
+       "line": 11,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 13,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date]\r\nWHERE\r\n\t([Fecha].[Month], [Fecha].[Year]) IN {(7, 2016), (9, 2021), (5, 2011), (2, 2024), (7, 2022), (12, 2014), (5, 2017), (3, 2012), (10, 2015), (12, 2020)...[180 total tuples, not all displayed]};\r\n"
+      },
+      {
+       "line": 12,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 13,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 285,
+       "kBytes": 5,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date]\r\nWHERE\r\n\t([Fecha].[Month], [Fecha].[Year]) IN {(7, 2016), (9, 2021), (5, 2011), (2, 2024), (7, 2022), (12, 2014), (5, 2017), (3, 2012), (10, 2015), (12, 2020)...[180 total tuples, not all displayed]};\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 4560]\r\n"
+      },
+      {
+       "line": 13,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 13,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month]\r\nFROM [Fecha];\r\n"
+      },
+      {
+       "line": 14,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 13,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 285,
+       "kBytes": 3,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month]\r\nFROM [Fecha];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 2280]\r\n"
+      }
+     ],
+     "logicalPlan": null,
+     "physicalPlan": null,
+     "executionMetrics": "{\n\t\"timeStart\": \"2026-10-11T21:03:50.913Z\",\n\t\"timeEnd\": \"2026-10-11T21:03:50.934Z\",\n\n\t\"durationMs\": 21,\n\t\"vertipaqJobCpuTimeMs\": 0,\n\t\"queryProcessingCpuTimeMs\": 16,\n\t\"totalCpuTimeMs\": 16,\n\t\"executionDelayMs\": 1,\n\n\t\"approximatePeakMemConsumptionKB\": 1028,\n\n\t\"commandType\": \"Statement\",\n\t\"queryDialect\": 3,\n\t\"queryResultRows\": 192\n}"
+    },
+    "measuredAt": "2026-10-11T21:03:53.0121313Z"
+   }
+  }
+ },
+ {
+  "label": "AA · Columna · año-mes",
+  "bench": {
+   "runs": [
+    {
+     "cache": "cold",
+     "iteration": 1,
+     "totalMs": 962,
+     "formulaEngineMs": 48,
+     "storageEngineMs": 914,
+     "storageEngineQueries": 2,
+     "cacheHits": 0
+    },
+    {
+     "cache": "cold",
+     "iteration": 2,
+     "totalMs": 794,
+     "formulaEngineMs": 54,
+     "storageEngineMs": 740,
+     "storageEngineQueries": 2,
+     "cacheHits": 0
+    },
+    {
+     "cache": "cold",
+     "iteration": 3,
+     "totalMs": 817,
+     "formulaEngineMs": 50,
+     "storageEngineMs": 767,
+     "storageEngineQueries": 2,
+     "cacheHits": 0
+    },
+    {
+     "cache": "warm",
+     "iteration": 1,
+     "totalMs": 9,
+     "formulaEngineMs": 9,
+     "storageEngineMs": 0,
+     "storageEngineQueries": 2,
+     "cacheHits": 2
+    },
+    {
+     "cache": "warm",
+     "iteration": 2,
+     "totalMs": 10,
+     "formulaEngineMs": 10,
+     "storageEngineMs": 0,
+     "storageEngineQueries": 2,
+     "cacheHits": 2
+    },
+    {
+     "cache": "warm",
+     "iteration": 3,
+     "totalMs": 7,
+     "formulaEngineMs": 7,
+     "storageEngineMs": 0,
+     "storageEngineQueries": 2,
+     "cacheHits": 2
+    }
+   ],
+   "summary": {
+    "cold": {
+     "runs": 3,
+     "medianTotalMs": 817,
+     "medianFormulaEngineMs": 50,
+     "medianStorageEngineMs": 767,
+     "minTotalMs": 794,
+     "maxTotalMs": 962
+    },
+    "warm": {
+     "runs": 3,
+     "medianTotalMs": 9,
+     "medianFormulaEngineMs": 9,
+     "medianStorageEngineMs": 0,
+     "minTotalMs": 7,
+     "maxTotalMs": 10
+    }
+   },
+   "firstCold": {
+    "source": "live",
+    "coldCache": true,
+    "result": {
+     "columns": [
+      "Fecha[Year]",
+      "Fecha[Month]",
+      "[Ventas]",
+      "[Ventas AA]"
+     ],
+     "rows": [
+      [
+       null,
+       null,
+       null,
+       4750000892.2012
+      ],
+      [
+       2011,
+       1,
+       302399211.8247,
+       null
+      ],
+      [
+       2011,
+       2,
+       288915450.721,
+       null
+      ],
+      [
+       2011,
+       3,
+       316843587.0586,
+       null
+      ],
+      [
+       2011,
+       4,
+       322886039.1706,
+       null
+      ]
+     ],
+     "rowCount": 193,
+     "truncated": true
+    },
+    "timings": {
+     "totalMs": 962,
+     "formulaEngineMs": 48,
+     "storageEngineMs": 914,
+     "storageEngineCpuMs": 3594,
+     "parallelism": 3.93,
+     "storageEngineQueries": 2,
+     "cacheHits": 0,
+     "callbacks": 0,
+     "rows": 570,
+     "kBytes": 10,
+     "queries": [
+      {
+       "line": 1,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 40,
+       "durationMs": 480,
+       "cpuMs": 1656,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"DENSE\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0], COUNT()\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date];\r\n"
+      },
+      {
+       "line": 2,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 40,
+       "durationMs": 480,
+       "cpuMs": 1656,
+       "rows": 285,
+       "kBytes": 5,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 4560]\r\n"
+      },
+      {
+       "line": 3,
+       "type": "internal",
+       "subclass": "VertiPaqScanInternal",
+       "startOffsetMs": 524,
+       "durationMs": 434,
+       "cpuMs": 1938,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"DENSE\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0], COUNT()\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaAA]=[Fecha].[Date];\r\n"
+      },
+      {
+       "line": 4,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 524,
+       "durationMs": 434,
+       "cpuMs": 1938,
+       "rows": 285,
+       "kBytes": 5,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaAA]=[Fecha].[Date];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 4560]\r\n"
+      }
+     ],
+     "logicalPlan": null,
+     "physicalPlan": null,
+     "executionMetrics": "{\n\t\"timeStart\": \"2026-10-11T21:03:53.016Z\",\n\t\"timeEnd\": \"2026-10-11T21:03:53.978Z\",\n\n\t\"durationMs\": 962,\n\t\"vertipaqJobCpuTimeMs\": 3594,\n\t\"queryProcessingCpuTimeMs\": 47,\n\t\"totalCpuTimeMs\": 3641,\n\t\"executionDelayMs\": 0,\n\n\t\"approximatePeakMemConsumptionKB\": 3216,\n\n\t\"commandType\": \"Statement\",\n\t\"queryDialect\": 3,\n\t\"queryResultRows\": 193\n}"
+    },
+    "measuredAt": "2026-10-11T21:03:57.2194601Z"
+   },
+   "lastWarm": {
+    "source": "live",
+    "coldCache": false,
+    "result": {
+     "columns": [
+      "Fecha[Year]",
+      "Fecha[Month]",
+      "[Ventas]",
+      "[Ventas AA]"
+     ],
+     "rows": [
+      [
+       null,
+       null,
+       null,
+       4750000892.2012
+      ],
+      [
+       2011,
+       1,
+       302399211.8247,
+       null
+      ],
+      [
+       2011,
+       2,
+       288915450.721,
+       null
+      ],
+      [
+       2011,
+       3,
+       316843587.0586,
+       null
+      ],
+      [
+       2011,
+       4,
+       322886039.1706,
+       null
+      ]
+     ],
+     "rowCount": 193,
+     "truncated": true
+    },
+    "timings": {
+     "totalMs": 7,
+     "formulaEngineMs": 7,
+     "storageEngineMs": 0,
+     "storageEngineCpuMs": 0,
+     "parallelism": null,
+     "storageEngineQueries": 2,
+     "cacheHits": 2,
+     "callbacks": 0,
+     "rows": 570,
+     "kBytes": 10,
+     "queries": [
+      {
+       "line": 1,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 4,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date];\r\n"
+      },
+      {
+       "line": 2,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 4,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 285,
+       "kBytes": 5,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaPedido]=[Fecha].[Date];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 4560]\r\n"
+      },
+      {
+       "line": 3,
+       "type": "cache",
+       "subclass": "VertiPaqCacheExactMatch",
+       "startOffsetMs": 7,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": null,
+       "kBytes": null,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaAA]=[Fecha].[Date];\r\n"
+      },
+      {
+       "line": 4,
+       "type": "scan",
+       "subclass": "VertiPaqScan",
+       "startOffsetMs": 7,
+       "durationMs": 0,
+       "cpuMs": 0,
+       "rows": 285,
+       "kBytes": 5,
+       "callback": false,
+       "inBatch": false,
+       "query": "SET DC_KIND=\"AUTO\";\r\nSELECT\r\n[Fecha].[Year] AS [Fecha$Year], [Fecha].[Month] AS [Fecha$Month],\r\nSUM([FactInternetSales].[SalesAmount]) AS [$Measure0]\r\nFROM [FactInternetSales]\r\n\tLEFT OUTER JOIN [Fecha] ON [FactInternetSales].[FechaAA]=[Fecha].[Date];\r\n\r\n\r\n[Estimated size (volume, marshalling bytes): 285, 4560]\r\n"
+      }
+     ],
+     "logicalPlan": null,
+     "physicalPlan": null,
+     "executionMetrics": "{\n\t\"timeStart\": \"2026-10-11T21:04:09.827Z\",\n\t\"timeEnd\": \"2026-10-11T21:04:09.834Z\",\n\n\t\"durationMs\": 7,\n\t\"vertipaqJobCpuTimeMs\": 0,\n\t\"queryProcessingCpuTimeMs\": 16,\n\t\"totalCpuTimeMs\": 16,\n\t\"executionDelayMs\": 0,\n\n\t\"approximatePeakMemConsumptionKB\": 0,\n\n\t\"commandType\": \"Statement\",\n\t\"queryDialect\": 3,\n\t\"queryResultRows\": 193\n}"
+    },
+    "measuredAt": "2026-10-11T21:04:11.9116624Z"
+   }
+  }
+ }
+]
