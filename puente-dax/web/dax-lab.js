@@ -91,6 +91,96 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 
+
+  // Copia al portapapeles (con plan B por si el navegador lo bloquea) y avisa en el propio botón.
+  async function copyText(text, button) {
+    try { await navigator.clipboard.writeText(text); }
+    catch {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch { /* sin permiso */ }
+      ta.remove();
+      if (!ok) { window.prompt('Copia el texto:', text); return; }
+    }
+    if (button) {
+      const old = button.textContent;
+      button.textContent = '✓ Copiado';
+      setTimeout(() => { button.textContent = old; }, 1400);
+    }
+  }
+
+  // Un plan de consulta tal como lo da el motor: una línea por operador, con sangría.
+  // Devuelve { depth, op, records } para pintar la tabla Línea · Registros · Operador de DAX Studio.
+  function planRows(text) {
+    return String(text || '').split(/\r?\n/).filter((l) => l.trim()).map((raw, i) => {
+      const indent = raw.match(/^[\t ]*/)[0];
+      const depth = indent.includes('\t') ? indent.split('\t').length - 1 : Math.floor(indent.length / 4);
+      const body = raw.trim();
+      const rec = body.match(/#Records=(\d+)/);
+      return { line: i + 1, depth, body, records: rec ? Number(rec[1]) : null };
+    });
+  }
+
+  // Operadores del plan que merece la pena señalar al hablar del FE.
+  const PLAN_FLAGS = [
+    [/Callback/i, 'cb', 'callback'],
+    [/Spool/i, 'sp', 'spool'],
+    [/Cache|Vertipaq/i, 'se', 'SE'],
+  ];
+
+  // ¿La consulta xmSQL agrupa por (o solo menciona) la columna indicada con {{Clave}}?
+  function watchColumn(key) {
+    const text = has(key) ? String(model()[key]) : String(key);
+    const m = text.match(/^\s*(?:'((?:[^']|'')+)'|([^\s'\[]+))?\s*\[([^\]]+)\]\s*$/);
+    return m ? { table: (m[1] || m[2] || '').replace(/''/g, "'"), column: m[3] } : null;
+  }
+  function watchHit(xmSql, col) {
+    if (!col || !xmSql) return null;
+    const q = String(xmSql);
+    const name = `(?:'?${col.table ? col.table.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '[^\\[\\s]*'}'?)?\\[${col.column.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?: \\(\\d+\\))?\\]`;
+    const re = new RegExp(name, 'i');
+    const sel = q.match(/\bSELECT\b([\s\S]*?)\bFROM\b/i);
+    if (sel && re.test(sel[1])) return 'group';
+    return re.test(q) ? 'filter' : null;
+  }
+
+  // Texto listo para pegar en un LLM: pregunta, consulta, tiempos, xmSQL y planes.
+  const LLM_PROMPT = `Eres un experto en rendimiento de DAX y del motor VertiPaq (Power BI / Analysis Services).
+Te paso una consulta DAX con lo que ha medido el servidor (los mismos datos que Server Timings y Query Plan de DAX Studio).
+Explícame, en español y para una sala que está aprendiendo:
+1. Qué hace el Storage Engine (SE) y qué hace el Formula Engine (FE) en esta consulta, apoyándote en las consultas xmSQL y en el plan físico.
+2. Dónde se va el tiempo y por qué (número de consultas SE, filas y KB que viajan al FE, callbacks, granularidad a la que baja el SE).
+3. Si el plan lógico y el físico cuentan lo mismo y qué operadores merecen atención.
+4. Qué cambiarías en el DAX o en el modelo, y cómo comprobar con una nueva traza que ha mejorado.
+No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
+
+  function llmReport(label, dax, response, extra) {
+    const t = response.timings;
+    const rows = (t.queries || []).filter((q) => q.type !== 'internal');
+    const fence = (lang, body) => '```' + lang + '\n' + String(body).replace(/\s+$/, '') + '\n```';
+    const parts = [
+      extra || LLM_PROMPT,
+      `## Consulta DAX (${label})\n${fence('dax', dax)}`,
+      `## Server Timings (${response.coldCache ? 'caché fría' : 'caché caliente'})\n` + [
+        `- Total: ${t.totalMs} ms`,
+        `- Formula Engine: ${t.formulaEngineMs} ms`,
+        `- Storage Engine: ${t.storageEngineMs} ms (CPU ${t.storageEngineCpuMs} ms${t.parallelism ? `, paralelismo ×${Math.round(t.parallelism * 10) / 10}` : ''})`,
+        `- Consultas SE: ${t.storageEngineQueries} · aciertos de caché: ${t.cacheHits} · callbacks: ${t.callbacks}`,
+        `- Filas y KB que el SE entrega al FE: ${t.rows} filas · ${t.kBytes} KB`,
+      ].join('\n'),
+    ];
+    if (rows.length) {
+      parts.push('## Consultas del Storage Engine (xmSQL)\n' + rows.map((q, i) =>
+        `### SE ${i + 1} · ${q.type}${q.callback ? ' · CALLBACK' : ''} · ${q.durationMs} ms · CPU ${q.cpuMs} ms · ${q.rows ?? '?'} filas · ${q.kBytes ?? '?'} KB\n${fence('sql', preview(q.query))}`).join('\n\n'));
+    }
+    if (t.logicalPlan) parts.push(`## Plan lógico\n${fence('', t.logicalPlan)}`);
+    if (t.physicalPlan) parts.push(`## Plan físico\n${fence('', t.physicalPlan)}`);
+    if (!t.logicalPlan && !t.physicalPlan) parts.push('(No se pidió el plan: marca la casilla «plan» y vuelve a medir para incluirlo.)');
+    return parts.join('\n\n');
+  }
+
   // ─── Plantillas {{Clave}} contra window.PUENTE_DAX_MODELO ──────────────────
   const TEMPLATE = /\{\{\s*([^{}]+?)\s*\}\}/g;
   const model = () => window.PUENTE_DAX_MODELO || {};
@@ -270,6 +360,28 @@
     .msg.err { color:var(--dl-cb); }
     .bench { padding:4px 14px 0; flex:none; }
     .hidden { display:none !important; }
+    .tools { display:flex; gap:8px; align-items:center; padding:2px 0 8px; flex-wrap:wrap; }
+    .tools .hint { font:12px var(--dl-mono); color:var(--dl-muted); margin-right:auto; }
+    button.llm { color:#04100b; background:var(--dl-info); border-color:var(--dl-info); }
+    button.llm:hover { background:#8fe2ff; }
+    .tl { position:relative; margin:6px 0 10px; border:1px solid var(--dl-line); border-radius:10px; padding:8px 10px 10px; background:rgba(255,179,71,.05); }
+    .tl .lane { position:relative; height:14px; margin-top:4px; border-radius:7px; background:repeating-linear-gradient(90deg,rgba(255,179,71,.18) 0 6px,rgba(255,179,71,.08) 6px 12px); }
+    .tl .seg { position:absolute; top:0; bottom:0; border-radius:7px; background:var(--dl-se); min-width:3px; }
+    .tl .seg.cb { background:var(--dl-cb); } .tl .seg.cache { background:var(--dl-muted); }
+    .tl .cap { font:11px var(--dl-mono); color:var(--dl-muted); display:flex; justify-content:space-between; }
+    .tl .cap i { font-style:normal; color:var(--dl-fe); }
+    .watch { font:12px var(--dl-mono); color:var(--dl-fe); padding:2px 0 8px; }
+    .watch b { color:var(--dl-cb); }
+    span.grain { font:600 11px var(--dl-mono); border:1px solid var(--dl-cb); color:var(--dl-cb); border-radius:999px; padding:0 6px; margin-right:6px; white-space:nowrap; }
+    span.grain.f { border-color:var(--dl-muted); color:var(--dl-muted); }
+    table.plant td.ln, table.plant th.ln { width:34px; text-align:right; color:var(--dl-muted); }
+    table.plant td.rc { width:70px; text-align:right; color:var(--dl-info); }
+    table.plant td.op { white-space:pre; }
+    table.plant tr.cb td.op { color:var(--dl-cb); font-weight:700; }
+    table.plant tr.sp td.op { color:var(--dl-fe); }
+    table.plant tr.se td.op { color:var(--dl-se); }
+    .fe-note { font:13px/1.5 var(--dl-mono); color:var(--dl-muted); padding:2px 0 8px; }
+    .fe-note b { color:var(--dl-fe); }
     .compact .label, .compact .title { font-size:17px; }
     .compact textarea { font-size:14px; }
     .compact .kpis { grid-template-columns:repeat(8,1fr); gap:6px; }
@@ -324,6 +436,7 @@
             <button data-run="warm" class="warm" title="Ejecuta sin limpiar la caché">▶ Caliente</button>
             <button data-run="bench" class="ghost" title="Varias ejecuciones en frío y en caliente">⏱ Benchmark</button>
             <label class="opt"><input type="checkbox" data-plan> plan</label>
+            <button data-llm class="llm hidden" title="Copia consulta, tiempos, xmSQL y planes en un texto listo para pegar en un LLM">🤖 Copiar para LLM</button>
             <button data-save class="ghost" title="Guardar la medición como JSON">⤓</button>
           </div>
           <div class="variants ${this._variants.length > 1 ? '' : 'hidden'}"></div>
@@ -343,6 +456,8 @@
       this._buttons = [...root.querySelectorAll('.head button')];
       root.querySelectorAll('[data-run]').forEach((b) => b.addEventListener('click', () => this.run(b.dataset.run)));
       root.querySelector('[data-save]').addEventListener('click', () => this.save());
+      this._llm = root.querySelector('[data-llm]');
+      this._llm.addEventListener('click', () => this.copyForLlm());
       isolateKeyboard(root, () => this.run('cold'));
 
       this._pills.innerHTML = this._variants.map((v, i) =>
@@ -365,7 +480,7 @@
       this._note.textContent = noteText;
       this._note.classList.toggle('hidden', !noteText);
       if (v.last) this._render(v.last.response, v.last.bench, v.last.recordedAt);
-      else { this._out.innerHTML = ''; this._setStatus('', 'Listo para medir. Ctrl+Enter ejecuta en frío.'); }
+      else { this._out.innerHTML = ''; this._llm.classList.add('hidden'); this._setStatus('', 'Listo para medir. Ctrl+Enter ejecuta en frío.'); }
     }
 
     async run(mode) {
@@ -438,6 +553,13 @@
       download(`${slug(v.label)}.json`, JSON.stringify(payload, null, 2), 'application/json');
     }
 
+    copyForLlm() {
+      const v = this.variant;
+      if (!v.last) { this._setStatus('err', 'Aún no hay ninguna medición que copiar.'); return; }
+      const extra = this.getAttribute('llm-prompt');
+      copyText(llmReport(v.label, resolve(v.text), v.last.response, extra), this._llm);
+    }
+
     _busy(on, mode) {
       this._buttons.forEach((b) => { b.disabled = on; });
       if (on) {
@@ -481,15 +603,17 @@
         </div>
         ${bench ? this._benchHtml(bench) : ''}
         <div class="tabs">
-          <button class="tab" data-tab="se">Consultas SE</button>
-          <button class="tab" data-tab="res">Resultado</button>
+          <button class="tab" data-tab="se">Storage Engine</button>
+          <button class="tab" data-tab="fe">Formula Engine</button>
           <button class="tab ${hasPlan ? '' : 'hidden'}" data-tab="plan">Plan</button>
+          <button class="tab" data-tab="res">Resultado</button>
           <button class="tab ${hasMetrics ? '' : 'hidden'}" data-tab="met">Métricas</button>
           <label class="opt"><input type="checkbox" data-internal ${this._showInternal ? 'checked' : ''}> internas</label>
         </div>
         <div class="panel"></div>`;
 
       this._response = response;
+      this._llm.classList.remove('hidden');
       this._out.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { this._tab = b.dataset.tab; this._renderPanel(); }));
       this._out.querySelector('[data-internal]').addEventListener('change', (e) => { this._showInternal = e.target.checked; this._renderPanel(); });
       this._renderPanel();
@@ -507,6 +631,7 @@
       const t = this._response.timings;
       const panel = this._out.querySelector('.panel');
       this._out.querySelectorAll('[data-tab]').forEach((b) => b.classList.toggle('on', b.dataset.tab === this._tab));
+      const wire = (sel, fn) => panel.querySelectorAll(sel).forEach((el) => el.addEventListener('click', (e) => fn(el, e)));
 
       if (this._tab === 'res') {
         const r = this._response.result;
@@ -516,8 +641,11 @@
         return;
       }
       if (this._tab === 'plan') {
-        panel.innerHTML = `${t.logicalPlan ? `<div class="msg">Plan lógico</div><pre class="plan">${esc(t.logicalPlan)}</pre>` : ''}
-          ${t.physicalPlan ? `<div class="msg">Plan físico</div><pre class="plan">${esc(t.physicalPlan)}</pre>` : ''}`;
+        const block = (title, id, text) => (text ? `<div class="tools"><span class="hint">${title}</span><button class="ghost" data-copy="${id}">Copiar</button></div>${this._planTable(text)}` : '');
+        panel.innerHTML = `<div class="tools"><span class="hint">El plan lógico dice «qué»; el físico, «cómo»: el que se lleva al LLM.</span><button class="ghost" data-copy="both">Copiar los dos planes</button></div>
+          ${block('Plan físico', 'physical', t.physicalPlan)}${block('Plan lógico', 'logical', t.logicalPlan)}`;
+        wire('[data-copy]', (el) => copyText({ physical: t.physicalPlan, logical: t.logicalPlan,
+          both: [t.logicalPlan && `-- Plan lógico\n${t.logicalPlan}`, t.physicalPlan && `-- Plan físico\n${t.physicalPlan}`].filter(Boolean).join('\n\n') }[el.dataset.copy] || '', el));
         return;
       }
       if (this._tab === 'met') {
@@ -526,18 +654,66 @@
         panel.innerHTML = `<pre class="plan">${esc(pretty)}</pre>`;
         return;
       }
+      if (this._tab === 'fe') { this._renderFormulaEngine(panel, t); return; }
 
+      // Storage Engine: lo que DAX Studio enseña en Server Timings
       const rows = (t.queries || []).filter((q) => this._showInternal || q.type !== 'internal');
       if (!rows.length) { panel.innerHTML = '<div class="msg">La consulta no ha necesitado al Storage Engine.</div>'; return; }
       const typeName = { scan: 'Scan', batch: 'Batch', internal: 'Interna', cache: 'Caché', directquery: 'SQL' };
-      panel.innerHTML = `<table>
-        <thead><tr><th class="n">#</th><th>Tipo</th><th class="n">Inicio</th><th class="n">ms</th><th class="n">CPU</th><th class="n">Filas</th><th class="n">KB</th><th>xmSQL (clic para ver entero)</th></tr></thead>
-        <tbody>${rows.map((q) => `<tr class="${q.callback ? 'callback' : ''} ${q.type === 'cache' ? 'cache' : ''}">
+      const watchKey = this.getAttribute('watch');
+      const col = watchKey ? watchColumn(watchKey) : null;
+      const hits = rows.map((q) => (q.type === 'cache' ? null : watchHit(q.query, col)));
+      const grouped = hits.filter((h) => h === 'group').length;
+      const real = rows.filter((q) => q.type !== 'cache').length;
+      const watchLine = col ? `<div class="watch">¿Baja a <b>${esc(col.table ? `${col.table}[${col.column}]` : col.column)}</b>? ${
+        grouped ? `<b>Sí:</b> ${grouped} de ${real} consultas SE agrupan por esa columna.` : `No: ninguna de las ${real} consultas SE agrupa por esa columna.`}</div>` : '';
+      panel.innerHTML = `${watchLine}<div class="tools"><span class="hint">Clic en una fila para ver el xmSQL entero.</span>
+        <button class="ghost" data-copy="all">Copiar todo el xmSQL</button></div><table>
+        <thead><tr><th class="n">#</th><th>Tipo</th><th class="n">Inicio</th><th class="n">ms</th><th class="n">CPU</th><th class="n">Filas</th><th class="n">KB</th><th>xmSQL</th></tr></thead>
+        <tbody>${rows.map((q, i) => `<tr class="${q.callback ? 'callback' : ''} ${q.type === 'cache' ? 'cache' : ''}">
           <td class="n">${q.line}</td><td>${esc(typeName[q.type] || q.type)}${q.callback ? ' ⚠' : ''}${q.inBatch ? ' ↳' : ''}</td>
           <td class="n">${num(q.startOffsetMs)}</td><td class="n">${num(q.durationMs)}</td><td class="n">${num(q.cpuMs)}</td>
           <td class="n">${num(q.rows)}</td><td class="n">${num(q.kBytes)}</td>
-          <td class="q"><div class="short">${esc(preview(q.query))}</div><div class="full">${esc(q.query)}</div></td></tr>`).join('')}</tbody></table>`;
-      panel.querySelectorAll('td.q').forEach((td) => td.addEventListener('click', () => td.classList.toggle('open')));
+          <td class="q" data-i="${i}"><div class="short">${hits[i] ? `<span class="grain ${hits[i] === 'group' ? '' : 'f'}">${hits[i] === 'group' ? 'AGRUPA' : 'FILTRA'}</span>` : ''}${esc(preview(q.query))}</div><div class="full">${esc(q.query)}</div></td></tr>`).join('')}</tbody></table>`;
+      wire('td.q', (td) => td.classList.toggle('open'));
+      wire('[data-copy]', (el) => copyText(rows.map((q, i) => `-- SE ${i + 1} · ${q.type} · ${q.durationMs} ms · ${q.rows ?? '?'} filas\n${preview(q.query)}`).join('\n\n'), el));
+    }
+
+    // Plan como tabla Línea · Registros · Operador (la vista Query Plan de DAX Studio).
+    _planTable(text) {
+      const rows = planRows(text);
+      return `<table class="plant"><thead><tr><th class="ln">#</th><th class="rc">Registros</th><th>Operador</th></tr></thead><tbody>${rows.map((r) => {
+        const flag = PLAN_FLAGS.find(([re]) => re.test(r.body));
+        return `<tr class="${flag ? flag[1] : ''}"><td class="ln">${r.line}</td><td class="rc">${r.records === null ? '' : num(r.records)}</td>
+          <td class="op">${esc('  '.repeat(r.depth) + r.body.replace(/\s+/g, ' '))}</td></tr>`;
+      }).join('')}</tbody></table>`;
+    }
+
+    // Formula Engine: no emite eventos; su tiempo son los huecos en los que no corre ningún SE.
+    _renderFormulaEngine(panel, t) {
+      const total = Math.max(t.totalMs, 1);
+      const real = (t.queries || []).filter((q) => q.type !== 'internal' && !q.inBatch);
+      const seg = real.map((q) => {
+        const left = Math.min(100, (q.startOffsetMs / total) * 100);
+        const width = Math.max(0.6, Math.min(100 - left, (q.durationMs / total) * 100));
+        return `<div class="seg ${q.callback ? 'cb' : ''} ${q.type === 'cache' ? 'cache' : ''}" style="left:${left}%;width:${width}%" title="SE ${q.line} · ${q.durationMs} ms"></div>`;
+      }).join('');
+      const sePct = Math.round((t.storageEngineMs / total) * 100);
+      const fePct = Math.round((t.formulaEngineMs / total) * 100);
+      const planRowsList = t.physicalPlan ? planRows(t.physicalPlan) : [];
+      const flagged = planRowsList.filter((r) => PLAN_FLAGS.some(([re, k]) => k !== 'se' && re.test(r.body)));
+      const ops = {};
+      planRowsList.forEach((r) => { const op = r.body.split(':')[0].replace(/<.*$/, '').trim(); ops[op] = (ops[op] || 0) + 1; });
+      const top = Object.entries(ops).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      panel.innerHTML = `
+        <div class="fe-note">El FE <b>no emite eventos</b>: su tiempo son los <b>huecos</b> (zona naranja) en los que ningún SE trabaja.
+          Aquí: FE <b>${ms(t.formulaEngineMs)}</b> (${fePct}%) y SE <b>${ms(t.storageEngineMs)}</b> (${sePct}%).
+          ${t.callbacks ? `<b>${t.callbacks} callback${t.callbacks > 1 ? 's' : ''}</b>: el SE vuelve al FE fila a fila.` : 'Sin callbacks.'}</div>
+        <div class="tl"><div class="cap"><span>0 ms</span><i>FE = lo naranja</i><span>${ms(t.totalMs)}</span></div><div class="lane">${seg}</div></div>
+        ${t.physicalPlan ? `<div class="tools"><span class="hint">${top.map(([k, n]) => `${esc(k)} ×${n}`).join(' · ')}</span><button class="ghost" data-copy="plan">Copiar plan físico</button></div>
+          ${flagged.length ? this._planTable(flagged.map((r) => '\t'.repeat(r.depth) + r.body).join('\n')) : '<div class="msg">El plan físico no tiene callbacks ni spools.</div>'}`
+          : '<div class="msg">Marca la casilla «plan» y vuelve a medir para ver el plan físico y los operadores del FE.</div>'}`;
+      panel.querySelectorAll('[data-copy]').forEach((el) => el.addEventListener('click', () => copyText(t.physicalPlan || '', el)));
     }
   }
 

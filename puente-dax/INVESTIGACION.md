@@ -171,7 +171,7 @@ paquetes NuGet, igual que hace DAX Studio.
   automática, teclado aislado de las slides, token desde `file://` y plan B grabado.
 - La presentación completa servida por el puente (`--www`), con Playwright: las 15 diapositivas de
   laboratorio ejecutan todas sus variantes, el analizador VertiPaq hace foto y comparación, Backstage
-  comprueba el modelo y prueba las 41 variantes, las flechas siguen moviendo las slides tras pulsar
+  comprueba el modelo y prueba todas las variantes, las flechas siguen moviendo las slides tras pulsar
   un botón, no hay desbordes ni errores JS, y con el puente caído sale la grabación de `grabaciones.js`.
 
 **El workflow de GitHub Actions comprueba en Windows:** tests, publicación, `--help`, modo simulado y
@@ -207,3 +207,57 @@ esperado de conexión, no de ensamblados).
 - **Funciones en preview:** las demos de calendarios (`SAMEPERIODLASTYEAR(<calendario>)`,
   `TOTALYTD(<expr>, <calendario>)`) necesitan Desktop de septiembre de 2025 o posterior con la opción
   de vista previa activada. Backstage → *Probar demos* lo detecta antes de la charla.
+
+## 14. Interpretar el plan con un LLM: ¿copiar/pegar o llamada por API?
+
+**Lo que ya hay (sin API):** en cada `<dax-lab>` el botón **🤖 Copiar para LLM** deja en el portapapeles un
+informe en Markdown con la consulta DAX, los tiempos (Total/FE/SE/CPU/paralelismo), cada consulta xmSQL con
+sus filas y KB, los planes lógico y físico y un prompt en español que pide: qué hace el SE y qué el FE, dónde
+se va el tiempo, si los planes cuentan lo mismo y qué cambiar. El prompt se puede sustituir con el atributo
+`llm-prompt`. Las pestañas **Plan**, **Storage Engine** y **Formula Engine** tienen además su propio botón
+*Copiar* (plan físico, plan lógico, todo el xmSQL). Sirve con cualquier asistente, sin claves ni coste.
+
+**¿Merece la pena una llamada por API desde el puente?** Recomendación: **sí, pero como opción
+secundaria y desactivada por defecto; el plan principal de la charla sigue siendo copiar/pegar.**
+
+| | Copiar/pegar | Llamada por API desde el puente |
+|---|---|---|
+| Didáctica | Enseña el gesto real que la sala repetirá en su trabajo (pegar la traza en su asistente) | Oculta el gesto; la sala ve «magia» |
+| Riesgo en directo | Ninguno (la sala ve el prompt completo) | Red, límites de uso y latencia en directo; hay que tener un plan B (respuesta grabada, como las mediciones) |
+| Credenciales | Ninguna | Hace falta una clave de API; debe vivir **solo** en el `.exe` local (variable de entorno), nunca en el HTML ni en el navegador |
+| Coste | 0 | Céntimos por consulta (ver abajo) |
+| Reproducibilidad | Depende del asistente de cada uno | Prompt y modelo fijos: la misma explicación en los ensayos y en la charla |
+| Privacidad | La decide cada asistente | Se envían DAX, xmSQL y nombres de tablas/columnas a un tercero: avisar y no usar con modelos de un cliente |
+
+**Cuándo sí compensa:** (1) para tener una **explicación estable y ensayada** por laboratorio, que luego se
+graba como plan B; (2) para la pestaña **«Explicar»** dentro de la propia slide, sin salir de la presentación;
+(3) para el patrón **traza → IA → re-traza** del bloque de IA: el puente podría mandar la traza, recibir una
+propuesta de reescritura y medirla con el mismo benchmark.
+
+**Diseño propuesto (si se hace):**
+
+- Endpoint `POST /api/explain` en el puente con `{ report, model? }`, donde `report` es el mismo Markdown que ya
+  genera «Copiar para LLM» (así lo que ve la sala es exactamente lo que se envía).
+- Clave en la variable de entorno `ANTHROPIC_API_KEY` del proceso del puente. Sin clave, el endpoint responde 501 y
+  el botón no aparece. Misma defensa que el resto: token del puente, `Host` local y CORS restringido.
+- SDK oficial de Anthropic para C# (paquete NuGet `Anthropic`) en `PuenteDax.Bridge`; `PuenteDax.Core` no cambia.
+- Respuesta en *streaming* hacia la slide (la explicación va apareciendo) y límite de tamaño del informe: los planes
+  de modelos grandes pueden pesar decenas de KB; recortar el xmSQL repetido y avisar al usuario en vez de truncar en silencio.
+- Guardar la explicación junto a la medición grabada (`grabaciones.js`) para que el plan B también la incluya.
+- Modelo: un modelo de gama alta explica mejor los planes físicos; uno pequeño basta para el resumen de SE/FE.
+  Con la tarifa actual (cifras de la documentación de la API a 6-oct-2026: Opus 5.5 4 $/20 $ por millón de tokens
+  de entrada/salida; Sonnet 5.5 2 $/10 $), un informe de ~10 000 tokens de entrada y ~1 500 de salida cuesta del
+  orden de **0,07 $ con Opus 5.5 y 0,035 $ con Sonnet 5.5**: despreciable para una charla, pero comprobar la tarifa
+  vigente antes de dimensionar nada.
+- El modelo no ve los datos del modelo semántico, solo lo que se le pasa: la propia respuesta debe decir
+  «no se deduce de la traza» cuando no pueda afirmar algo (el prompt ya lo pide).
+
+**Riesgos:** un LLM puede **explicar con seguridad un plan que no ha entendido**. Por eso la regla de la charla
+es la del bloque de IA: la explicación es una hipótesis, se comprueba cambiando el DAX y volviendo a medir.
+Tampoco debe sustituir la lectura del plan físico por el ponente: en las slides, primero se lee el plan y después se
+contrasta con el LLM.
+
+**Alternativas descartadas:** servidores MCP de Power BI (no devuelven trazas de Desktop) y pedir al navegador que
+llame directamente a la API (expondría la clave en la página y chocaría con la política de CORS del proveedor).
+
+**Estado:** no implementado; pendiente de decidir si se quiere la pestaña «Explicar» en directo o solo el plan B grabado.
