@@ -1,0 +1,51 @@
+table 'Multi Idioma fecha'
+	isHidden
+	lineageTag: 0295a7b6-9ac7-4459-adb3-d958c6be5343
+
+	column 'Multi Idioma fecha'
+		isHidden
+		lineageTag: d9c89f37-a4c0-4c38-a134-deb946797a64
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Multi Idioma fecha Orden'
+
+		relatedColumnDetails
+			groupByColumn: Month
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		isHidden
+		lineageTag: f2abbf21-41cf-4856-b968-0ba618d54eb1
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Multi Idioma fecha Orden'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Multi Idioma fecha Orden'
+		isHidden
+		formatString: 0
+		lineageTag: 5cf72b32-01a4-4901-b734-b049c20595f6
+		summarizeBy: none
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Multi Idioma fecha-6bb1c0c4-5049-436a-8b88-449772f012be' = calculated
+		mode: import
+		source =
+				{
+				    ("EnglishMonthName", NAMEOF('Date'[EnglishMonthName]), 0),
+				    ("FrenchMonthName", NAMEOF('Date'[FrenchMonthName]), 1),
+				    ("SpanishMonthName", NAMEOF('Date'[SpanishMonthName]), 2)
+				}
+
+	annotation PBI_Id = 04e64eb35cbf42fe9e4d2f6bbfe1230b
+

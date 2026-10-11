@@ -1,0 +1,663 @@
+table 'Internet Sales'
+	lineageTag: 1d3003ad-5ce2-497e-a286-ac0957736734
+
+	measure 'Order Quantity' = ```
+			SUM('Internet Sales'[OrderQuantity]) 
+			```
+		formatString: 0
+		lineageTag: 36f40bac-8a20-4bb4-a5d6-3310275fcc8f
+
+	measure 'Standard Cost' = SUM('Internet Sales'[ProductStandardCost])
+		lineageTag: 265d2053-420e-476b-baec-482f34ef4002
+
+	measure 'Total Cost' = SUM('Internet Sales'[TotalProductCost])
+		lineageTag: a69e6387-4808-4fbd-b3e5-360b53de9001
+
+	measure 'Sales Amount' = SUM('Internet Sales'[SalesAmount])
+		lineageTag: c62b078d-e870-4120-8614-6853e3e0da18
+
+	measure Freight = SUM('Internet Sales'[_Freight])
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: 7fbc37ce-316d-48db-9e69-5f2f0d4c00dd
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Tax Amount' = SUM('Internet Sales'[TaxAmt])
+		lineageTag: c0125c14-2c1c-4121-9d2f-7b4a670e54e8
+
+	measure Profit = [Sales Amount]-[Total Cost]
+		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
+		lineageTag: 56a1fc92-90cc-4744-b4cc-d9b812c4af16
+
+		changedProperty = FormatString
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Profit %' = divide([Profit],[Sales Amount])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: 185ae505-5638-4f33-a7fe-fe19e5c2ce3f
+
+		changedProperty = FormatString
+
+	measure 'Order Quantity (AA v1)' = CALCULATE( [Order Quantity], SAMEPERIODLASTYEAR('Date'[Date]))
+		displayFolder: AA
+		lineageTag: 8f0ef176-02c9-4425-b625-c4833318313c
+
+	measure 'Standard Cost (AA v1)' = CALCULATE( [Standard Cost], SAMEPERIODLASTYEAR('Date'[Date]))
+		displayFolder: AA
+		lineageTag: f43dfa23-8c39-4b2d-8ba4-f8b272aef87a
+
+	measure 'Total Cost (AA v1)' = CALCULATE( [Total Cost], SAMEPERIODLASTYEAR('Date'[Date]))
+		displayFolder: AA
+		lineageTag: 1860b4ab-f47d-4f14-a034-aba0a660d7e8
+
+	measure 'Sales Amount (AA v1)' = CALCULATE( [Sales Amount], SAMEPERIODLASTYEAR('Date'[Date]))
+		displayFolder: AA
+		lineageTag: 2aab6624-5b2b-4808-9f35-c5e757d44a65
+
+	measure 'Freight (AA v1)' = CALCULATE( [Freight], SAMEPERIODLASTYEAR('Date'[Date]))
+		displayFolder: AA
+		lineageTag: af47239d-b0fc-4e89-90ab-5ba6c0a8907e
+
+	measure 'Tax Amount (AA v1)' = CALCULATE( [Tax Amount], SAMEPERIODLASTYEAR('Date'[Date]))
+		displayFolder: AA
+		lineageTag: 9e8e2e65-bced-467f-b6fd-ee7434812c1e
+
+	measure 'Profit (AA v1)' = CALCULATE( [Profit], SAMEPERIODLASTYEAR('Date'[Date]))
+		displayFolder: AA
+		lineageTag: fce0499d-8804-4f3b-bae5-6409bd6a5b3d
+
+	measure 'Profit % (AA v1)' = CALCULATE( [Profit %], SAMEPERIODLASTYEAR('Date'[Date]))
+		displayFolder: AA
+		lineageTag: ba501d28-4df7-48b1-a819-a818dae7e41d
+
+	measure 'Order Quantity (AA v2)' = ```
+			 var _anio= max('Date'[Calendar Year]) -1
+			 var _resultado= CALCULATE( [Order Quantity], 'Date'[Calendar Year]=_anio)
+			 return _resultado
+			```
+		formatString: #,##0.00
+		displayFolder: AA 2
+		lineageTag: 58b30eeb-2282-44ad-8dff-88ad40e904c3
+
+	measure 'Standard Cost (AA v2)' =
+			VAR _anio =
+			    MAX ( 'Date'[Calendar Year] ) - 1
+			VAR _resultado =
+			    CALCULATE ( [Standard Cost], 'Date'[Calendar Year] = _anio )
+			RETURN
+			    _resultado
+		formatString: #,##0.00
+		displayFolder: AA 2
+		lineageTag: b8476d77-f6b9-406d-8ff3-f95d5bc780b2
+
+	measure 'Total Cost (AA v2)' =
+			VAR _anio =
+			    MAX ( 'Date'[Calendar Year] ) - 1
+			VAR _resultado =
+			    CALCULATE ( [Total Cost], 'Date'[Calendar Year] = _anio )
+			RETURN
+			    _resultado
+		formatString: #,##0.00
+		displayFolder: AA 2
+		lineageTag: 47edf5f3-e9b5-4e10-9bce-a17cf2a622bb
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Sales Amount (AA v2)' =
+			VAR _anio =
+			    MAX ( 'Date'[Calendar Year] ) - 1
+			VAR _resultado =
+			    CALCULATE ( [Sales Amount], 'Date'[Calendar Year] = _anio )
+			RETURN
+			    _resultado
+		formatString: #,##0.00
+		displayFolder: AA 2
+		lineageTag: 72fc430c-edbc-4593-a725-6f49e1e80857
+
+	measure 'Freight (AA v2)' =
+			VAR _anio =
+			    MAX ( 'Date'[Calendar Year] ) - 1
+			VAR _resultado =
+			    CALCULATE ( [Freight], 'Date'[Calendar Year] = _anio )
+			RETURN
+			    _resultado
+		formatString: #,##0.00
+		displayFolder: AA 2
+		lineageTag: 9e0bb0d2-fe4c-4e24-9aa2-7658d98cad49
+
+	measure 'Tax Amount (AA v2)' =
+			VAR _anio =
+			    MAX ( 'Date'[Calendar Year] ) - 1
+			VAR _resultado =
+			    CALCULATE ( [Tax Amount], 'Date'[Calendar Year] = _anio )
+			RETURN
+			    _resultado
+		formatString: #,##0.00
+		displayFolder: AA 2
+		lineageTag: 913fed50-c3bb-480c-9367-2c211431a677
+
+	measure 'Profit (AA v2)' =
+			VAR _anio =
+			    MAX ( 'Date'[Calendar Year] ) - 1
+			VAR _resultado =
+			    CALCULATE ( [Profit], 'Date'[Calendar Year] = _anio )
+			RETURN
+			    _resultado
+		formatString: #,##0.00
+		displayFolder: AA 2
+		lineageTag: 78db491c-9801-48aa-9b84-840791f6d4cc
+
+	measure 'Profit % (AA v2)' =
+			VAR _anio =
+			    MAX ( 'Date'[Calendar Year] )
+			VAR _resultado =
+			    CALCULATE ( [Profit %], 'Date'[Calendar Year] = _anio )
+			RETURN
+			    _resultado
+		formatString: #,##0.00
+		displayFolder: AA 2
+		lineageTag: 1a12ed59-9308-4807-8389-0835a6a619b7
+
+	measure 'Order Quantity (AA v3)' = CALCULATE([Order Quantity],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
+		displayFolder: AA3
+		lineageTag: bdfa19ba-925e-4a88-a2e3-09355b945926
+
+	measure 'Standard Cost (AA v3)' = CALCULATE([Standard Cost],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
+		displayFolder: AA3
+		lineageTag: 254bf196-1929-4ebd-a6e4-e66d6d8a6f25
+
+	measure 'Total Cost (AA v3)' = CALCULATE([Total Cost],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
+		displayFolder: AA3
+		lineageTag: 5ae89603-8a5d-4d42-a77c-c144a28b3def
+
+	measure 'Sales Amount (AA v3)' = CALCULATE([Sales Amount],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
+		displayFolder: AA3
+		lineageTag: 697c93a7-724a-44de-bc4c-2a4404d99ed6
+
+	measure 'Freight (AA v3)' = CALCULATE([Freight],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
+		displayFolder: AA3
+		lineageTag: d125a068-d4c5-450b-9cad-60cb4a65469f
+
+	measure 'Tax Amount (AA v3)' = CALCULATE([Tax Amount],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
+		displayFolder: AA3
+		lineageTag: ff748afc-0cb8-41a7-9e66-e5e15a9e0fb3
+
+	measure 'Profit (AA v3)' = CALCULATE([Profit],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
+		displayFolder: AA3
+		lineageTag: b10b2523-f33c-4d73-b092-41eaf6b325f2
+
+	measure 'Profit % (AA v3)' = CALCULATE([Profit %],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
+		displayFolder: AA3
+		lineageTag: 87a5fbed-df20-456d-aa70-7ccf6ec31df3
+
+	measure 'Tax Amount (YTD 1)' = TOTALYTD([Tax Amount],'Date'[Date])
+		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
+		displayFolder: YTD
+		lineageTag: 489222ea-c7fb-49d0-90eb-130d315280a6
+
+		changedProperty = FormatString
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Total Cost (YTD 1)' = totalytd([Total Cost],'Date'[Date])
+		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
+		displayFolder: YTD
+		lineageTag: e07e589d-8a93-4d37-a26e-c85542f5f2c6
+
+		changedProperty = FormatString
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Tax Amount (YTD 2)' =
+			
+			var _fechas=values(_Date_Mxn[DateKeyMxn])
+			var _res=
+			 CALCULATE([Tax Amount],all('Date'),TREATAS(_fechas,'Internet Sales'[OrderDateKey]) )
+			 var _res2=COUNTROWS(values(_Date_Mxn[DateKeyMxn]))
+			 var _Res3=CALCULATE([Tax Amount],USERELATIONSHIP('Date'[DateKey],_Date_Mxn[DateKey]))
+			return _res
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: YTD
+		lineageTag: ea2d4732-4fd9-4b96-be7f-0aee942c93a0
+
+		changedProperty = FormatString
+
+	measure 'Total Cost (YTD 2)' = CALCULATE([Total Cost], USERELATIONSHIP(_Date_Mxn[DateKeyMxn],'Internet Sales'[OrderDateKey]))
+		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
+		displayFolder: YTD
+		lineageTag: 599a63f6-ea02-4169-baed-4652e62ddd30
+
+		changedProperty = FormatString
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Total Sales Currency' = ```
+			
+			VAR _DateAndCurrency =
+			    ADDCOLUMNS (
+			        SUMMARIZE (
+			            'Internet Sales',
+			            'Internet Sales'[OrderDateKey],
+			            'Internet Sales'[CurrencyKey]
+			        ),
+			        "Sales", [Sales Amount],
+			        "rate",
+			            VAR _ok = 'Internet Sales'[OrderDateKey]
+			            VAR _ck = 'Internet Sales'[CurrencyKey]
+			            VAR _exc =
+			                CALCULATE (
+			                    MAX ( _Currency_Rate[AverageRate] ),
+			                    TREATAS ( { _ok }, _Currency_Rate[DateKey] ),
+			                    TREATAS ( { _ck }, _Currency_Rate[CurrencyKey] )
+			                )
+			            RETURN
+			                _exc
+			    )
+			RETURN
+			    SUMX ( _DateAndCurrency, DIVIDE ( [Sales Amount], [rate] ) )
+			
+			```
+		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
+		displayFolder: Currency
+		lineageTag: 27b3a6fc-74d0-4099-a64a-a1b6e3aa368f
+
+		changedProperty = FormatString
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Total Sales Currency V2' = SUMX('Internet Sales',DIVIDE('Internet Sales'[Sales Amount],'Internet Sales'[_Currency_Rate.AverageRate]))
+		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
+		displayFolder: Currency
+		lineageTag: 8b5a422e-6be2-45ee-82cf-f6822934300c
+
+		changedProperty = FormatString
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Total Sales Currency v3' = sum('Internet Sales'[Sales Amount Dolar])
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		displayFolder: Currency
+		lineageTag: 64b03ee7-02d5-4843-b52d-31cb41af296c
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Total Sales Currency v4' =
+			
+			var _moneda=SELECTEDVALUE('Currency  Destination'[CurrencyKey],36) // la moneda y si no dolares
+			var _Resultado= SWITCH(_moneda,36,sum('Internet Sales'[Sales Amount Dolar]),100,sum('Internet Sales'[Sales Amount Euro]))
+			return _Resultado
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: ea59abb0-d732-4414-a337-69061a7ad92f
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Total Sales Currency Dolar' = sum('Internet Sales'[Sales Amount Dolar])
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: b3cd9fa4-b279-4c24-9f1a-e0657a1684eb
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Total Sales Currency Euro' = sum('Internet Sales'[Sales Amount Euro])
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: db063e22-2668-4b50-a51f-0e94708ddd66
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Tax Amount (AA v4)' = ```
+			
+			  Calculate( [Tax Amount], offset(-1,allselected('Date'[Calendar year]), orderby('Date'[Calendar year], asc)))
+			```
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: 88bb74cb-be79-426a-8c8a-712dbb9aa793
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'Total Cost (AA v)' = ```
+			
+			  Calculate( [Total Cost], offset(-1,allselected('Date'[Calendar year]), orderby('Date'[Calendar year], asc)))
+			```
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: 5c0ad74a-57fc-45d3-ae8b-90674951fe68
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure #filas = COUNTROWS('Internet Sales')
+		formatString: 0
+		lineageTag: ccdc12a6-7fb5-421b-b37b-0ade838a2e3d
+
+	measure 'Fecha y hora medida' = UTCNOW()
+		formatString: General Date
+		lineageTag: 275c1390-bd47-4dbb-9868-662f6d1abe5b
+
+	measure '#filas x 2' = [#filas]*2
+		lineageTag: c443155e-8532-4f8a-bb15-aabce61e0468
+
+	measure 'Fecha y hora medida x 2' = [Fecha y hora medida]*2
+		lineageTag: 65a4eb8f-0adf-4c42-9e0b-ce65f358c273
+
+	measure 'Freight x 2' = [Freight]*2
+		lineageTag: 87446a0b-f2df-409a-a77b-1f4201b1b653
+
+	measure 'Order Quantity x 2' = [Order Quantity]*2
+		lineageTag: 40488295-a154-48d4-a8f6-a95e732f2531
+
+	measure 'Profit x 2' = [Profit]*2
+		lineageTag: 80ead8e7-e36c-411e-8b6f-9c5ee4230a71
+
+	measure 'Profit % x 2' = [Profit %]*2
+		lineageTag: c7d0bdbb-d3fa-4af5-b940-8a37509308d0
+
+	measure 'Sales Amount x 2' = [Sales Amount]*2
+		lineageTag: c3c00f61-b0f7-41f9-98bc-458ff9ba7a56
+
+	measure 'Standard Cost x 2' = [Standard Cost]*2
+		lineageTag: d8ad14e6-6ef8-43ec-8688-83d9eb695cd3
+
+	measure 'Tax Amount x 2' = [Tax Amount]*2
+		lineageTag: b8c4a44d-89e1-43fb-85a2-f310433e7d1c
+
+	measure 'Tax Amount (AA v4) x 2' = [Tax Amount (AA v4)]*2
+		lineageTag: bfc0b466-fdb6-43cf-bf4c-5ea8c56e425a
+
+	measure 'Total Cost x 2' = [Total Cost]*2
+		lineageTag: 205f576c-7ee0-4b57-9ab1-12680e695a96
+
+	measure 'Total Cost (AA v) x 2' = [Total Cost (AA v)]*2
+		lineageTag: 6894685c-2037-422a-a980-9e5bb9df5d6c
+
+	measure 'Total Sales Currency Dolar x 2' = [Total Sales Currency Dolar]*2
+		lineageTag: 288797bc-5e4e-416a-bc79-f07191415249
+
+	measure 'Total Sales Currency Euro x 2' = [Total Sales Currency Euro]*2
+		lineageTag: d4e34a76-27fc-4e0e-88ed-801514fdb506
+
+	measure 'Total Sales Currency v4 x 2' = [Total Sales Currency v4]*2
+		lineageTag: a4f06f5d-4ae3-43e9-8732-fb75fd511a88
+
+	measure 'Producto traducido' = ```
+			
+			 var _idioma=SELECTEDVALUE(Idiomas[Idioma])
+			 var _nombreproductotraducido= SWITCH(_idioma,
+			     1, max('Product'[EnglishProductName]),2,max('Product'[SpanishProductName]),max('Product'[EnglishProductName]))
+			return _nombreproductotraducido   
+			```
+		lineageTag: 4ed897d9-142f-47c5-8401-e94367e0c576
+
+	column ProductKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		encodingHint: value
+		lineageTag: 11821802-6b09-4518-b3c8-180510fd7263
+		summarizeBy: sum
+		sourceColumn: ProductKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+	column OrderDateKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		encodingHint: value
+		lineageTag: d4045431-c02c-4aab-bc2d-900b447ddc0b
+		summarizeBy: none
+		sourceColumn: OrderDateKey
+
+		annotation SummarizationSetBy = User
+
+	column DueDateKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		encodingHint: value
+		lineageTag: 0beec4b1-1ba3-4c5c-9bdb-4bc33dc376e1
+		summarizeBy: count
+		sourceColumn: DueDateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ShipDateKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		encodingHint: value
+		lineageTag: 2301bd84-9286-4e2e-9e80-562a1f07a01e
+		summarizeBy: none
+		sourceColumn: ShipDateKey
+
+		annotation SummarizationSetBy = User
+
+	column CustomerKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		encodingHint: value
+		lineageTag: 1ec985da-7393-4f88-8f6f-6366a6d106cf
+		summarizeBy: none
+		sourceColumn: CustomerKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column PromotionKey
+		dataType: int64
+		formatString: 0
+		encodingHint: value
+		lineageTag: ef99eb02-f214-4edc-ba1f-7648c8798518
+		summarizeBy: none
+		sourceColumn: PromotionKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column CurrencyKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		encodingHint: value
+		lineageTag: a65e9a63-ca0b-4ea1-b347-cccd0b92aabf
+		summarizeBy: none
+		sourceColumn: CurrencyKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column SalesTerritoryKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		encodingHint: value
+		lineageTag: 1a1d76e6-6718-4d7e-a411-f84f94eac3d3
+		summarizeBy: none
+		sourceColumn: SalesTerritoryKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column RevisionNumber
+		dataType: int64
+		isHidden
+		formatString: 0
+		encodingHint: value
+		lineageTag: b55d9118-c256-4ab3-886a-759a6088e6f3
+		summarizeBy: none
+		sourceColumn: RevisionNumber
+
+		annotation SummarizationSetBy = User
+
+	column OrderQuantity
+		dataType: int64
+		isHidden
+		formatString: 0
+		encodingHint: value
+		lineageTag: af2a8067-648e-4810-8bd6-c1a2c2c7cc79
+		summarizeBy: none
+		sourceColumn: OrderQuantity
+
+		annotation SummarizationSetBy = User
+
+	column UnitPrice
+		dataType: decimal
+		isHidden
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		encodingHint: value
+		lineageTag: cefa64bf-59ef-4137-bb48-9ee2e038d45f
+		summarizeBy: none
+		sourceColumn: UnitPrice
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	column DiscountAmount
+		dataType: double
+		isHidden
+		encodingHint: value
+		lineageTag: 7e72b493-ee88-4e49-a52c-4c2f0b6612be
+		summarizeBy: none
+		sourceColumn: DiscountAmount
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ProductStandardCost
+		dataType: decimal
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		encodingHint: value
+		lineageTag: faffbebf-b272-404d-be62-459917d7d5ae
+		summarizeBy: sum
+		sourceColumn: ProductStandardCost
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	column TotalProductCost
+		dataType: decimal
+		isHidden
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		encodingHint: value
+		lineageTag: 6c685032-dec4-40a2-82ae-68065c7c5cab
+		summarizeBy: none
+		sourceColumn: TotalProductCost
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	column SalesAmount
+		dataType: decimal
+		isHidden
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		encodingHint: value
+		lineageTag: 99388b92-0689-41d2-8205-8dfec24ef048
+		summarizeBy: none
+		sourceColumn: SalesAmount
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	column TaxAmt
+		dataType: decimal
+		isHidden
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		encodingHint: value
+		lineageTag: 5c7265c6-603a-489d-b59f-14d3745586dc
+		summarizeBy: none
+		sourceColumn: TaxAmt
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	column _Freight
+		dataType: decimal
+		isHidden
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		encodingHint: value
+		lineageTag: b17cd363-f1f8-4aff-a056-13e0c2f4ae38
+		summarizeBy: none
+		sourceColumn: _Freight
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	column '_Currency_Rate.AverageRate'
+		dataType: double
+		isHidden
+		encodingHint: value
+		lineageTag: 7bb9f8e3-04c2-4a20-8ac2-e72883a7ba4b
+		summarizeBy: sum
+		sourceColumn: _Currency_Rate.AverageRate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Sales Amount Dolar'
+		dataType: decimal
+		isHidden
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		encodingHint: value
+		lineageTag: 55d747cf-5a73-4668-9cf1-41e6bbab23d0
+		summarizeBy: none
+		sourceColumn: Sales Amount Dolar
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	column 'Sales Amount Euro'
+		dataType: decimal
+		isHidden
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		encodingHint: value
+		lineageTag: d9aded59-2201-483b-bb3a-e50ce60f77bc
+		summarizeBy: sum
+		sourceColumn: Sales Amount Euro
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	partition 'Internet Sales-9947076a-1393-497e-bef9-607c82a101d2' = m
+		mode: import
+		source =
+				let
+				    Origen = Sql.Database("VTH0135", "AdventureWorksDW"),
+				    dbo_FactInternetSales = Origen{[Schema="dbo",Item="FactInternetSales"]}[Data],
+				    #"Otras columnas quitadas" = Table.SelectColumns(dbo_FactInternetSales,{"ProductKey", "OrderDateKey", "DueDateKey", "ShipDateKey", "CustomerKey", "PromotionKey", "CurrencyKey", "SalesTerritoryKey", "SalesOrderNumber", "SalesOrderLineNumber", "RevisionNumber", "OrderQuantity", "UnitPrice", "DiscountAmount", "ProductStandardCost", "TotalProductCost", "SalesAmount", "TaxAmt", "Freight"}),
+				    #"Valor reemplazado" = Table.ReplaceValue(#"Otras columnas quitadas","SO","",Replacer.ReplaceText,{"SalesOrderNumber"}),
+				    #"Valor reemplazado1" = Table.ReplaceValue(#"Valor reemplazado","xd","0",Replacer.ReplaceText,{"SalesOrderNumber"}),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Valor reemplazado1",{{"SalesOrderNumber", Int64.Type}, {"SalesOrderLineNumber", Int64.Type}}),
+				    #"Personalizada agregada" = Table.AddColumn(#"Tipo cambiado", "SalesKey", each [SalesOrderNumber]*100+[SalesOrderLineNumber]),
+				    #"Tipo cambiado1" = Table.TransformColumnTypes(#"Personalizada agregada",{{"SalesKey", Int64.Type}}),
+				    #"Columnas quitadas" = Table.RemoveColumns(#"Tipo cambiado1",{"SalesOrderNumber", "SalesOrderLineNumber"}),
+				    #"Consultas combinadas" = Table.NestedJoin(#"Columnas quitadas", {"OrderDateKey", "CurrencyKey"}, _Currency_Rate, {"DateKey", "CurrencyKey"}, "_Currency_Rate", JoinKind.LeftOuter),
+				    #"Se expandió _Currency_Rate" = Table.ExpandTableColumn(#"Consultas combinadas", "_Currency_Rate", {"AverageRate"}, {"_Currency_Rate.AverageRate"}),
+				    #"Columnas con nombre cambiado" = Table.RenameColumns(#"Se expandió _Currency_Rate",{{"Freight", "_Freight"}}),
+				    #"Personalizada agregada1" = Table.AddColumn(#"Columnas con nombre cambiado", "Sales Amount Dolar", each [SalesAmount]/[_Currency_Rate.AverageRate]),
+				    #"Tipo cambiado2" = Table.TransformColumnTypes(#"Personalizada agregada1",{{"Sales Amount Dolar", Currency.Type}}),
+				    #"Personalizada agregada2" = Table.AddColumn(#"Tipo cambiado2", "eurokey", each 36),
+				    #"Tipo cambiado3" = Table.TransformColumnTypes(#"Personalizada agregada2",{{"eurokey", Int64.Type}}),
+				    #"Consultas combinadas1" = Table.NestedJoin(#"Tipo cambiado3", {"eurokey", "OrderDateKey"}, _Currency_Rate, {"CurrencyKey", "DateKey"}, "_Currency_Rate", JoinKind.LeftOuter),
+				    #"Se expandió _Currency_Rate1" = Table.ExpandTableColumn(#"Consultas combinadas1", "_Currency_Rate", {"AverageRate"}, {"_Currency_Rate.AverageRate.1"}),
+				    #"Personalizada agregada3" = Table.AddColumn(#"Se expandió _Currency_Rate1", "Sales Amount Euro", each [Sales Amount Dolar]*[_Currency_Rate.AverageRate.1]),
+				    #"Columnas quitadas1" = Table.RemoveColumns(#"Personalizada agregada3",{"eurokey", "_Currency_Rate.AverageRate.1"}),
+				    #"Tipo cambiado4" = Table.TransformColumnTypes(#"Columnas quitadas1",{{"Sales Amount Euro", Currency.Type}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Tipo cambiado4",{"SalesKey"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+

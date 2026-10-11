@@ -1,0 +1,31 @@
+table Idiomas
+	lineageTag: 6bf5c48e-d1df-47b5-8eb9-9727fb8f21f1
+
+	column Idioma
+		dataType: int64
+		formatString: 0
+		lineageTag: d06bd317-d6ab-4fdf-8761-8f43230cdaeb
+		summarizeBy: none
+		sourceColumn: Idioma
+
+		annotation SummarizationSetBy = Automatic
+
+	column Name
+		dataType: string
+		lineageTag: c280849d-8675-4a12-b218-1a9c145baba1
+		summarizeBy: none
+		sourceColumn: Name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Idiomas-a383bc8f-ae1a-41a5-b421-9c05daf37040 = m
+		mode: import
+		source =
+				let
+				    Origen = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WMlDSUXLNS8/JLM5QitWJVjIE8t2KEvOSEzOLU8EiRiAVxQWJhzfm5yjFxgIA", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Idioma = _t, Name = _t]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(Origen,{{"Idioma", Int64.Type}, {"Name", type text}})
+				in
+				    #"Tipo cambiado"
+
+	annotation PBI_ResultType = Table
+

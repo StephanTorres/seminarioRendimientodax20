@@ -1,0 +1,42 @@
+table 'Time Calcs'
+	lineageTag: 32ed6644-7811-4170-a5a9-c6329ab20828
+
+	calculationGroup
+
+		calculationItem Actual = SELECTEDMEASURE()
+
+		calculationItem 'AA V1' =
+				CALCULATE (
+				    SELECTEDMEASURE (),
+				    SAMEPERIODLASTYEAR ( 'Date'[Date] )
+				)
+
+		calculationItem 'AA V2' =
+				VAR _anio =
+				    MAX ( 'Date'[Calendar Year] ) - 1
+				VAR _resultado =
+				    CALCULATE (
+				        SELECTEDMEASURE (),
+				        'Date'[Calendar Year] = _anio
+				    )
+				RETURN
+				    _resultado
+
+	column 'Time Calcs'
+		dataType: string
+		lineageTag: bfc61161-0875-4c65-8d37-4096d51c5c1e
+		summarizeBy: none
+		sourceColumn: Name
+		sortByColumn: Ordinal
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordinal
+		dataType: int64
+		isHidden
+		lineageTag: acac3e36-e57d-40f9-b0ce-217adbdc01d4
+		summarizeBy: sum
+		sourceColumn: Ordinal
+
+		annotation SummarizationSetBy = Automatic
+

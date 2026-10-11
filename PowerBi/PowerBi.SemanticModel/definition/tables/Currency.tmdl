@@ -1,0 +1,60 @@
+table Currency
+	lineageTag: 458a990b-9f64-463c-a35e-d27ebb0c47a2
+
+	measure 'Total acumulado anual' =
+			
+			var _fechas= VALUEs(_Date_Mxn[DateKeyMxn])
+			 var _R= CALCULATE(sum('Internet Sales'[SalesAmount]),
+			   _fechas)
+			return CALCULATE([Sales Amount] ,_fechas)
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: faa28b0f-c578-4696-9ff6-d30a715496e2
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	measure 'sales amount deliver' = CALCULATE([Sales Amount],USERELATIONSHIP('Date'[DateKey],'Internet Sales'[DueDateKey]))
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: a9fe2ed0-0fe6-4ce3-b680-edc7837381d9
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	column CurrencyKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 008823f5-ffbc-4734-ab61-a8937c2406d8
+		summarizeBy: none
+		sourceColumn: CurrencyKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Currency Name Short'
+		dataType: string
+		lineageTag: 2f8ee6f5-033a-415f-9c1b-7271300305f0
+		summarizeBy: none
+		sourceColumn: Currency Name Short
+
+		annotation SummarizationSetBy = Automatic
+
+	column CurrencyName
+		dataType: string
+		lineageTag: e6395fae-5d0d-46e3-a7da-8ea740f1b2c0
+		summarizeBy: none
+		sourceColumn: CurrencyName
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Currency-2b811037-80dc-4d36-a6d0-879ac515ffe8 = m
+		mode: import
+		source =
+				let
+				    Origen = Sql.Database("VTH0135", "AdventureWorksDW"),
+				    dbo_DimCurrency = Origen{[Schema="dbo",Item="DimCurrency"]}[Data],
+				    #"Columnas quitadas" = Table.RemoveColumns(dbo_DimCurrency,{"DimOrganization", "FactCurrencyRate", "FactInternetSales(CurrencyKey)", "FactInternetSales(CurrencyKey) 2", "FactResellerSales"}),
+				    #"Columnas con nombre cambiado" = Table.RenameColumns(#"Columnas quitadas",{{"CurrencyAlternateKey", "Currency Name Short"}})
+				in
+				    #"Columnas con nombre cambiado"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

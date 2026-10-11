@@ -1,0 +1,348 @@
+table Product
+	lineageTag: b5fb31a8-22e3-4a97-ab70-5b5beb1a2b22
+
+	column ProductKey
+		dataType: int64
+		formatString: 0
+		displayFolder: Datos Adicionales
+		lineageTag: 850c9138-6b5a-4dd8-ada7-9bdeed7b9478
+		summarizeBy: none
+		sourceColumn: ProductKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductAlternateKey
+		dataType: string
+		lineageTag: 1305cb32-b53b-4fd6-aa93-f427598814fc
+		summarizeBy: none
+		sourceColumn: ProductAlternateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column WeightUnitMeasureCode
+		dataType: string
+		lineageTag: eedbc836-0d8f-4c0e-915d-254c6e4a762d
+		summarizeBy: none
+		sourceColumn: WeightUnitMeasureCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column SizeUnitMeasureCode
+		dataType: string
+		lineageTag: 24bd5efe-0233-49dc-b916-8ae1cb74308c
+		summarizeBy: none
+		sourceColumn: SizeUnitMeasureCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column EnglishProductName
+		dataType: string
+		displayFolder: Datos Adicionales
+		lineageTag: e337ee53-9ddb-4160-a706-47eeb17751fd
+		summarizeBy: none
+		sourceColumn: EnglishProductName
+
+		annotation SummarizationSetBy = Automatic
+
+	column SpanishProductName
+		dataType: string
+		lineageTag: f695341c-a416-4ef3-a342-9d1a6ce17967
+		summarizeBy: none
+		sourceColumn: SpanishProductName
+
+		annotation SummarizationSetBy = Automatic
+
+	column FrenchProductName
+		dataType: string
+		lineageTag: 42d13cd5-c294-4f40-88b8-9f53b6479979
+		summarizeBy: none
+		sourceColumn: FrenchProductName
+
+		annotation SummarizationSetBy = Automatic
+
+	column StandardCost
+		dataType: decimal
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: 15ed416c-aebd-4d39-8bc4-5547e48dbcb8
+		summarizeBy: none
+		sourceColumn: StandardCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	column FinishedGoodsFlag
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		displayFolder: Datos Adicionales
+		lineageTag: c47ca48f-d27f-4666-b0b9-47c030ee691b
+		summarizeBy: none
+		sourceColumn: FinishedGoodsFlag
+
+		annotation SummarizationSetBy = Automatic
+
+	column Color
+		dataType: string
+		lineageTag: 3bd30dde-87c3-445a-94ec-60768d4d06df
+		summarizeBy: none
+		sourceColumn: Color
+
+		annotation SummarizationSetBy = Automatic
+
+	column SafetyStockLevel
+		dataType: int64
+		formatString: 0
+		lineageTag: 32b03427-10c1-49c0-8887-99405cbcf0ba
+		summarizeBy: none
+		sourceColumn: SafetyStockLevel
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReorderPoint
+		dataType: int64
+		formatString: 0
+		lineageTag: fa1009ea-2fe0-404f-b621-29bdf2811a63
+		summarizeBy: none
+		sourceColumn: ReorderPoint
+
+		annotation SummarizationSetBy = Automatic
+
+	column ListPrice
+		dataType: decimal
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: 2c2b8a62-561c-4ce4-8b0a-a60403a87cde
+		summarizeBy: none
+		sourceColumn: ListPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	column Size
+		dataType: string
+		lineageTag: 369563e0-5e88-4d92-9750-9c043391aba0
+		summarizeBy: none
+		sourceColumn: Size
+
+		annotation SummarizationSetBy = Automatic
+
+	column SizeRange
+		dataType: string
+		lineageTag: c8a9cfbb-3e19-4512-8f6a-6d8b0252fdf5
+		summarizeBy: none
+		sourceColumn: SizeRange
+
+		annotation SummarizationSetBy = Automatic
+
+	column Weight
+		dataType: double
+		lineageTag: 236462df-e570-4c23-9f23-9944e69c8dc9
+		summarizeBy: none
+		sourceColumn: Weight
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column DaysToManufacture
+		dataType: int64
+		formatString: 0
+		lineageTag: 7cbfdc74-8652-412c-8e7c-6125cde6081d
+		summarizeBy: none
+		sourceColumn: DaysToManufacture
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductLine
+		dataType: string
+		lineageTag: dd3bfc9c-927b-4d47-984c-2252b4917155
+		summarizeBy: none
+		sourceColumn: ProductLine
+
+		annotation SummarizationSetBy = Automatic
+
+	column DealerPrice
+		dataType: decimal
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: 8e468558-96f1-4541-9b2a-709ef5383a2c
+		summarizeBy: none
+		sourceColumn: DealerPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	column Class
+		dataType: string
+		lineageTag: 4f64f317-c61e-4155-8545-d5f49ea1a15e
+		summarizeBy: none
+		sourceColumn: Class
+
+		annotation SummarizationSetBy = Automatic
+
+	column Style
+		dataType: string
+		lineageTag: 8c46f628-dcb8-43a4-84ef-b12ad549c058
+		summarizeBy: none
+		sourceColumn: Style
+
+		annotation SummarizationSetBy = Automatic
+
+	column ModelName
+		dataType: string
+		displayFolder: Datos Adicionales
+		lineageTag: ef4155aa-3c28-4811-8587-68b120a3e52b
+		summarizeBy: none
+		sourceColumn: ModelName
+
+		annotation SummarizationSetBy = Automatic
+
+	column EnglishDescription
+		dataType: string
+		displayFolder: Datos Adicionales
+		lineageTag: 0a0e807f-5585-4c4e-bdc8-a2e412ea391c
+		summarizeBy: none
+		sourceColumn: EnglishDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column FrenchDescription
+		dataType: string
+		lineageTag: e06db340-ab2d-4642-9704-678b09c36757
+		summarizeBy: none
+		sourceColumn: FrenchDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column ThaiDescription
+		dataType: string
+		lineageTag: 5b12214a-a68d-41d5-bcbd-ad2acb02a4e7
+		summarizeBy: none
+		sourceColumn: ThaiDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column JapaneseDescription
+		dataType: string
+		displayFolder: Datos Adicionales
+		lineageTag: 7cec24c4-5737-4b0f-a580-6d47b6134e84
+		summarizeBy: none
+		sourceColumn: JapaneseDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column TurkishDescription
+		dataType: string
+		lineageTag: 5c5abd9f-364b-4094-93b4-90902249bd4e
+		summarizeBy: none
+		sourceColumn: TurkishDescription
+
+		annotation SummarizationSetBy = Automatic
+
+	column StartDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 69853985-76fe-4133-96b6-6739787ed783
+		summarizeBy: none
+		sourceColumn: StartDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column EndDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: ad015881-4fd0-439f-b046-6dd21a18e1a5
+		summarizeBy: none
+		sourceColumn: EndDate
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status
+		dataType: string
+		lineageTag: e998e2b7-be51-4b4b-b603-7a06442fd519
+		summarizeBy: none
+		sourceColumn: Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'English Product Subcategory Name'
+		dataType: string
+		displayFolder: Datos Adicionales
+		lineageTag: b6e403fa-345f-4976-b3de-8b046b8792bc
+		summarizeBy: none
+		sourceColumn: English Product Subcategory Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Spanish Product Subcategory Name'
+		dataType: string
+		lineageTag: bb8d9aca-fcba-46bb-8d1a-cdc6fb9aee55
+		summarizeBy: none
+		sourceColumn: Spanish Product Subcategory Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'French Product Subcategory Name'
+		dataType: string
+		lineageTag: 46082a03-d17a-4cb8-92a4-4dbda097c716
+		summarizeBy: none
+		sourceColumn: French Product Subcategory Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'English Product Category Name'
+		dataType: string
+		displayFolder: Datos Adicionales
+		lineageTag: 5ec2736e-b0f4-4eca-a841-91f16c5bc121
+		summarizeBy: none
+		sourceColumn: English Product Category Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Spanish Product Category Name'
+		dataType: string
+		lineageTag: 670909d3-c374-45c5-8f26-fb83f3fd47a5
+		summarizeBy: none
+		sourceColumn: Spanish Product Category Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'French Product Category Name'
+		dataType: string
+		lineageTag: a4dc7b2d-e1d5-4039-97f0-0f68a76d19d7
+		summarizeBy: none
+		sourceColumn: French Product Category Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Producto traducido' = ```
+			
+			 var _idioma=SELECTEDVALUE(Idiomas[Idioma])
+			 var _nombreproductotraducido= SWITCH(_idioma,
+			     1, [EnglishProductName],2,[SpanishProductName],[EnglishProductName])
+			return _nombreproductotraducido     
+			  
+			```
+		lineageTag: 14098197-65d0-42cc-8676-c6e1b19fe940
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Product-d188d8aa-b463-4fa4-bfc3-1b73fc364588 = m
+		mode: import
+		source =
+				let
+				    Origen = Sql.Database("VTH0135", "AdventureWorksDW"),
+				    dbo_DimProduct = Origen{[Schema="dbo",Item="DimProduct"]}[Data],
+				    #"Se expandió DimProductSubcategory" = Table.ExpandRecordColumn(dbo_DimProduct, "DimProductSubcategory", {"EnglishProductSubcategoryName", "SpanishProductSubcategoryName", "FrenchProductSubcategoryName", "DimProductCategory"}, {"DimProductSubcategory.EnglishProductSubcategoryName", "DimProductSubcategory.SpanishProductSubcategoryName", "DimProductSubcategory.FrenchProductSubcategoryName", "DimProductSubcategory.DimProductCategory"}),
+				    #"Se expandió DimProductSubcategory.DimProductCategory" = Table.ExpandRecordColumn(#"Se expandió DimProductSubcategory", "DimProductSubcategory.DimProductCategory", {"EnglishProductCategoryName", "SpanishProductCategoryName", "FrenchProductCategoryName"}, {"DimProductSubcategory.DimProductCategory.EnglishProductCategoryName", "DimProductSubcategory.DimProductCategory.SpanishProductCategoryName", "DimProductSubcategory.DimProductCategory.FrenchProductCategoryName"}),
+				    #"Columnas quitadas" = Table.RemoveColumns(#"Se expandió DimProductSubcategory.DimProductCategory",{"ArabicDescription", "ChineseDescription"}),
+				    #"Columnas con nombre cambiado" = Table.RenameColumns(#"Columnas quitadas",{{"DimProductSubcategory.DimProductCategory.EnglishProductCategoryName", "English Product Category Name"}, {"DimProductSubcategory.DimProductCategory.FrenchProductCategoryName", "French Product Category Name"}, {"DimProductSubcategory.DimProductCategory.SpanishProductCategoryName", "Spanish Product Category Name"}, {"DimProductSubcategory.EnglishProductSubcategoryName", "English Product Subcategory Name"}, {"DimProductSubcategory.FrenchProductSubcategoryName", "French Product Subcategory Name"}, {"DimProductSubcategory.SpanishProductSubcategoryName", "Spanish Product Subcategory Name"}}),
+				    #"Columnas quitadas1" = Table.RemoveColumns(#"Columnas con nombre cambiado",{"GermanDescription", "HebrewDescription", "ProductSubcategoryKey"})
+				in
+				    #"Columnas quitadas1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

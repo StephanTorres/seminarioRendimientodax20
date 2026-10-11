@@ -1,0 +1,229 @@
+table Date
+	lineageTag: eaa33b7b-fe44-4640-8452-c7365e47cd23
+	dataCategory: Time
+
+	column DateKey
+		dataType: int64
+		isKey
+		formatString: 0
+		displayFolder: Keys
+		lineageTag: 33aaac37-c0ad-4ed7-8d67-edc234cf3398
+		summarizeBy: none
+		sourceColumn: DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		dataType: dateTime
+		formatString: Long Date
+		displayFolder: Others
+		lineageTag: bcea2b2e-886a-4d21-8f7c-1ff4211005ff
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column DayNumberOfWeek
+		dataType: int64
+		formatString: 0
+		displayFolder: Others
+		lineageTag: bc8f5010-1387-4794-9d44-d069d187a99d
+		summarizeBy: none
+		sourceColumn: DayNumberOfWeek
+
+		annotation SummarizationSetBy = User
+
+	column EnglishDayNameOfWeek
+		dataType: string
+		displayFolder: Languages
+		lineageTag: d2fdd04f-100e-459a-8910-965727c4654c
+		summarizeBy: none
+		sourceColumn: EnglishDayNameOfWeek
+
+		annotation SummarizationSetBy = Automatic
+
+	column SpanishDayNameOfWeek
+		dataType: string
+		displayFolder: Languages
+		lineageTag: add06c76-a200-414f-a409-581f27b1e8d2
+		summarizeBy: none
+		sourceColumn: SpanishDayNameOfWeek
+
+		annotation SummarizationSetBy = Automatic
+
+	column FrenchDayNameOfWeek
+		dataType: string
+		displayFolder: Languages
+		lineageTag: a25e6bc7-8230-49dd-91e2-4138fd3ea754
+		summarizeBy: none
+		sourceColumn: FrenchDayNameOfWeek
+
+		annotation SummarizationSetBy = Automatic
+
+	column DayNumberOfMonth
+		dataType: int64
+		formatString: 0
+		displayFolder: Others
+		lineageTag: d8826492-93fa-43c5-a8f1-525d87b50793
+		summarizeBy: none
+		sourceColumn: DayNumberOfMonth
+
+		annotation SummarizationSetBy = User
+
+	column DayNumberOfYear
+		dataType: int64
+		formatString: 0
+		displayFolder: Others
+		lineageTag: 81d6ae02-3b8f-403b-aede-f4894bdfe117
+		summarizeBy: none
+		sourceColumn: DayNumberOfYear
+
+		annotation SummarizationSetBy = User
+
+	column WeekNumberOfYear
+		dataType: int64
+		formatString: 0
+		displayFolder: Others
+		lineageTag: 94b55bcb-924c-49e3-8cbc-5264bb88a6eb
+		summarizeBy: none
+		sourceColumn: WeekNumberOfYear
+
+		annotation SummarizationSetBy = User
+
+	column EnglishMonthName
+		dataType: string
+		displayFolder: Languages
+		lineageTag: 98285415-8717-482b-98fe-db621719d751
+		summarizeBy: none
+		sourceColumn: EnglishMonthName
+		sortByColumn: MonthNumberOfYear
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column SpanishMonthName
+		dataType: string
+		displayFolder: Languages
+		lineageTag: 49c7b1bb-8e20-4dca-b849-c83fefd5993e
+		summarizeBy: none
+		sourceColumn: SpanishMonthName
+		sortByColumn: MonthNumberOfYear
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column FrenchMonthName
+		dataType: string
+		displayFolder: Languages
+		lineageTag: 09e4dbea-7f52-4939-a3b0-e0504e5e3df9
+		summarizeBy: none
+		sourceColumn: FrenchMonthName
+		sortByColumn: MonthNumberOfYear
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthNumberOfYear
+		dataType: int64
+		formatString: 0
+		displayFolder: Others
+		lineageTag: 7286bb8c-486d-4906-a3e7-a73e50477af4
+		summarizeBy: none
+		sourceColumn: MonthNumberOfYear
+
+		annotation SummarizationSetBy = User
+
+	column CalendarQuarter
+		dataType: int64
+		formatString: 0
+		displayFolder: Others
+		lineageTag: 44188d9e-3e3b-478d-bdfe-59da4414a7d7
+		summarizeBy: none
+		sourceColumn: CalendarQuarter
+
+		annotation SummarizationSetBy = User
+
+	column 'Calendar Year'
+		dataType: int64
+		isHidden
+		formatString: 0
+		displayFolder: Others
+		lineageTag: ce4b4143-2b09-45f9-9116-cd93ddda35ff
+		summarizeBy: none
+		sourceColumn: Calendar Year
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+	column CalendarSemester
+		dataType: int64
+		formatString: 0
+		displayFolder: Others
+		lineageTag: 6e8d8082-4e24-4f25-9583-71c6b231f37f
+		summarizeBy: none
+		sourceColumn: CalendarSemester
+
+		annotation SummarizationSetBy = User
+
+	column DateKeyAA
+		dataType: int64
+		formatString: 0
+		displayFolder: Keys
+		lineageTag: cc1a9862-9a5c-4ebd-b6b1-caf6908b9791
+		summarizeBy: none
+		sourceColumn: DateKeyAA
+
+		annotation SummarizationSetBy = User
+
+	hierarchy Calendar
+		lineageTag: 1cdf983c-384e-425e-a002-a75cb98a0904
+
+		level 'Calendar Year'
+			lineageTag: 446ac6a6-9cb1-4045-a3fa-11a3ab8dabf6
+			column: 'Calendar Year'
+
+		level MonthNumberOfYear
+			lineageTag: a8e09f86-50f0-4cd4-bf35-7db72f422212
+			column: MonthNumberOfYear
+
+		level Date
+			lineageTag: 5c0e8cee-e381-4fb6-b768-ac72ef886fc0
+			column: Date
+
+	hierarchy 'Calendar Week'
+		lineageTag: 57138be3-e3b0-4f51-98b6-602c91d1e065
+
+		level 'Calendar Year'
+			lineageTag: bab68091-a238-4cf8-8497-04d8002f9fff
+			column: 'Calendar Year'
+
+		level WeekNumberOfYear
+			lineageTag: cec50596-3efd-488f-9cf9-17d565736413
+			column: WeekNumberOfYear
+
+		level Date
+			lineageTag: 5a3d352e-e249-4dd0-a5e2-19363218be57
+			column: Date
+
+	partition Date-c8d829ad-383b-4514-b0c9-a23a9db95039 = m
+		mode: import
+		source =
+				let
+				    Origen = Sql.Database("VTH0135", "AdventureWorksDW"),
+				    dbo_DimDate = Origen{[Schema="dbo",Item="DimDate"]}[Data],
+				    #"Columnas con nombre cambiado" = Table.RenameColumns(dbo_DimDate,{{"FullDateAlternateKey", "Date"}}),
+				    #"Otras columnas quitadas" = Table.SelectColumns(#"Columnas con nombre cambiado",{"DateKey", "Date", "DayNumberOfWeek", "EnglishDayNameOfWeek", "SpanishDayNameOfWeek", "FrenchDayNameOfWeek", "DayNumberOfMonth", "DayNumberOfYear", "WeekNumberOfYear", "EnglishMonthName", "SpanishMonthName", "FrenchMonthName", "MonthNumberOfYear", "CalendarQuarter", "CalendarYear", "CalendarSemester", "DateKeyAA"}),
+				    #"Columnas con nombre cambiado1" = Table.RenameColumns(#"Otras columnas quitadas",{{"CalendarYear", "Calendar Year"}})
+				in
+				    #"Columnas con nombre cambiado1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

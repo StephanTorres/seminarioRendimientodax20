@@ -1,0 +1,38 @@
+model Model
+	culture: es-ES
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: es-ES
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["Internet Sales","_Currency_Rate","Currency","Customer","Date","Product","Promotion","Sales Territory","_Internet_Sales_Reason","Sales Reason","_Date_Mxn","Idiomas","Currency  Destination"]
+
+annotation __TEdtr = 1
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table 'Internet Sales'
+ref table _Currency_Rate
+ref table Currency
+ref table Customer
+ref table Date
+ref table Product
+ref table Promotion
+ref table 'Sales Territory'
+ref table _Internet_Sales_Reason
+ref table 'Sales Reason'
+ref table 'Time Calcs'
+ref table _Date_Mxn
+ref table 'Multi Idioma fecha'
+ref table 'Multi Idioma product'
+ref table 'Multi Idioma Promotion'
+ref table Idiomas
+ref table 'Currency  Destination'
+ref table 'Fecha y Hora'
+
+ref cultureInfo es-ES
+

@@ -1,0 +1,50 @@
+table _Internet_Sales_Reason
+	isHidden
+	lineageTag: 51f1a197-ecc0-4d66-8e48-89093f7b4fd0
+
+	column SalesReasonKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: bc97ce8f-8c7d-424d-909b-a9016f5a3d10
+		summarizeBy: none
+		sourceColumn: SalesReasonKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SalesKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4cd37e63-07dc-4eaf-88a6-27a653a0c2eb
+		summarizeBy: none
+		sourceColumn: SalesKey
+
+		changedProperty = DataType
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+	partition _Internet_Sales_Reason-a3cd5f0b-fdb1-4382-b106-915693212bc5 = m
+		mode: import
+		source =
+				let
+				    Origen = Sql.Database("VTH0135", "AdventureWorksDW"),
+				    dbo_FactInternetSalesReason = Origen{[Schema="dbo",Item="FactInternetSalesReason"]}[Data],
+				    #"Columnas quitadas" = Table.RemoveColumns(dbo_FactInternetSalesReason,{"DimSalesReason", "FactInternetSales"}),
+				    #"Valor reemplazado" = Table.ReplaceValue(#"Columnas quitadas","SO","",Replacer.ReplaceText,{"SalesOrderNumber"}),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Valor reemplazado",{{"SalesOrderNumber", Int64.Type}, {"SalesOrderLineNumber", Int64.Type}}),
+				    #"Personalizada agregada" = Table.AddColumn(#"Tipo cambiado", "SalesKey", each [SalesOrderNumber]*100+[SalesOrderLineNumber]),
+				    #"Columnas quitadas1" = Table.RemoveColumns(#"Personalizada agregada",{"SalesOrderNumber", "SalesOrderLineNumber"})
+				in
+				    #"Columnas quitadas1"
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

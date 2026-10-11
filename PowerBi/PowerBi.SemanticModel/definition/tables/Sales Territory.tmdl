@@ -1,0 +1,50 @@
+table 'Sales Territory'
+	lineageTag: 5613e1a0-9cb0-42a7-93e3-2c751195c670
+
+	column SalesTerritoryKey
+		dataType: int64
+		formatString: 0
+		lineageTag: ccea8884-76ee-4d3b-b86c-fe5b08e5bbc3
+		summarizeBy: none
+		sourceColumn: SalesTerritoryKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column SalesTerritoryRegion
+		dataType: string
+		lineageTag: daab9e8a-6239-40f7-83a6-c6a4596b035e
+		summarizeBy: none
+		sourceColumn: SalesTerritoryRegion
+
+		annotation SummarizationSetBy = Automatic
+
+	column SalesTerritoryCountry
+		dataType: string
+		lineageTag: 9ee42512-ed81-4429-9411-1e3a5727581e
+		summarizeBy: none
+		sourceColumn: SalesTerritoryCountry
+
+		annotation SummarizationSetBy = Automatic
+
+	column SalesTerritoryGroup
+		dataType: string
+		lineageTag: e6a50210-b862-4689-a258-d6b3f84d2646
+		summarizeBy: none
+		sourceColumn: SalesTerritoryGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Sales Territory-056bf4a5-b6dc-4828-ad24-e9b2ef82d636' = m
+		mode: import
+		source =
+				let
+				    Origen = Sql.Database("VTH0135", "AdventureWorksDW"),
+				    dbo_DimSalesTerritory = Origen{[Schema="dbo",Item="DimSalesTerritory"]}[Data],
+				    #"Columnas quitadas" = Table.RemoveColumns(dbo_DimSalesTerritory,{"DimEmployee", "DimGeography", "FactInternetSales", "FactResellerSales", "SalesTerritoryAlternateKey", "SalesTerritoryImage"})
+				in
+				    #"Columnas quitadas"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

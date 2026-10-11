@@ -1,0 +1,41 @@
+table _Date_Mxn
+	isHidden
+	lineageTag: 3e4488f0-0e88-480a-854c-d8b33fc370fb
+
+	column DateKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 58318beb-dd94-473a-86e5-1b326bc496c1
+		summarizeBy: none
+		sourceColumn: DateKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column DateKeyMxn
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c5e7407d-a449-4653-86c1-a2b9fe4fb9b0
+		summarizeBy: sum
+		sourceColumn: DateKeyMxn
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Date_Mxn-b9363033-9f56-4d17-8093-80cddfb5b08c = m
+		mode: import
+		source =
+				let
+				    Origen = Sql.Database("VTH0135", "AdventureWorksDW"),
+				    dbo_DateYtdMxn = Origen{[Schema="dbo",Item="DateYtdMxn"]}[Data]
+				in
+				    dbo_DateYtdMxn
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+
