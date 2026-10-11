@@ -27,7 +27,10 @@ Power BI Desktop a mano), prepare y pruebe el modelo y el informe de las demos d
 | Puente DAX instalado | `puente-dax/instalar/instalar.ps1`; el botón **Puente DAX** aparece en *Herramientas externas* |
 | Git en la rama de trabajo | `git status` limpio y copia de seguridad de `powerbi/` (ver fase 2) |
 
-Si alguna skill no está, dilo y para: no improvises con ficheros a mano salvo en TMDL, que es texto.
+Si alguna skill, o los servidores MCP que incluye, no está disponible, dilo y **para**. Todo lo que toque
+Power BI (modelo semántico, informe, Desktop) se hace **obligatoriamente a través de esas skills y de los
+MCP que incluyen**: no leas ni edites a mano los `.tmdl`, `.pbir` ni `.json` del PBIP, ni uses otras
+vías (scripts propios, `az rest`, etc.) como sustituto.
 
 ## 2. Reglas de seguridad
 
@@ -41,7 +44,8 @@ Si alguna skill no está, dilo y para: no improvises con ficheros a mano salvo e
 
 ## 3. Fase A · Inspeccionar el modelo semántico (solo lectura)
 
-Usa la skill `semantic-model-authoring` (o lee directamente los `.tmdl` de `powerbi/*.SemanticModel/definition`).
+Usa **obligatoriamente** la skill `semantic-model-authoring` y los MCP que incluye (no leas los `.tmdl` a mano).
+Si la skill no puede conectar con el modelo, para y dímelo.
 Entrega un resumen con:
 
 - Tablas, columnas y tipos; relaciones (activas e inactivas); medidas; calendarios; roles; funciones (UDF).
@@ -62,7 +66,8 @@ Con eso, propón el valor de cada clave de `PUENTE_DAX_MODELO` (tabla siguiente)
 
 ## 4. Fase B · Preparar el modelo para la demo de año anterior
 
-Con `semantic-model-authoring` (edición de TMDL), y **mostrando el diff antes de aplicarlo**:
+**Siempre a través de la skill `semantic-model-authoring` y de sus MCP** (no edites los `.tmdl` a mano), y
+**mostrando el cambio antes de aplicarlo**:
 
 1. **Columna desplazada en los hechos** `FechaAA` = fecha del pedido + 1 año, con el 29 de febrero
    acumulado en el 28 de febrero del año siguiente.
@@ -74,7 +79,7 @@ Con `semantic-model-authoring` (edición de TMDL), y **mostrando el diff antes d
 3. **Calendario** de inteligencia de tiempo (gregoriano) sobre la dimensión de fecha, con las columnas de
    año, trimestre, mes y día asociadas por categoría de tiempo. Nómbralo como la clave `Calendario`.
 4. Comprueba que la dimensión de fecha es continua y está marcada como tabla de fechas. Si hay que crear o
-   completar la dimensión, usa la skill `dim-tiempo-casi-perfecta` (TMDL).
+   completar la dimensión, usa la skill `dim-tiempo-casi-perfecta` y aplica el resultado con `semantic-model-authoring` y sus MCP.
 5. No añadas medidas al modelo para las demos: las diapositivas definen las suyas en `DEFINE MEASURE`.
    (Las medidas del informe de la fase E sí viven en el modelo, ver allí.)
 
@@ -107,7 +112,8 @@ Tras aplicar: refresca el modelo en Desktop (puede tardar) y verifica con una co
 
 ## 6. Fase D · Plan y diseño del informe (una página por demo)
 
-Invoca `powerbi-report-planning` y `powerbi-report-design` **antes** de escribir PBIR. Entrega un brief y
+Invoca `powerbi-report-planning` y `powerbi-report-design` **antes** de escribir PBIR; no se escribe nada
+de informe fuera de estas skills y de los MCP que incluyen. Entrega un brief y
 **espera mi aprobación**:
 
 - **Páginas:** una por demo (empieza por la de tiempo / año anterior; dime cuántas demos tiene hoy la
@@ -137,8 +143,9 @@ Invoca `powerbi-report-planning` y `powerbi-report-design` **antes** de escribir
 
 1. **Enséñame la lista de páginas y visuales actuales** de `powerbi/*.Report` y espera confirmación:
    después **borra todas las páginas** (no el modelo) y crea las nuevas según el brief aprobado.
-2. Aplica el tema, crea páginas y visuales, y valida el PBIR con la CLI de la skill (`powerbi-report-author`).
-3. Recarga en Power BI Desktop (`powerbi-desktop`) y haz **captura de pantalla de cada página**; revísalas:
+2. Aplica el tema, crea páginas y visuales, y valida el PBIR **solo con `powerbi-report-authoring` y las
+   herramientas/MCP que incluye** (`powerbi-report-author`), sin editar los ficheros PBIR a mano.
+3. Recarga en Power BI Desktop (con `powerbi-desktop`, vía la skill) y haz **captura de pantalla de cada página**; revísalas:
    desbordes, solapes, etiquetas cortadas, contraste. Corrige y repite.
 4. No publiques. Guarda las capturas en `pruebas/capturas/` (no más de 1 MB cada una).
 
