@@ -1485,7 +1485,7 @@ plan y cómo comprobar que es idéntico.</pre>
 </section>
 
 <!-- ═════════════════ 31 · DEMO BLOQUE 3 ═════════════════ -->
-<section class="slide slide-demo" data-notes="Las demos marcadas AQUÍ se hacen en las diapositivas de laboratorio que siguen, sin salir de la presentación. Demo 1: dimensión tiempo en todos los sabores (DAX, Power Query, SQL), recortada a 7 minutos, comparando tamaño. Demo 2: cálculos de tiempo con grupo de cálculo y formato dinámico. Demo 3: rendimiento de las distintas opciones con la plantilla benchmark. Demo 4 nueva: mismo informe, mismo AA, con tabla de fechas clásica frente a calendario.">
+<section class="slide slide-demo" data-notes="Las demos marcadas AQUÍ se hacen en las diapositivas de laboratorio que siguen, sin salir de la presentación. Demo 1: dimensión tiempo en todos los sabores (DAX, Power Query, SQL), recortada a 7 minutos, comparando tamaño. Demo 2: cálculos de tiempo con grupo de cálculo y formato dinámico. Demo 3: rendimiento de las distintas opciones con la plantilla benchmark. Demo 4 (cinco laboratorios): año anterior por cuatro caminos, el 29 de febrero y la granularidad a la que baja el motor.">
   <div class="slide-inner">
     <div class="demo-animation">
       <div class="ring ring-1"></div><div class="ring ring-2"></div><div class="ring ring-3"></div>
@@ -1497,7 +1497,7 @@ plan y cómo comprobar que es idéntico.</pre>
       <li><b>1</b><span>Dimensión tiempo en todos los sabores (DAX, PQ, SQL) · tamaño</span><span class="where">▶ AQUÍ</span></li>
       <li><b>2</b><span>Cálculos de tiempo con grupo de cálculo + formato dinámico</span><span class="where desk">⧉ DESKTOP</span></li>
       <li><b>3</b><span>Rendimiento de cada opción → plantilla <code>benchmark</code></span><span class="where">▶ AQUÍ</span></li>
-      <li><b>4</b><span>Mismo AA: tabla de fechas clásica vs calendario</span><span class="where">▶ AQUÍ</span></li>
+      <li><b>4</b><span>Año anterior, 4 caminos: SPLY · offset · calendario · columna en los hechos (¿y el 29-feb?)</span><span class="where">▶ AQUÍ</span></li>
     </ul>
     <div class="demo-where"><b>▶ AQUÍ</b> = en las diapositivas de laboratorio siguientes, con el Puente DAX · <span style="color:var(--fe)">⧉ DESKTOP</span> = en Power BI Desktop</div>
   </div>
@@ -1556,13 +1556,13 @@ OPTION (MAXRECURSION 400);</pre>
   </div>
 </section>
 
-<!-- ─── Laboratorio · Bloque 3 · Año anterior: todas las variantes ─── -->
-<section class="slide slide-lab" data-lab="Año anterior: todas las variantes" data-notes="Demo 3 y 4. Ejecuta cada variante en frío y compara a la derecha. Cifras del seminario original (diapositiva 25): v1 32 ms, v2 17, v3 9, grupo de cálculo 47 y 40. v3, el grupo de cálculo y el calendario necesitan objetos de tu modelo: si faltan, la pestaña sale con borde discontinuo y la slide Backstage dice qué configurar.">
+<!-- ─── Laboratorio · Bloque 3 · Año anterior (1/5): SAMEPERIODLASTYEAR ─── -->
+<section class="slide slide-lab" data-lab="AA 1/5 · SAMEPERIODLASTYEAR" data-notes="Demo 1, alternativa 1: el clásico. Primero año-mes: sale bien. Después los días de febrero del año siguiente al bisiesto: el día 29 del año anterior no tiene día equivalente, así que la suma de los AA día a día NO coincide con el AA del mes (a nivel de mes sí incluye el 29). La pestaña «cuadre» lo demuestra con números: AA del mes, suma de AA por día, diferencia y ventas del 29 de febrero. Mira también la pestaña Storage Engine y la casilla plan: copia el plan físico y llévalo a un LLM con el botón Copiar para LLM. Comprueba el resultado en el ensayo: la afirmación sale de la lógica de DATEADD, no de una medición.">
   <div class="slide-inner">
-    <div class="lab-head"><div class="tag">Bloque 3 · <b>Laboratorio</b></div><h2 class="lab-title">Año anterior: todas las variantes</h2></div>
+    <div class="lab-head"><div class="tag">Año anterior · <b>1 de 5</b></div><h2 class="lab-title">SAMEPERIODLASTYEAR, el clásico</h2></div>
     <div class="lab-grid">
-      <dax-lab compact fill label="Año anterior (AA)" editor-height="230px">
-        <dax-variant label="AA · v1 SAMEPERIODLASTYEAR">
+      <dax-lab compact fill plan watch="Fecha.Fecha" rows="31" label="AA · SAMEPERIODLASTYEAR" editor-height="200px">
+        <dax-variant label="AA · SPLY · año-mes">
 DEFINE
     MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
     MEASURE {{Ventas}}[Ventas AA] =
@@ -1571,7 +1571,55 @@ EVALUATE
 SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
 ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
         </dax-variant>
-        <dax-variant label="AA · v2 offset por año">
+        <dax-variant label="AA · SPLY · días de febrero" note="Febrero del año siguiente al bisiesto: 28 días que miran a un febrero de 29">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( {{Fecha.Fecha}} ) )
+EVALUATE
+CALCULATETABLE (
+    SUMMARIZECOLUMNS ( {{Fecha.Fecha}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] ),
+    {{Fecha.Año}} = {{Demo.AñoSiguiente}}, {{Fecha.Mes}} = 2
+)
+ORDER BY {{Fecha.Fecha}}
+        </dax-variant>
+        <dax-variant label="AA · SPLY · cuadre" note="AA del mes frente a la suma de los AA día a día: la diferencia es el 29 de febrero">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( {{Fecha.Fecha}} ) )
+    VAR _mes =
+        CALCULATE ( [Ventas AA], {{Fecha.Año}} = {{Demo.AñoSiguiente}}, {{Fecha.Mes}} = 2 )
+    VAR _dias =
+        CALCULATETABLE (
+            SUMMARIZECOLUMNS ( {{Fecha.Fecha}}, "AA_dia", [Ventas AA] ),
+            {{Fecha.Año}} = {{Demo.AñoSiguiente}}, {{Fecha.Mes}} = 2
+        )
+    VAR _suma = SUMX ( _dias, [AA_dia] )
+EVALUATE
+ROW (
+    "AA del mes de febrero", _mes,
+    "Suma de AA día a día", _suma,
+    "Diferencia", _mes - _suma,
+    "Ventas del 29 feb (bisiesto)", CALCULATE ( [Ventas], {{Fecha.Fecha}} = DATE ( {{Demo.AñoBisiesto}}, 2, 29 ) )
+)
+        </dax-variant>
+      </dax-lab>
+      <div class="lab-side">
+        <dax-benchmark compact filter="AA ·" title="Año anterior · comparativa"></dax-benchmark>
+        <div class="lab-tip"><b>Qué mirar</b><br>· <b>Cuadre</b>: ¿coincide el mes con la suma de sus días?<br>· <b>Storage Engine</b>: ¿alguna consulta <b>AGRUPA</b> por la fecha?<br>· <b>Copiar para LLM</b> y pregunta por qué.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 3 · Año anterior (2/5): restar un offset ─── -->
+<section class="slide slide-lab" data-lab="AA 2/5 · Restar un offset" data-notes="Demo 1, alternativa 2: en vez de pedirle al motor que desplace fechas, restamos 1 al año y respetamos mes (y día). Con año-mes se comporta como SAMEPERIODLASTYEAR y suele pedir menos trabajo al motor; con día hay que añadir VALUES del día del mes y el 29 de febrero vuelve a quedarse sin pareja. El cuadre enseña las dos medidas lado a lado: la de mes incluye el 29, la de día no. Compara en Storage Engine cuántas consultas SE hace frente a SAMEPERIODLASTYEAR y qué moverían los callbacks si los hubiera.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Año anterior · <b>2 de 5</b></div><h2 class="lab-title">Restar un offset al año</h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill plan watch="Fecha.Fecha" rows="31" label="AA · Offset" editor-height="200px">
+        <dax-variant label="AA · Offset · año-mes">
 DEFINE
     MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
     MEASURE {{Ventas}}[Ventas AA] =
@@ -1582,39 +1630,64 @@ EVALUATE
 SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
 ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
         </dax-variant>
-        <dax-variant label="AA · v3 fecha equivalente" note="Necesita en tu modelo la columna de fecha equivalente (fecha − 1 año) y su relación inactiva (claves AA.*)">
+        <dax-variant label="AA · Offset · días de febrero" note="Añade VALUES del día del mes: sin día equivalente, el 29 desaparece">
 DEFINE
     MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
     MEASURE {{Ventas}}[Ventas AA] =
-        CALCULATE ( [Ventas], USERELATIONSHIP ( {{AA.FechaEquivalente}}, {{AA.FechaVentas}} ) )
+        VAR _anio = SELECTEDVALUE ( {{Fecha.Año}} )
+        RETURN
+            CALCULATE (
+                [Ventas], REMOVEFILTERS ( {{Fecha}} ),
+                {{Fecha.Año}} = _anio - 1, VALUES ( {{Fecha.Mes}} ), VALUES ( {{Fecha.Dia}} )
+            )
 EVALUATE
-SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
-ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
-        </dax-variant>
-        <dax-variant label="AA · grupo de cálculo" note="Necesita el grupo de cálculo de tu demo y una medida del modelo (claves GC.*)">
-DEFINE
-    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
-EVALUATE
-SUMMARIZECOLUMNS (
-    {{Fecha.Año}}, {{Fecha.Mes}},
-    "Ventas", {{GC.Medida}},
-    "Ventas AA", CALCULATE ( {{GC.Medida}}, {{GC.Columna}} = {{GC.ItemAA}} )
+CALCULATETABLE (
+    SUMMARIZECOLUMNS ( {{Fecha.Fecha}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] ),
+    {{Fecha.Año}} = {{Demo.AñoSiguiente}}, {{Fecha.Mes}} = 2
 )
-ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+ORDER BY {{Fecha.Fecha}}
         </dax-variant>
-        <dax-variant label="AA · OFFSET">
+        <dax-variant label="AA · Offset · cuadre" note="La medida de mes incluye el 29; la de día no">
 DEFINE
     MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
-    MEASURE {{Ventas}}[Ventas AA] =
-        CALCULATE (
-            [Ventas],
-            OFFSET ( -1, ALLSELECTED ( {{Fecha.Año}}, {{Fecha.Mes}} ), ORDERBY ( {{Fecha.Año}} ), PARTITIONBY ( {{Fecha.Mes}} ) )
+    MEASURE {{Ventas}}[AA mes] =
+        VAR _anio = SELECTEDVALUE ( {{Fecha.Año}} )
+        RETURN CALCULATE ( [Ventas], REMOVEFILTERS ( {{Fecha}} ), {{Fecha.Año}} = _anio - 1, VALUES ( {{Fecha.Mes}} ) )
+    MEASURE {{Ventas}}[AA día] =
+        VAR _anio = SELECTEDVALUE ( {{Fecha.Año}} )
+        RETURN CALCULATE ( [Ventas], REMOVEFILTERS ( {{Fecha}} ), {{Fecha.Año}} = _anio - 1, VALUES ( {{Fecha.Mes}} ), VALUES ( {{Fecha.Dia}} ) )
+    VAR _mes =
+        CALCULATE ( [AA mes], {{Fecha.Año}} = {{Demo.AñoSiguiente}}, {{Fecha.Mes}} = 2 )
+    VAR _dias =
+        CALCULATETABLE (
+            SUMMARIZECOLUMNS ( {{Fecha.Fecha}}, "AA_dia", [AA día] ),
+            {{Fecha.Año}} = {{Demo.AñoSiguiente}}, {{Fecha.Mes}} = 2
         )
+    VAR _suma = SUMX ( _dias, [AA_dia] )
 EVALUATE
-SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
-ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+ROW (
+    "AA del mes de febrero", _mes,
+    "Suma de AA día a día", _suma,
+    "Diferencia", _mes - _suma,
+    "Ventas del 29 feb (bisiesto)", CALCULATE ( [Ventas], {{Fecha.Fecha}} = DATE ( {{Demo.AñoBisiesto}}, 2, 29 ) )
+)
         </dax-variant>
-        <dax-variant label="AA · calendario" note="Inteligencia de tiempo basada en calendarios (preview, Desktop sept. 2025 o posterior): define el calendario en tu modelo (clave Calendario)">
+      </dax-lab>
+      <div class="lab-side">
+        <dax-benchmark compact filter="AA ·" title="Año anterior · comparativa"></dax-benchmark>
+        <div class="lab-tip"><b>Qué mirar</b><br>· Mismo resultado en año-mes, <b>¿menos trabajo?</b> Compara consultas SE, filas y KB.<br>· A nivel de día, el offset tampoco inventa el 29.<br>· Pestaña <b>Formula Engine</b>: ¿cuánto del tiempo es FE?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 3 · Año anterior (3/5): calendarios ─── -->
+<section class="slide slide-lab" data-lab="AA 3/5 · Funciones de calendario" data-notes="Demo 1, alternativa 3: inteligencia de tiempo basada en calendarios (preview, Desktop de septiembre de 2025 o posterior). La pregunta no es el resultado sino el camino: aunque el visual pida solo año-mes, ¿el motor baja al día? En Storage Engine, la etiqueta AGRUPA marca las consultas SE cuyo xmSQL agrupa por la columna de fecha. Repite lo mismo con SAMEPERIODLASTYEAR clásico y con el offset: si el calendario baja a día y los otros no (o al revés), esa es la conversación. Después el cuadre, para ver qué hace el calendario con el 29 de febrero.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Año anterior · <b>3 de 5</b></div><h2 class="lab-title">Funciones de calendario <span class="badge check">preview 🔎</span></h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill plan watch="Fecha.Fecha" rows="31" label="AA · Calendario" editor-height="200px">
+        <dax-variant label="AA · Calendario · año-mes" note="Inteligencia de tiempo basada en calendarios: define el calendario en tu modelo (clave Calendario)">
 DEFINE
     MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
     MEASURE {{Ventas}}[Ventas AA] =
@@ -1623,10 +1696,163 @@ EVALUATE
 SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
 ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
         </dax-variant>
+        <dax-variant label="AA · Calendario · días de febrero">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( {{Calendario}} ) )
+EVALUATE
+CALCULATETABLE (
+    SUMMARIZECOLUMNS ( {{Fecha.Fecha}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] ),
+    {{Fecha.Año}} = {{Demo.AñoSiguiente}}, {{Fecha.Mes}} = 2
+)
+ORDER BY {{Fecha.Fecha}}
+        </dax-variant>
+        <dax-variant label="AA · Calendario · cuadre">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( {{Calendario}} ) )
+    VAR _mes =
+        CALCULATE ( [Ventas AA], {{Fecha.Año}} = {{Demo.AñoSiguiente}}, {{Fecha.Mes}} = 2 )
+    VAR _dias =
+        CALCULATETABLE (
+            SUMMARIZECOLUMNS ( {{Fecha.Fecha}}, "AA_dia", [Ventas AA] ),
+            {{Fecha.Año}} = {{Demo.AñoSiguiente}}, {{Fecha.Mes}} = 2
+        )
+    VAR _suma = SUMX ( _dias, [AA_dia] )
+EVALUATE
+ROW (
+    "AA del mes de febrero", _mes,
+    "Suma de AA día a día", _suma,
+    "Diferencia", _mes - _suma,
+    "Ventas del 29 feb (bisiesto)", CALCULATE ( [Ventas], {{Fecha.Fecha}} = DATE ( {{Demo.AñoBisiesto}}, 2, 29 ) )
+)
+        </dax-variant>
       </dax-lab>
       <div class="lab-side">
-        <dax-benchmark compact filter="AA ·" title="AA · comparativa"></dax-benchmark>
-        <div class="lab-tip">Original (diap. 25): v1 <b>32</b> · v2 <b>17</b> · v3 <b>9</b> · GC <b>47 / 40</b> ms.</div>
+        <dax-benchmark compact filter="AA ·" title="Año anterior · comparativa"></dax-benchmark>
+        <div class="lab-tip"><b>La pregunta</b><br>Pedimos solo <b>año-mes</b>: ¿baja el motor al <b>día</b>?<br>· Storage Engine → etiqueta <b>AGRUPA</b> en el xmSQL.<br>· Repite con la 1 y la 2 y compara.<br>· Copia el plan físico al LLM y pídele que lo explique.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 3 · Año anterior (4/5): columna desplazada en los hechos ─── -->
+<section class="slide slide-lab" data-lab="AA 4/5 · Columna desplazada en los hechos" data-notes="Demo 1, alternativa 4: no calculamos el año anterior, lo materializamos. En la tabla de hechos hay una columna que es la fecha del pedido desplazada +1 año (la venta de 2012 aparece en 2013). El 29 de febrero se acumula en el 28 de febrero del año siguiente (EDATE, Date.AddYears y DATEADD de T-SQL hacen justo eso). La medida solo activa una relación inactiva con USERELATIONSHIP. Resultado: el AA del día 28 incluye los dos días, el cuadre da 0 y el 29 de febrero no se pierde. El coste: una columna más en 200 millones de filas; usa el analizador VertiPaq para verlo y decide si merece la pena en el origen o en Power Query.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Año anterior · <b>4 de 5</b></div><h2 class="lab-title">Una columna desplazada en los hechos</h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill plan watch="Fecha.Fecha" rows="31" label="AA · Columna" editor-height="200px">
+        <dax-variant label="AA · Columna · año-mes" note="Necesita la columna de fecha +1 año en los hechos y su relación inactiva con la dimensión (clave AA.FechaAA)">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE ( [Ventas], USERELATIONSHIP ( {{Fecha.Fecha}}, {{AA.FechaAA}} ) )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+        <dax-variant label="AA · Columna · días de febrero">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE ( [Ventas], USERELATIONSHIP ( {{Fecha.Fecha}}, {{AA.FechaAA}} ) )
+EVALUATE
+CALCULATETABLE (
+    SUMMARIZECOLUMNS ( {{Fecha.Fecha}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] ),
+    {{Fecha.Año}} = {{Demo.AñoSiguiente}}, {{Fecha.Mes}} = 2
+)
+ORDER BY {{Fecha.Fecha}}
+        </dax-variant>
+        <dax-variant label="AA · Columna · cuadre">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE ( [Ventas], USERELATIONSHIP ( {{Fecha.Fecha}}, {{AA.FechaAA}} ) )
+    VAR _mes =
+        CALCULATE ( [Ventas AA], {{Fecha.Año}} = {{Demo.AñoSiguiente}}, {{Fecha.Mes}} = 2 )
+    VAR _dias =
+        CALCULATETABLE (
+            SUMMARIZECOLUMNS ( {{Fecha.Fecha}}, "AA_dia", [Ventas AA] ),
+            {{Fecha.Año}} = {{Demo.AñoSiguiente}}, {{Fecha.Mes}} = 2
+        )
+    VAR _suma = SUMX ( _dias, [AA_dia] )
+EVALUATE
+ROW (
+    "AA del mes de febrero", _mes,
+    "Suma de AA día a día", _suma,
+    "Diferencia", _mes - _suma,
+    "Ventas del 29 feb (bisiesto)", CALCULATE ( [Ventas], {{Fecha.Fecha}} = DATE ( {{Demo.AñoBisiesto}}, 2, 29 ) )
+)
+        </dax-variant>
+      </dax-lab>
+      <div class="lab-side">
+        <div class="code-tabs lab-tip">
+          <div class="code-tabs-head"><button class="on" data-code="pq">Power Query</button><button data-code="dax">DAX</button><button data-code="sql">T-SQL</button></div>
+          <pre data-pane="pq">// FechaAA = fecha del pedido + 1 año.
+// El 29-feb se acumula en el 28-feb siguiente.
+Table.AddColumn(
+    Hechos, "FechaAA",
+    each Date.AddYears([OrderDate], 1), type date)</pre>
+          <pre data-pane="dax" hidden>-- Columna calculada (pesa en el refresco):
+FechaAA = EDATE ( 'Internet Sales'[OrderDate], 12 )
+
+-- Relación: 'Date'[FullDateAlternateKey] 1 → * 'Internet Sales'[FechaAA]
+-- Inactiva: la medida la activa con USERELATIONSHIP.</pre>
+          <pre data-pane="sql" hidden>-- En la vista del origen:
+SELECT f.*,
+       DATEADD(YEAR, 1, f.OrderDate) AS FechaAA   -- 29-feb → 28-feb
+FROM   dbo.FactInternetSales AS f;</pre>
+        </div>
+        <dax-benchmark compact filter="AA ·" title="Año anterior · comparativa"></dax-benchmark>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 3 · Año anterior (5/5): los cuatro a la vez ─── -->
+<section class="slide slide-lab" data-lab="AA 5/5 · Los cuatro a la vez" data-notes="Cierre de la demo 1: las cuatro alternativas en la misma tabla, día a día, alrededor del 29 de febrero. Primera variante: el año siguiente al bisiesto (el día 29 no tiene pareja). Segunda: el propio año bisiesto (el 29 de febrero mira a un día que no existe el año anterior). Fíjate en qué métodos devuelven vacío, cuáles repiten el 28 y cuáles acumulan. Después, benchmark de cada alternativa en año-mes (en las diapositivas anteriores) y la tabla comparativa de la derecha.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Año anterior · <b>5 de 5</b></div><h2 class="lab-title">Los cuatro, día a día</h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill rows="12" label="AA · Los cuatro" editor-height="250px">
+        <dax-variant label="Cuatro · tras el bisiesto" note="Necesita todo lo anterior: calendario (Calendario) y columna desplazada (AA.FechaAA)">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[1 SPLY] = CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( {{Fecha.Fecha}} ) )
+    MEASURE {{Ventas}}[2 Offset] =
+        VAR _anio = SELECTEDVALUE ( {{Fecha.Año}} )
+        RETURN CALCULATE ( [Ventas], REMOVEFILTERS ( {{Fecha}} ), {{Fecha.Año}} = _anio - 1, VALUES ( {{Fecha.Mes}} ), VALUES ( {{Fecha.Dia}} ) )
+    MEASURE {{Ventas}}[3 Calendario] = CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( {{Calendario}} ) )
+    MEASURE {{Ventas}}[4 Columna] = CALCULATE ( [Ventas], USERELATIONSHIP ( {{Fecha.Fecha}}, {{AA.FechaAA}} ) )
+EVALUATE
+CALCULATETABLE (
+    SUMMARIZECOLUMNS ( {{Fecha.Fecha}}, "Ventas", [Ventas], "1 SPLY", [1 SPLY], "2 Offset", [2 Offset], "3 Calendario", [3 Calendario], "4 Columna", [4 Columna] ),
+    {{Fecha.Fecha}} &gt;= DATE ( {{Demo.AñoSiguiente}}, 2, 26 ), {{Fecha.Fecha}} &lt;= DATE ( {{Demo.AñoSiguiente}}, 3, 2 )
+)
+ORDER BY {{Fecha.Fecha}}
+        </dax-variant>
+        <dax-variant label="Cuatro · el año bisiesto" note="Necesita todo lo anterior: calendario (Calendario) y columna desplazada (AA.FechaAA)">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[1 SPLY] = CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( {{Fecha.Fecha}} ) )
+    MEASURE {{Ventas}}[2 Offset] =
+        VAR _anio = SELECTEDVALUE ( {{Fecha.Año}} )
+        RETURN CALCULATE ( [Ventas], REMOVEFILTERS ( {{Fecha}} ), {{Fecha.Año}} = _anio - 1, VALUES ( {{Fecha.Mes}} ), VALUES ( {{Fecha.Dia}} ) )
+    MEASURE {{Ventas}}[3 Calendario] = CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( {{Calendario}} ) )
+    MEASURE {{Ventas}}[4 Columna] = CALCULATE ( [Ventas], USERELATIONSHIP ( {{Fecha.Fecha}}, {{AA.FechaAA}} ) )
+EVALUATE
+CALCULATETABLE (
+    SUMMARIZECOLUMNS ( {{Fecha.Fecha}}, "Ventas", [Ventas], "1 SPLY", [1 SPLY], "2 Offset", [2 Offset], "3 Calendario", [3 Calendario], "4 Columna", [4 Columna] ),
+    {{Fecha.Fecha}} &gt;= DATE ( {{Demo.AñoBisiesto}}, 2, 26 ), {{Fecha.Fecha}} &lt;= DATE ( {{Demo.AñoBisiesto}}, 3, 2 )
+)
+ORDER BY {{Fecha.Fecha}}
+        </dax-variant>
+      </dax-lab>
+      <div class="lab-side">
+        <dax-benchmark compact filter="AA ·" title="Año anterior · comparativa"></dax-benchmark>
+        <div class="lab-tip"><b>Qué mirar</b><br>· ¿Quién deja el 29 vacío, quién repite el 28 y quién lo <b>acumula</b>?<br>· Tabla de la derecha: coste de cada alternativa en año-mes (frío / caliente / benchmark).</div>
       </div>
     </div>
   </div>
@@ -2767,13 +2993,17 @@ window.PUENTE_DAX_MODELO = {
   'Fecha.Fecha':          "'Date'[FullDateAlternateKey]",
   'Fecha.Año':            "'Date'[CalendarYear]",
   'Fecha.Mes':            "'Date'[MonthNumberOfYear]",
+  'Fecha.Dia':            "'Date'[DayNumberOfMonth]",
   'Producto.Categoria':   "'Product Category'[EnglishProductCategoryName]",
   'Producto.NombreES':    "'Product'[SpanishProductName]",
   'Demo.AñoA': 2011, 'Demo.AñoB': 2012, 'Demo.AñoC': 2013,
+  'Demo.AñoBisiesto': 2012,   // año bisiesto con datos de ventas
+  'Demo.AñoSiguiente': 2013,  // el año siguiente: su febrero tiene 28 días y mira a uno de 29
 
   // ── Objetos de tus demos (créalos en tu modelo o cambia los nombres) ──
-  'AA.FechaEquivalente':  "'Date'[DateEquivalente]",          // v3: fecha − 1 año
-  'AA.FechaVentas':       "'Internet Sales'[OrderDate]",      // v3: relación inactiva con la anterior
+  'AA.FechaAA':           "'Internet Sales'[OrderDateAA]",    // columna de los hechos: fecha del pedido + 1 año (29-feb → 28-feb), relación inactiva con 'Date'
+  'AA.FechaEquivalente':  "'Date'[DateEquivalente]",          // variante antigua v3: fecha − 1 año (ya no se usa)
+  'AA.FechaVentas':       "'Internet Sales'[OrderDate]",      // variante antigua v3
   'GC.Medida':            "[Ventas]",                         // medida del modelo
   'GC.Columna':           "'Inteligencia de tiempo'[Cálculo]",
   'GC.ItemAA':            '"AA"',

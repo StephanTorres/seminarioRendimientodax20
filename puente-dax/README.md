@@ -40,7 +40,7 @@ Para compilarlo tú: `dotnet publish src/PuenteDax.Bridge -c Release -r win-x64 
 ## Las demos del workshop, dentro de la presentación
 
 `rendimiento-dax-2.0-datasaturday-madrid-2026.html` (raíz del repositorio) lleva las demos integradas:
-detrás de cada portada **DEMO** vienen sus diapositivas de **Laboratorio** (15 en total) y, al final,
+detrás de cada portada **DEMO** vienen sus diapositivas de **Laboratorio** (18 en total) y, al final,
 una diapositiva **Backstage** para preparar la charla. En las portadas, cada demo va marcada como
 **▶ AQUÍ** (se hace en la presentación) o **⧉ DESKTOP** (hay que pasar a Power BI Desktop).
 
@@ -48,7 +48,7 @@ una diapositiva **Backstage** para preparar la charla. En las portadas, cada dem
 |---|---|
 | 1 · VertiPaq | Diccionario y encoding (analizador VertiPaq) · Antes y después de los 5 pasos (foto y comparación) · Columna de alta cardinalidad |
 | 2 · Medir | Frío, caliente y benchmark |
-| 3 · Tiempo | Dimensión tiempo (DAX en vivo, PQ y T-SQL al lado) · Año anterior (6 variantes) · Acumulado anual (5 variantes) |
+| 3 · Tiempo | Dimensión tiempo (DAX en vivo, PQ y T-SQL al lado) · **Año anterior en 5 laboratorios** (SAMEPERIODLASTYEAR · offset · calendarios · columna desplazada en los hechos · los cuatro día a día, con el 29 de febrero) · Acumulado anual (5 variantes) |
 | 4 · Idioma y moneda | Multi-idioma · Multi-moneda |
 | 5 · Motor | DAX Fusion vertical/horizontal · Callbacks · Materialización |
 | 6 · Seguridad y UDF | RLS con ORs (consulta con el rol aplicado) · UDF `VAL` frente a `EXPR` |
@@ -93,7 +93,7 @@ no (`Esc` devuelve el teclado a la presentación, `Ctrl+Enter` ejecuta en frío)
 
 | Elemento | Para qué |
 |---|---|
-| `<dax-lab>` | Consulta con Server Timings. Atributos: `label`, `cold`/`warm` (Benchmark, 3 y 3), `plan`, `rows` (20), `compact`, `fill`, `editor-height`, `panel-height`, `bridge`, `token`, `recorded` |
+| `<dax-lab>` | Consulta con Server Timings. Atributos: `label`, `cold`/`warm` (Benchmark, 3 y 3), `plan` (casilla marcada de inicio), `rows` (20), `watch` (columna `{{Clave}}` cuya granularidad se vigila), `llm-prompt` (sustituye el prompt de *Copiar para LLM*), `compact`, `fill`, `editor-height`, `panel-height`, `bridge`, `token`, `recorded` |
 | `<dax-variant>` | Variantes dentro de un `<dax-lab>` (pestañas). `label`, `note`, `role` y `user` (la consulta se ejecuta con ese rol o `EffectiveUserName`, como «Ver como» de Desktop) |
 | `<dax-benchmark>` | Plantilla *benchmark* rellenada sola. `filter="Prefijo ·"` (varios con `\|`), `export` añade el botón ⤓ grabaciones.js. *Copiar* la deja lista para Excel |
 | `<dax-vertipaq>` | Tamaños, cardinalidades y encoding (VertiPaq Analyzer). `focus` (claves o columnas a destacar), `top`, `table`, `snapshot` (nombre de la foto), `exact` (cardinalidad leyendo los datos) |
@@ -106,6 +106,21 @@ no (`Esc` devuelve el teclado a la presentación, `Ctrl+Enter` ejecuta en frío)
   (`<script type="application/json" data-recorded>…</script>`, lo que guarda el botón ⤓),
   `window.PUENTE_DAX_RECORDINGS` (el `grabaciones.js` exportado), las mediciones en vivo guardadas en
   el navegador y el atributo `recorded="url"`.
+
+### Pestañas de resultado (el equivalente a DAX Studio)
+
+Cada `<dax-lab>` enseña, tras medir:
+
+| Pestaña | Qué enseña |
+|---|---|
+| **Storage Engine** | Las consultas SE y los aciertos de caché con inicio, ms, CPU, filas, KB y xmSQL (clic para verlo entero). **Copiar todo el xmSQL.** Con `watch="Fecha.Fecha"` marca con **AGRUPA** / **FILTRA** las consultas cuyo xmSQL agrupa o filtra por esa columna y resume si el motor «baja» a esa granularidad |
+| **Formula Engine** | Línea de tiempo del SE sobre el total: el FE son los huecos. Callbacks, operadores del plan físico (spools, callbacks) y botón para copiar el plan físico |
+| **Plan** | Plan físico y lógico como tabla *Línea · Registros · Operador* (como la vista Query Plan), con **Copiar** por plan y **Copiar los dos planes**. Requiere la casilla *plan* |
+| **Resultado** y **Métricas** | Filas devueltas y el JSON de `ExecutionMetrics` |
+
+**🤖 Copiar para LLM** (en la cabecera) copia un Markdown con la consulta, los tiempos, el xmSQL, los planes y un
+prompt en español para que un asistente explique qué hace cada motor y qué cambiar. En
+[INVESTIGACION.md § 14](INVESTIGACION.md) está el estudio de si conviene una llamada por API desde el puente.
 
 **Token:** las páginas servidas por el propio puente (`--www`, o `/lab/demo.html`) lo obtienen
 solas. Abiertas como fichero o desde otro servidor, el widget lo pide una vez (sale en la consola

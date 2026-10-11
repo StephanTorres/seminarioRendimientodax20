@@ -1,0 +1,5 @@
+# Power BI: la caché de datos del PBIP (cientos de MB) no se versiona
+powerbi/**/.pbi/cache.abf
+powerbi/**/.pbi/localSettings.json
+powerbi/**/.pbi/unappliedChanges.json
+*.pbix
