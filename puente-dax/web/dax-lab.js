@@ -5,6 +5,8 @@
  *                      consultas SE, caché, callbacks, filas/KB y planes.
  *   <dax-benchmark>    la plantilla benchmark del workshop, rellenada sola.
  *   <dax-vertipaq>     tamaños y cardinalidades del modelo (VertiPaq Analyzer), con foto antes/después.
+ *   <dax-ranking>      «Dónde duele»: ranking página → visual → medida por CPU del motor de un informe
+ *                      (graba las consultas de los visuales y las cruza con el Analizador de rendimiento).
  *   <dax-model-check>  comprueba contra el modelo los nombres de window.PUENTE_DAX_MODELO
  *                      y, en el ensayo, ejecuta una vez cada demo de la página.
  *
@@ -1067,8 +1069,251 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
     }
   }
 
+  // ─── <dax-ranking> · «Dónde duele» ─────────────────────────────────────────
+  // Ranking página → visual → medida por CPU del motor (FE + CPU del SE) de las consultas que lanza un informe.
+  //   · Grabar / Detener: el puente escucha todas las consultas del modelo mientras se pasea por el informe
+  //     en Power BI Desktop (Analizador de rendimiento → Actualizar objetos visuales).
+  //   · Cargar exportación: el JSON del Analizador de rendimiento dice qué visual lanzó cada consulta (visualId).
+  //     Se cruza con la grabación por el texto DAX. Sin exportación se atribuye por campos (medidas y columnas
+  //     del visual en el PBIR, con --report); es una estimación y se marca así.
+  //   · Repetir en frío: reejecuta las más caras con la caché limpia y se queda con la mediana.
+  //   <dax-ranking sample="perfil-ejemplo.js" title="…" fill></dax-ranking>
+  const normText = (t) => String(t || '').replace(/\s+/g, ' ').trim();
+  const median = (a) => { const s = [...a].sort((x, y) => x - y); const m = s.length >> 1; return s.length ? (s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2) : 0; };
+  const pct = (n, t) => (t ? `${(100 * n / t).toLocaleString('es-ES', { maximumFractionDigits: 1 })} %` : '–');
+
+  // Cruza grabación + exportación + mapa del PBIR. Devuelve consultas atribuidas y visuales.
+  function buildProfile(data) {
+    const rec = (data.recording && data.recording.queries) || [];
+    const events = (data.export && data.export.events) || [];
+    const byId = new Map(events.map((e) => [e.id, e]));
+    const visualOf = (e) => { for (let i = 0; e && i < 20; i++, e = byId.get(e.parentId)) if (e.name === 'Visual Container Lifecycle') return e.metrics.visualId; return null; };
+    const meta = new Map(); // visualId -> { page, title, type, measures, columns }
+    for (const p of (data.map && data.map.pages) || [])
+      for (const v of p.visuals) meta.set(v.id, { page: p.name, title: v.title, type: v.type, measures: v.measures || [], columns: v.columns || [] });
+    for (const e of events) {
+      if (e.name !== 'Visual Container Lifecycle') continue;
+      const m = e.metrics || {};
+      if (!meta.has(m.visualId)) meta.set(m.visualId, { page: '(sin página)', title: m.visualTitle || m.visualType, type: m.visualType, measures: [], columns: [] });
+    }
+    const exported = events.filter((e) => e.name === 'Execute DAX Query').map((e) => ({ visualId: visualOf(e), text: normText(e.metrics && e.metrics.QueryText) }));
+    const pool = new Map();
+    for (const x of exported) { if (!pool.has(x.text)) pool.set(x.text, []); pool.get(x.text).push(x.visualId); }
+
+    const fieldScore = (text, m) => [...m.measures, ...m.columns].filter((f) => f && text.includes(`[${f}]`)).length;
+    const queries = rec.map((q, i) => {
+      const text = normText(q.text);
+      let visualId = null, how = 'sin atribuir';
+      const hit = pool.get(text);
+      if (hit && hit.length) { visualId = hit.shift(); how = 'exportación'; }
+      else if (meta.size && !exported.length) {
+        const ranked = [...meta.entries()].map(([id, m]) => [id, fieldScore(text, m)]).filter((x) => x[1] > 0).sort((a, b) => b[1] - a[1]);
+        if (ranked.length && (ranked.length === 1 || ranked[0][1] > ranked[1][1])) { visualId = ranked[0][0]; how = 'campos (estimado)'; }
+      }
+      return { ...q, i, text, visualId, how };
+    });
+    return { queries, meta };
+  }
+
+  function aggregate(profile, level) {
+    const { queries, meta } = profile;
+    const groups = new Map();
+    const add = (key, label, sub, q, extra) => {
+      const g = groups.get(key) || { key, label, sub, cpu: 0, dur: 0, n: 0, se: 0, rows: 0, queries: [], ...extra };
+      g.cpu += q.cpuMs; g.dur += q.durationMs; g.n += 1; g.se += q.storageEngineQueries; g.rows += q.rows; g.queries.push(q);
+      groups.set(key, g);
+    };
+    for (const q of queries) {
+      const m = q.visualId ? meta.get(q.visualId) : null;
+      if (level === 'visuales') add(q.visualId || `sin:${q.i}`, m ? m.title : '(sin atribuir)', m ? `${m.page} · ${m.type}` : preview(q.text).slice(0, 70), q, { measures: m ? m.measures : [] });
+      else if (level === 'paginas') add(m ? m.page : '(sin atribuir)', m ? m.page : '(sin atribuir)', '', q);
+      else if (level === 'medidas') {
+        const ms = m && m.measures.length ? m.measures : ['(sin medidas)'];
+        for (const name of ms) add(name, name, '', q);
+      } else add(`q${q.i}`, preview(q.text).slice(0, 110), m ? `${m.page} · ${m.title}` : '', q);
+    }
+    return [...groups.values()].sort((a, b) => b.cpu - a.cpu);
+  }
+
+  class DaxRanking extends HTMLElement {
+    connectedCallback() {
+      if (this._ready) return;
+      this._ready = true;
+      this._base = this.getAttribute('bridge') || defaultBridge();
+      this._token = this.getAttribute('token') || '';
+      this._data = { recording: null, export: null, map: null };
+      this._level = 'visuales';
+      this._replay = new Map();
+      const root = this.attachShadow({ mode: 'open' });
+      root.innerHTML = `<style>${CSS}
+        .rk td.name { width:34%; } .rk td.name small { display:block; color:var(--dl-muted); }
+        .rk .meter { height:12px; border-radius:6px; background:rgba(255,255,255,.05); position:relative; min-width:120px; }
+        .rk .meter i { position:absolute; left:0; top:0; bottom:0; border-radius:6px; background:var(--dl-cb); }
+        .rk .meter i.mid { background:var(--dl-fe); } .rk .meter i.low { background:var(--dl-se); }
+        .rk tr.hot td.name b { color:var(--dl-cb); }
+        .summary { margin:8px 14px 0; padding:8px 12px; border:1px solid var(--dl-cb); border-radius:10px; background:rgba(255,92,108,.07); font:15px var(--dl-mono); color:#f2fff8; }
+        .summary b { color:var(--dl-cb); }
+        .how { font:11px var(--dl-mono); color:var(--dl-muted); }
+        .cold { color:var(--dl-info); }
+        input[type=file] { display:none; }
+        tr.sub td { background:rgba(61,252,143,.04); } tr.sub pre { margin:0; white-space:pre-wrap; font:12px/1.4 var(--dl-mono); color:#cfe9dc; }
+      </style>
+      <div class="box ${this.hasAttribute('fill') ? 'fill' : ''} rk">
+        <div class="head"><span class="title">${esc(this.getAttribute('title') || 'Dónde duele')}</span>
+          <button data-rec title="Empieza a escuchar todas las consultas del modelo">● Grabar</button>
+          <button data-load class="ghost" title="JSON exportado del Analizador de rendimiento de Power BI Desktop">⤒ Exportación</button>
+          <button data-sample class="ghost" title="Datos grabados en los ensayos (plan B)">Ejemplo</button>
+          <button data-replay class="warm" title="Reejecuta las 5 consultas más caras con la caché fría (mediana de 3)">❄ Repetir en frío</button>
+          <button data-save class="ghost" title="Descargar la sesión como JSON">⤓ Guardar</button>
+          <input type="file" accept=".json,application/json" /></div>
+        <div class="status"></div>
+        <div class="tabs"><button class="tab on" data-level="visuales">Visuales</button><button class="tab" data-level="paginas">Páginas</button>
+          <button class="tab" data-level="medidas">Medidas</button><button class="tab" data-level="consultas">Consultas</button></div>
+        <div class="summary hidden"></div>
+        <div class="panel" style="max-height:none;flex:1"><div class="msg">Graba la navegación por el informe en Desktop (Analizador de rendimiento → Iniciar grabación → Actualizar objetos visuales), pulsa ■ Detener y carga la exportación. O usa «Ejemplo».</div></div>
+      </div>`;
+      isolateKeyboard(root);
+      this._status = root.querySelector('.status');
+      this._panel = root.querySelector('.panel');
+      this._summary = root.querySelector('.summary');
+      this._rec = root.querySelector('[data-rec]');
+      this._file = root.querySelector('input[type=file]');
+      this._rec.addEventListener('click', () => this.toggleRecording());
+      root.querySelector('[data-load]').addEventListener('click', () => this._file.click());
+      this._file.addEventListener('change', () => this.loadFile(this._file.files[0]));
+      root.querySelector('[data-sample]').addEventListener('click', () => this.loadSample());
+      root.querySelector('[data-replay]').addEventListener('click', () => this.replayTop());
+      root.querySelector('[data-save]').addEventListener('click', () => download(`perfil-${slug(this.getAttribute('title') || 'informe')}.json`, JSON.stringify(this._data, null, 1), 'application/json'));
+      root.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => {
+        this._level = t.dataset.level;
+        root.querySelectorAll('.tab').forEach((x) => x.classList.toggle('on', x === t));
+        this.render();
+      }));
+      this.refreshMap();
+    }
+
+    note(html, cls = '') { this._status.innerHTML = `<span class="${cls}">${html}</span>`; }
+
+    async refreshMap() {
+      try { this._data.map = await callApi(this._base, '/api/report-map', null, this._token); } catch { /* sin --report: se usan los títulos de la exportación */ }
+    }
+
+    async toggleRecording() {
+      try {
+        if (!this._recording) {
+          await callApi(this._base, '/api/profile/start', {}, this._token);
+          this._recording = true;
+          this._rec.textContent = '■ Detener';
+          this.note('<span class="badge live">GRABANDO</span> Actualiza los visuales en Desktop (o pasea por las páginas).', '');
+          this._poll = setInterval(async () => {
+            try { const s = await callApi(this._base, '/api/profile/status', null, this._token); this.note(`<span class="badge live">GRABANDO</span> ${num(s.queries)} consultas vistas`); } catch { /* seguimos */ }
+          }, 1500);
+        } else {
+          clearInterval(this._poll);
+          this._data.recording = await callApi(this._base, '/api/profile/stop', {}, this._token);
+          this._recording = false;
+          this._rec.textContent = '● Grabar';
+          await this.refreshMap();
+          this.note(`<span class="badge live">VIVO</span> ${num(this._data.recording.queries.length)} consultas grabadas. ${this._data.export ? '' : 'Carga la exportación del Analizador para saber qué visual lanzó cada una.'}`, 'ok');
+          this.render();
+        }
+      } catch (e) {
+        clearInterval(this._poll);
+        this._recording = false;
+        this._rec.textContent = '● Grabar';
+        this.note(`No se pudo grabar: ${esc(e.message)}`, 'err');
+      }
+    }
+
+    async loadFile(file) {
+      if (!file) return;
+      try {
+        const json = JSON.parse((await file.text()).replace(/^﻿/, ''));
+        if (json.events) this._data.export = json;
+        else if (json.recording || json.queries) Object.assign(this._data, json.queries ? { recording: json } : json);
+        else throw new Error('No parece una exportación del Analizador ni una sesión guardada.');
+        this.note(`Cargado ${esc(file.name)}.`, 'ok');
+        this.render();
+      } catch (e) { this.note(`No se pudo leer el fichero: ${esc(e.message)}`, 'err'); }
+      this._file.value = '';
+    }
+
+    loadSample() {
+      const apply = () => {
+        const s = window.PUENTE_DAX_PERFIL;
+        if (!s) { this.note('No se encontró el ejemplo grabado.', 'err'); return; }
+        this._data = JSON.parse(JSON.stringify(s));
+        this._replay.clear();
+        this.note('<span class="badge recorded">EJEMPLO GRABADO</span> ' + esc(this._data.recording.queries.length) + ' consultas de un informe de 6 páginas.');
+        this.render();
+      };
+      if (window.PUENTE_DAX_PERFIL) { apply(); return; }
+      const url = this.getAttribute('sample') || (SCRIPT_SRC ? SCRIPT_SRC.replace(/[^/]*$/, 'perfil-ejemplo.js') : 'perfil-ejemplo.js');
+      const s = document.createElement('script');
+      s.src = url; s.onload = apply; s.onerror = () => this.note(`No se pudo cargar ${esc(url)}.`, 'err');
+      document.head.appendChild(s);
+    }
+
+    async replayTop() {
+      if (!this._data.recording) { this.note('Primero graba o carga un ejemplo.', 'err'); return; }
+      const profile = buildProfile(this._data);
+      const top = [...profile.queries].sort((a, b) => b.cpuMs - a.cpuMs).slice(0, 5);
+      const btn = this.shadowRoot.querySelector('[data-replay]');
+      btn.disabled = true;
+      try {
+        for (let n = 0; n < top.length; n++) {
+          this.note(`<span class="spin"></span> Reejecutando en frío ${n + 1} de ${top.length}…`);
+          const cpus = [];
+          for (let k = 0; k < 3; k++) {
+            const r = await callApi(this._base, '/api/query', { dax: top[n].text, clearCache: true, maxRows: 1 }, this._token);
+            cpus.push((r.timings.formulaEngineMs || 0) + (r.timings.storageEngineCpuMs || 0));
+          }
+          this._replay.set(top[n].text, median(cpus));
+        }
+        this.note('<span class="badge live">VIVO</span> Mediana en frío de las 5 más caras (columna «Frío»).', 'ok');
+      } catch (e) { this.note(`No se pudo repetir: ${esc(e.message)}`, 'err'); }
+      btn.disabled = false;
+      this.render();
+    }
+
+    render() {
+      if (!this._data.recording) return;
+      const profile = buildProfile(this._data);
+      const rows = aggregate(profile, this._level);
+      const total = rows.reduce((s, r) => s + r.cpu, 0);
+      if (this._level !== 'consultas') {
+        let acc = 0, k = 0;
+        for (const r of rows) { acc += r.cpu; k++; if (acc >= total * 0.8) break; }
+        const unit = { visuales: 'visuales', paginas: 'páginas', medidas: 'medidas' }[this._level];
+        this._summary.classList.toggle('hidden', !total);
+        this._summary.innerHTML = `<b>${k} de ${rows.length} ${unit}</b> concentran el <b>80 %</b> de la CPU del informe (${num(Math.round(total))} ms en ${num(profile.queries.length)} consultas).`
+          + (this._level === 'medidas' ? ' <span class="how">CPU de los visuales donde aparece cada medida: un visual con varias medidas cuenta en todas.</span>' : '');
+      } else this._summary.classList.add('hidden');
+      const max = rows.length ? rows[0].cpu : 1;
+      const cold = (g) => { const v = g.queries.map((q) => this._replay.get(q.text)).filter((x) => x !== undefined); return v.length ? `<span class="cold">${num(Math.round(v.reduce((a, b) => a + b, 0)))}</span>` : ''; };
+      let acc = 0;
+      const body = rows.slice(0, 40).map((g, i) => {
+        acc += g.cpu;
+        const w = Math.max(2, Math.round(100 * g.cpu / max));
+        const tone = i < 3 ? '' : (g.cpu / max > 0.25 ? 'mid' : 'low');
+        const how = this._level === 'visuales' || this._level === 'consultas' ? [...new Set(g.queries.map((q) => q.how))].join(', ') : '';
+        const dax = this._level === 'consultas' ? `<tr class="sub hidden" data-sub="${i}"><td colspan="7"><pre>${esc(g.queries[0].text)}</pre></td></tr>` : '';
+        return `<tr class="${i < 3 ? 'hot' : ''}" data-i="${i}"><td class="name"><b>${esc(g.label)}</b>${g.sub ? `<small>${esc(g.sub)}</small>` : ''}</td>
+          <td class="n">${num(Math.round(g.cpu))}</td><td class="n">${pct(g.cpu, total)}</td><td class="n">${pct(acc, total)}</td>
+          <td><div class="meter"><i class="${tone}" style="width:${w}%"></i></div></td>
+          <td class="n">${num(g.n)}${this._level === 'consultas' ? '' : ''}</td><td class="n">${cold(g)}<br><span class="how">${esc(how)}</span></td></tr>${dax}`;
+      }).join('');
+      this._panel.innerHTML = `<table><thead><tr><th>${{ visuales: 'Visual', paginas: 'Página', medidas: 'Medida', consultas: 'Consulta' }[this._level]}</th><th class="n">CPU ms</th><th class="n">%</th><th class="n">% acum.</th><th>Peso</th><th class="n">Consultas</th><th class="n">Frío</th></tr></thead><tbody>${body}</tbody></table>`;
+      this._panel.querySelectorAll('tr[data-i]').forEach((tr) => tr.addEventListener('click', () => {
+        const sub = this._panel.querySelector(`tr[data-sub="${tr.dataset.i}"]`);
+        if (sub) sub.classList.toggle('hidden');
+      }));
+    }
+  }
+
   window.customElements.define('dax-lab', DaxLab);
   window.customElements.define('dax-benchmark', DaxBenchmark);
   window.customElements.define('dax-vertipaq', DaxVertipaq);
   window.customElements.define('dax-model-check', DaxModelCheck);
+  window.customElements.define('dax-ranking', DaxRanking);
 })();

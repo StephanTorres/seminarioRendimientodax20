@@ -42,6 +42,7 @@ builder.Logging.AddFilter("Microsoft", LogLevel.Warning);
 builder.Services.AddSingleton(options);
 if (options.Mock) builder.Services.AddSingleton<IDaxBackend, MockBackend>();
 else builder.Services.AddSingleton<IDaxBackend, PowerBiBackend>();
+builder.Services.AddSingleton<ProfileRecorder>();
 builder.Services.AddDirectoryBrowser();
 builder.Services.AddCors(cors => cors.AddDefaultPolicy(policy => policy
     .SetIsOriginAllowed(origin => IsAllowedOrigin(origin, options))
@@ -135,6 +136,25 @@ api.MapGet("/model-stats", (IDaxBackend backend, bool? exact, CancellationToken 
 
 api.MapPost("/benchmark", (BenchmarkRequest request, IDaxBackend backend, CancellationToken ct) =>
     Guard(() => BenchmarkRunner.RunAsync(backend, request, ct)));
+
+// «Dónde duele»: grabar todas las consultas del modelo mientras se pasea por un informe y leer su estructura.
+api.MapPost("/profile/start", async (IDaxBackend backend, ProfileRecorder recorder) =>
+{
+    if (backend.Mode == "mock") return Results.BadRequest(new ErrorResponse("La grabación necesita Power BI Desktop (el modo simulado no tiene consultas de informe)."));
+    var connection = backend.Connection;
+    if (connection is null) return Results.BadRequest(new ErrorResponse("El puente aún no está conectado a ningún modelo."));
+    return await Guard(() => { recorder.Start(connection.Server, connection.Database); return Task.FromResult(recorder.Status); });
+});
+
+api.MapPost("/profile/stop", (ProfileRecorder recorder) =>
+    Guard(() => Task.FromResult(recorder.Stop())));
+
+api.MapGet("/profile/status", (ProfileRecorder recorder) => Results.Ok(recorder.Status));
+
+api.MapGet("/report-map", async () =>
+    options.ReportDir is null
+        ? Results.NotFound(new ErrorResponse("El puente no se arrancó con --report <carpeta .Report>."))
+        : await Guard(() => Task.FromResult(ReportMap.Read(options.ReportDir))));
 
 app.Lifetime.ApplicationStarted.Register(() =>
 {

@@ -53,6 +53,7 @@ Start-Sleep -Seconds 1
 
 Start-Process $Exe -WindowStyle Minimized -ArgumentList @(
     '--www', "`"$repo`"", '--server', "localhost:$($antes.Puerto)", '--database', $antes.Base,
+    '--report', "`"$repo\PowerBi\PowerBi.Report`"",
     '--port', $PuertoAntes, '--token', $Token)
 Start-Process $Exe -WindowStyle Minimized -ArgumentList @(
     '--server', "localhost:$($despues.Puerto)", '--database', $despues.Base,

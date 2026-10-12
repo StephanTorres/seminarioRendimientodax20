@@ -11,6 +11,7 @@ public sealed class BridgeOptions
     public string Token { get; private set; } = NewToken();
     public bool TokenWasGenerated { get; private set; } = true;
     public string? WebRoot { get; private set; }
+    public string? ReportDir { get; private set; }
     public List<string> AllowedOrigins { get; } = new();
     public bool Mock { get; private set; }
     public bool OpenBrowser { get; private set; }
@@ -30,6 +31,8 @@ public sealed class BridgeOptions
                                    Si no se indica, se genera uno aleatorio.
           --www <carpeta>          Sirve esa carpeta en http://127.0.0.1:<puerto>/
                                    (por ejemplo, la carpeta de las diapositivas).
+          --report <carpeta>       Carpeta .Report (PBIR) del informe que se está perfilando: permite al
+                                   widget «Dónde duele» poner nombre a páginas y visuales.
           --allow-origin <url>     Origen web adicional autorizado (repetible).
           --mock                   Modo simulado: no necesita Power BI.
           --open                   Abre el navegador al arrancar.
@@ -53,6 +56,7 @@ public sealed class BridgeOptions
                 case "--port": o.Port = int.Parse(Next()); break;
                 case "--token": o.Token = Next(); o.TokenWasGenerated = false; break;
                 case "--www": o.WebRoot = Path.GetFullPath(Next()); break;
+                case "--report": o.ReportDir = Path.GetFullPath(Next()); break;
                 case "--allow-origin": o.AllowedOrigins.Add(Next().TrimEnd('/')); break;
                 case "--mock": o.Mock = true; break;
                 case "--open": o.OpenBrowser = true; break;

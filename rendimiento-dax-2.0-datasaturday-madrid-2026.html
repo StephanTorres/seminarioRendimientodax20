@@ -741,18 +741,19 @@ body.spotlight-active { cursor: none; }
 <!-- ═════════════════ 2 · AGENDA ═════════════════ -->
 <section class="slide slide-agenda" data-notes="Agenda de cuatro horas. Cada bloque de contenido termina con un apartado «Y esto con IA, ¿qué?». Descanso de 10 minutos después del bloque de tiempo.">
   <div class="slide-inner">
-    <div class="tag">Agenda · <b>240 min</b></div>
+    <div class="tag">Agenda · <b>260 min</b></div>
     <h2 class="slide-title">Lo que vamos a medir hoy</h2>
     <ol class="agenda-list">
       <li class="agenda-item"><span class="agenda-num">00</span><span class="agenda-title">Apertura y cómo medimos</span><span class="agenda-min">10′</span></li>
       <li class="agenda-item"><span class="agenda-num">04</span><span class="agenda-title">Multi-idioma y multi-moneda</span><span class="agenda-min">35′</span></li>
       <li class="agenda-item"><span class="agenda-num">01</span><span class="agenda-title">Motor y almacenamiento</span><span class="agenda-min">35′</span></li>
-      <li class="agenda-item"><span class="agenda-num">05</span><span class="agenda-title">FE/SE, Fusion, Callbacks</span><span class="agenda-min">40′</span></li>
+      <li class="agenda-item"><span class="agenda-num">05</span><span class="agenda-title">Dónde duele: ranking del informe</span><span class="agenda-min">20′</span></li>
       <li class="agenda-item"><span class="agenda-num">02</span><span class="agenda-title">Herramientas y medición</span><span class="agenda-min">30′</span></li>
-      <li class="agenda-item"><span class="agenda-num">06</span><span class="agenda-title">Otras optimizaciones DAX</span><span class="agenda-min">25′</span></li>
+      <li class="agenda-item"><span class="agenda-num">06</span><span class="agenda-title">FE/SE, Fusion, Callbacks</span><span class="agenda-min">40′</span></li>
       <li class="agenda-item"><span class="agenda-num">03</span><span class="agenda-title">Tiempo: dimensión y cálculos</span><span class="agenda-min">45′</span></li>
-      <li class="agenda-item"><span class="agenda-num">07</span><span class="agenda-title">Cierre, retos y preguntas</span><span class="agenda-min">10′</span></li>
+      <li class="agenda-item"><span class="agenda-num">07</span><span class="agenda-title">Otras optimizaciones DAX</span><span class="agenda-min">25′</span></li>
       <li class="agenda-item pause"><span class="agenda-num">☕</span><span class="agenda-title">Descanso</span><span class="agenda-min">10′</span></li>
+      <li class="agenda-item"><span class="agenda-num">08</span><span class="agenda-title">Cierre, retos y preguntas</span><span class="agenda-min">10′</span></li>
     </ol>
   </div>
 </section>
@@ -988,7 +989,7 @@ body.spotlight-active { cursor: none; }
 </section>
 
 <!-- ═════════════════ 12 · DEL ALMACENAMIENTO A LA CONSULTA (SVG) ═════════════════ -->
-<section class="slide slide-svg-visual" data-notes="Por qué el almacenamiento importa al DAX: el SE escanea columnas comprimidas, así que una columna más grande o con más cardinalidad cuesta más de escanear. DISTINCTCOUNT y relaciones sobre columnas de alta cardinalidad lo notan. Lo que la consulta no toca no se escanea, aunque ocupe memoria. Enlace con el bloque 5: el tamaño de las cachés de datos que el SE entrega al FE.">
+<section class="slide slide-svg-visual" data-notes="Por qué el almacenamiento importa al DAX: el SE escanea columnas comprimidas, así que una columna más grande o con más cardinalidad cuesta más de escanear. DISTINCTCOUNT y relaciones sobre columnas de alta cardinalidad lo notan. Lo que la consulta no toca no se escanea, aunque ocupe memoria. Enlace con el bloque 6: el tamaño de las cachés de datos que el SE entrega al FE.">
   <div class="slide-inner">
     <div class="tag">Bloque 1 · <b>Del almacenamiento a la consulta</b></div>
     <h2 class="slide-title">El SE escanea columnas comprimidas</h2>
@@ -1043,7 +1044,7 @@ body.spotlight-active { cursor: none; }
 </section>
 
 <!-- ═════════════════ 13b · PASO 5 EN DETALLE ═════════════════ -->
-<section class="slide slide-content" data-notes="Paso 5 con cifras medidas en la demo (50 millones de filas; modelo antes de 5 186 MB, después de 744 MB). Tres técnicas, y ninguna es gratis. A) Quitar la columna calculada por fila y sustituirla por una medida: Dólar y Euro tenían 12 millones de valores distintos y 237 MB cada una; la medida con SUMX las quita, pero cada consulta cuesta más (106 ms frente a 691 ms en frío). B) SUM no es el problema: SUM ( col ) es azúcar sintáctico de SUMX ( tabla, col ). Lo que pesa es lo que pones dentro de la expresión; lo veremos con los callbacks en el bloque 5. C) Partir el importe en parte entera y céntimos (dos decimales): SalesAmount pasa de 461 146 valores distintos a 4 895 y 100, y de 190 MB a 61 MB; con las cuatro columnas de importe se baja de 693 MB a 166 MB. A cambio, cada suma lee dos columnas y el importe se redondea a dos decimales (2 643 de diferencia sobre 25 600 millones).">
+<section class="slide slide-content" data-notes="Paso 5 con cifras medidas en la demo (50 millones de filas; modelo antes de 5 186 MB, después de 744 MB). Tres técnicas, y ninguna es gratis. A) Quitar la columna calculada por fila y sustituirla por una medida: Dólar y Euro tenían 12 millones de valores distintos y 237 MB cada una; la medida con SUMX las quita, pero cada consulta cuesta más (106 ms frente a 691 ms en frío). B) SUM no es el problema: SUM ( col ) es azúcar sintáctico de SUMX ( tabla, col ). Lo que pesa es lo que pones dentro de la expresión; lo veremos con los callbacks en el bloque 6. C) Partir el importe en parte entera y céntimos (dos decimales): SalesAmount pasa de 461 146 valores distintos a 4 895 y 100, y de 190 MB a 61 MB; con las cuatro columnas de importe se baja de 693 MB a 166 MB. A cambio, cada suma lee dos columnas y el importe se redondea a dos decimales (2 643 de diferencia sobre 25 600 millones).">
   <div class="slide-inner">
     <div class="tag">Bloque 1 · <b>Cardinalidad</b></div>
     <h2 class="slide-title">Paso 5: bajar la cardinalidad de un importe</h2>
@@ -1085,7 +1086,7 @@ body.spotlight-active { cursor: none; }
 </section>
 
 <!-- ─── Laboratorio · Bloque 1 · Moneda: local, dólares y euros a la vez ─── -->
-<section class="slide slide-lab" data-lab="Moneda: local, dólares y euros a la vez" data-notes="Misma pregunta, dos modelos: el importe en moneda local, en dólares y en euros a la vez, por año. A la izquierda, el ANTES: Dólar y Euro son columnas calculadas por cada fila de los hechos (12 millones de valores distintos y 237 MB cada una), así que las medidas son un SUM y cuestan casi nada en tiempo. A la derecha, el DESPUÉS: esas columnas ya no existen, y las medidas necesarias son SUMX sobre la fecha y la moneda, con la tasa buscada con TREATAS. La ventana de la derecha tiene dos variantes (pastillas): con los dólares y euros ya calculados y partidos en entero y céntimos, o calculados al vuelo con la tasa; pulsa Frío en cada una y en la de la izquierda, y mira las pestañas Storage Engine y Formula Engine: con la tasa al vuelo el SE pasa de una consulta a seis y el tiempo, de unos 177 ms a más de 1 000 ms en frío (en caliente, de 10 a unos 170 ms: el FE no se salva con la caché); con los importes precalculados y SUMX por fila son unos 700 ms con una sola consulta SE; el modelo pesa mucho menos. Si la consulta no deja ver el resultado, el botón Consulta la oculta. La lección: SUM es azúcar de SUMX, y el coste está en lo que pones dentro de la expresión (lo veremos con los callbacks en el bloque 5). La tabla de la derecha reúne las dos mediciones con el botón Benchmark.">
+<section class="slide slide-lab" data-lab="Moneda: local, dólares y euros a la vez" data-notes="Misma pregunta, dos modelos: el importe en moneda local, en dólares y en euros a la vez, por año. A la izquierda, el ANTES: Dólar y Euro son columnas calculadas por cada fila de los hechos (12 millones de valores distintos y 237 MB cada una), así que las medidas son un SUM y cuestan casi nada en tiempo. A la derecha, el DESPUÉS: esas columnas ya no existen, y las medidas necesarias son SUMX sobre la fecha y la moneda, con la tasa buscada con TREATAS. La ventana de la derecha tiene dos variantes (pastillas): con los dólares y euros ya calculados y partidos en entero y céntimos, o calculados al vuelo con la tasa; pulsa Frío en cada una y en la de la izquierda, y mira las pestañas Storage Engine y Formula Engine: con la tasa al vuelo el SE pasa de una consulta a seis y el tiempo, de unos 177 ms a más de 1 000 ms en frío (en caliente, de 10 a unos 170 ms: el FE no se salva con la caché); con los importes precalculados y SUMX por fila son unos 700 ms con una sola consulta SE; el modelo pesa mucho menos. Si la consulta no deja ver el resultado, el botón Consulta la oculta. La lección: SUM es azúcar de SUMX, y el coste está en lo que pones dentro de la expresión (lo veremos con los callbacks en el bloque 6). La tabla de la derecha reúne las dos mediciones con el botón Benchmark.">
   <div class="slide-inner">
     <div class="lab-head"><div class="tag">Bloque 1 · <b>Laboratorio</b></div><h2 class="lab-title">Moneda: local, dólares y euros a la vez</h2></div>
     <div class="lab-grid dual">
@@ -2519,14 +2520,107 @@ EVALUATE ROW ( "Pendiente", "pega tu consulta" )
   </div>
 </section>
 
+<!-- ═════════════════ 05 · DÓNDE DUELE ═════════════════ -->
+<section class="slide slide-section" data-notes="Bloque 5, 20 minutos: cómo encontrar lo que hay que optimizar. Hasta aquí hemos medido una consulta cada vez; en un informe real, la mayor parte del consumo de una capacidad puede venir de una sola medida en un par de visuales. Esta sección enseña un método para ponerles nombre: grabar las consultas de los visuales, cruzarlas con el Analizador de rendimiento y ordenar por CPU del motor.">
+  <svg class="trace" style="top:640px;height:200px" viewBox="0 0 1600 200" preserveAspectRatio="none">
+    <path class="ghost" d="M0,170 L200,160 L400,150 L600,140 L800,110 L1000,60 L1200,40 L1400,170 L1600,170"/>
+    <path d="M0,170 L200,160 L400,150 L600,140 L800,110 L1000,60 L1200,40 L1400,170 L1600,170"/>
+  </svg>
+  <div class="slide-inner">
+    <div class="section-number">05</div>
+    <h2 class="section-title">Dónde duele</h2>
+    <p class="section-subtitle">Antes de optimizar una medida, saber cuál: un ranking de páginas, visuales y medidas por consumo</p>
+  </div>
+</section>
+
+<section class="slide slide-content" data-notes="El problema. Optimizar a ciegas es lo habitual: se mejora la medida que se conoce o el visual que se queja. Pero el coste de un informe suele estar muy concentrado (Pareto): pocos visuales y pocas medidas explican casi toda la CPU. Y el visual que más tarda no tiene por qué ser el que más cuesta: un visual puede tardar poco porque el Storage Engine lo paraleliza y aun así gastar mucha CPU de la capacidad. El Analizador de rendimiento da tiempos por visual, pero no la CPU del motor ni un ranking por medida.">
+  <div class="slide-inner">
+    <div class="tag">Bloque 5 · <b>El problema</b></div>
+    <h2 class="slide-title">Una medida puede ser casi toda la factura</h2>
+    <div class="cards c3 grow">
+      <div class="card">
+        <h3>Costes muy concentrados</h3>
+        <p>En un informe real, <strong>unos pocos visuales</strong> (y las medidas que llevan) suman la mayor parte de la CPU de la capacidad.</p>
+      </div>
+      <div class="card">
+        <h3>Optimizar a ciegas</h3>
+        <p>Se toca la medida que se conoce o el visual que se queja. Sin ranking, el esfuerzo se va donde <strong>no duele</strong>.</p>
+      </div>
+      <div class="card">
+        <h3>Duración ≠ consumo</h3>
+        <p>Un visual rápido puede gastar mucha <strong>CPU</strong> porque el motor paraleliza. Lo que se factura es la CPU, no el reloj.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide slide-content" data-notes="Qué queremos obtener: un ranking en tres niveles (página, visual, medida) ordenado por CPU del motor, con porcentaje y porcentaje acumulado, para ver el 20 % que da el 80 %. Ejemplo medido con el informe de esta charla (modelo ANTES, 49,6 millones de filas): 19 visuales con consulta, y tres de ellos —todos en la página del año anterior— suman el 76 % de la CPU. Son los visuales con las medidas de cuadre del 29 de febrero y el día a día, que recorren cada fecha.">
+  <div class="slide-inner">
+    <div class="tag">Bloque 5 · <b>Objetivo</b></div>
+    <h2 class="slide-title">Lo que queremos obtener</h2>
+    <div class="steps" style="margin-top:20px">
+      <div class="step"><div class="k">PÁGINAS</div><h3>¿Cuál pesa más?</h3><p>La suma de sus visuales, para empezar por la página que más cuesta</p></div>
+      <div class="step"><div class="k">VISUALES</div><h3>¿Cuál la lanza?</h3><p>Con su título y su tipo, para localizarlo en el informe</p></div>
+      <div class="step"><div class="k">MEDIDAS</div><h3>¿Cuál la causa?</h3><p>CPU de los visuales donde aparece cada medida</p></div>
+      <div class="step new"><div class="k">PARETO</div><h3>El foco</h3><p>% acumulado: con el informe de la charla, <strong>3 visuales = 76 %</strong> de la CPU</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide slide-content" data-notes="Metodología, en cinco pasos. 1) Grabar: el Puente DAX abre una traza del motor sin filtrar por sesión y guarda cada consulta con su CPU, FE y SE. 2) Pasear: en Desktop, Analizador de rendimiento, Iniciar grabación y Actualizar objetos visuales, página por página (el CLI de Desktop no fuerza consultas: al capturar o cambiar de pestaña Desktop reutiliza lo ya pintado). 3) Cruzar: la exportación del Analizador trae el id de cada visual y el texto DAX de su consulta; es el mismo texto que vemos en la traza, así que se casan uno a uno. Sin exportación se atribuye por campos con el PBIR, y se marca como estimado. 4) Ordenar por CPU = FE + CPU del SE. 5) Repetir en frío las cinco más caras con la caché limpia: la primera ejecución es ruidosa, la mediana de tres no. Límite: mide la carga inicial de cada página, no las interacciones.">
+  <div class="slide-inner">
+    <div class="tag">Bloque 5 · <b>Metodología</b></div>
+    <h2 class="slide-title">Cómo lo medimos</h2>
+    <div class="steps" style="margin-top:20px">
+      <div class="step"><div class="k">1 · GRABAR</div><h3>Traza del motor</h3><p>Todas las consultas del modelo, con CPU, FE y SE</p></div>
+      <div class="step"><div class="k">2 · PASEAR</div><h3>Analizador</h3><p>Actualizar visuales, página a página, en Desktop</p></div>
+      <div class="step"><div class="k">3 · CRUZAR</div><h3>visualId ↔ DAX</h3><p>El texto de la consulta une exportación y traza</p></div>
+      <div class="step"><div class="k">4 · ORDENAR</div><h3>CPU = FE + SE</h3><p>Lo que consume capacidad, no lo que tarda</p></div>
+      <div class="step new"><div class="k">5 · REPETIR</div><h3>En frío</h3><p>Las 5 más caras, caché limpia, mediana de 3</p></div>
+    </div>
+    <p class="source-note mt-auto">Límite: mide la carga inicial de cada página, no las interacciones (segmentadores, drill) · datos sintéticos: se enseña el método, no las cifras</p>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 5 · Dónde duele ─── -->
+<section class="slide slide-lab" data-lab="Dónde duele: ranking del informe" data-notes="Demo en directo (o el ejemplo grabado si no hay Desktop). En Desktop del ANTES, con el informe de la charla: 1) pulsa ● Grabar aquí; 2) en Desktop, Ver, Analizador de rendimiento, Iniciar grabación, Actualizar objetos visuales (y repite en cada página si quieres); 3) pulsa ■ Detener aquí; 4) Detén también el Analizador, expórtalo y cárgalo con ⤒ Exportación; 5) mira Visuales, Páginas y Medidas: el cuadro rojo dice cuántos concentran el 80 % de la CPU. 6) ❄ Repetir en frío reejecuta las 5 más caras con la caché limpia. «Ejemplo» carga una grabación hecha en los ensayos. Qué mirar: los tres primeros, el % acumulado y si la medida que aparece arriba es la que esperabas. Siguiente paso natural: abrir esa medida con el método del bloque 2 y optimizarla.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 5 · <b>Laboratorio</b></div><h2 class="lab-title">Dónde duele: el ranking del informe</h2></div>
+    <div class="lab-grid" style="grid-template-columns:minmax(0,1fr)">
+      <dax-ranking fill title="Informe de la charla · ranking por CPU"></dax-ranking>
+    </div>
+  </div>
+</section>
+
+<section class="slide slide-content" data-notes="Qué hacemos con el ranking. Nos dice dónde mirar, no cómo arreglarlo: con cada medida de arriba se aplica el método de la sección de herramientas (frío, caliente, benchmark) y los hallazgos de las secciones de tiempo, moneda y motor (granularidad por fecha, SUMX por fila, callbacks, fusión). Después se vuelve a grabar y se compara el ranking: el objetivo es que baje el porcentaje de los primeros puestos, no que una consulta suelta vaya más rápida. Honestidad: es una foto de la carga inicial con datos sintéticos; en producción hay que mirar también las interacciones y el uso real (cuántas veces se abre cada página).">
+  <div class="slide-inner">
+    <div class="tag">Bloque 5 · <b>Y ahora, ¿qué?</b></div>
+    <h2 class="slide-title">Del ranking a la optimización</h2>
+    <div class="cards c3 grow">
+      <div class="card">
+        <h3>1 · Elegir</h3>
+        <p>Las 2–3 medidas o visuales de arriba. Lo demás, <strong>no se toca</strong> todavía.</p>
+      </div>
+      <div class="card">
+        <h3>2 · Optimizar</h3>
+        <p>Con el método y los patrones de la charla: <strong>granularidad por fecha, SUMX por fila, callbacks, fusión</strong>.</p>
+      </div>
+      <div class="card">
+        <h3>3 · Volver a medir</h3>
+        <p>Grabar otra vez y comparar: que baje el <strong>% de los primeros puestos</strong>, no un tiempo suelto.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ═════════════════ 42 · SECCIÓN 05 ═════════════════ -->
-<section class="slide slide-section" data-notes="Bloque 5, 40 minutos: Formula Engine y Storage Engine, DAX Fusion, callbacks y materialización.">
+<section class="slide slide-section" data-notes="Bloque 6, 40 minutos: Formula Engine y Storage Engine, DAX Fusion, callbacks y materialización.">
   <svg class="trace" style="top:640px;height:200px" viewBox="0 0 1600 200" preserveAspectRatio="none">
     <path class="ghost" d="M0,100 L300,100 L320,100 L340,20 L365,185 L390,60 L410,100 L800,100 L820,100 L840,20 L865,185 L890,60 L910,100 L1300,100 L1320,100 L1340,20 L1365,185 L1390,60 L1410,100 L1600,100"/>
     <path d="M0,100 L300,100 L320,100 L340,20 L365,185 L390,60 L410,100 L800,100 L820,100 L840,20 L865,185 L890,60 L910,100 L1300,100 L1320,100 L1340,20 L1365,185 L1390,60 L1410,100 L1600,100"/>
   </svg>
   <div class="slide-inner">
-    <div class="section-number">05</div>
+    <div class="section-number">06</div>
     <h2 class="section-title">FE/SE, Fusion y Callbacks</h2>
     <p class="section-subtitle">Lo que nos cuentan Performance Analyzer y DAX Studio sobre el motor</p>
     <div class="section-time">40 MIN</div>
@@ -2536,7 +2630,7 @@ EVALUATE ROW ( "Pendiente", "pega tu consulta" )
 <!-- ═════════════════ 43 · SE vs FE (SVG) ═════════════════ -->
 <section class="slide slide-svg-visual" data-notes="Las dos cajas de la diapositiva 44. Storage Engine: multihilo, operaciones simples, con caché. Formula Engine: esencialmente monohilo, operaciones complejas, lee las cachés de datos que crea el SE y no tiene caché propia. El «multihilo» del FE que se menciona en el original son los callbacks: código del FE que se ejecuta dentro de los hilos del SE. Regla de oro: más SE, menos FE. Y una segunda regla: menos materialización, el tamaño de las cachés de datos que viajan del SE al FE.">
   <div class="slide-inner">
-    <div class="tag">Bloque 5 · <b>Motor</b></div>
+    <div class="tag">Bloque 6 · <b>Motor</b></div>
     <h2 class="slide-title">Storage Engine y Formula Engine</h2>
     <div class="svg-wrap">
       <svg class="svg-anim" viewBox="0 0 1300 470" xmlns="http://www.w3.org/2000/svg">
@@ -2576,7 +2670,7 @@ EVALUATE ROW ( "Pendiente", "pega tu consulta" )
 <!-- ═════════════════ 44 · VERTICAL FUSION (SVG) ═════════════════ -->
 <section class="slide slide-svg-visual" data-notes="La prueba de la diapositiva 45: un visual pide cuatro columnas de la misma tabla. ¿Se hacen cuatro consultas o una de cuatro columnas? Si se hace una, la fusión funciona. Esto es vertical fusion: varias agregaciones con el mismo contexto de filtro resueltas en una sola consulta SE.">
   <div class="slide-inner">
-    <div class="tag">Bloque 5 · <b>DAX Fusion</b></div>
+    <div class="tag">Bloque 6 · <b>DAX Fusion</b></div>
     <h2 class="slide-title">Vertical fusion: ¿1 consulta o 4?</h2>
     <div class="svg-wrap">
       <svg class="svg-anim" viewBox="0 0 1300 440" xmlns="http://www.w3.org/2000/svg">
@@ -2606,7 +2700,7 @@ EVALUATE ROW ( "Pendiente", "pega tu consulta" )
 <!-- ═════════════════ 45 · HORIZONTAL FUSION (SVG) ═════════════════ -->
 <section class="slide slide-svg-visual" data-notes="Horizontal fusion, añadida en Power BI en septiembre de 2022, después del checklist de marzo de 2022: consultas SE que solo difieren en el filtro sobre una columna se fusionan en una, añadiendo esa columna al agrupado. Es lo que ocurre en comparativas por periodo, ítems de grupos de cálculo o conversiones por moneda. Por eso hay que volver a grabar la demo de ruptura con multi-moneda: el resultado puede haber cambiado.">
   <div class="slide-inner">
-    <div class="tag">Bloque 5 · <b>DAX Fusion</b></div>
+    <div class="tag">Bloque 6 · <b>DAX Fusion</b></div>
     <h2 class="slide-title">Horizontal fusion <span class="badge check">Power BI · sept. 2022</span></h2>
     <div class="svg-wrap">
       <svg class="svg-anim" viewBox="0 0 1300 440" xmlns="http://www.w3.org/2000/svg">
@@ -2639,7 +2733,7 @@ EVALUATE ROW ( "Pendiente", "pega tu consulta" )
 <!-- ═════════════════ 46 · QUÉ ROMPE LA FUSIÓN ═════════════════ -->
 <section class="slide slide-content" data-notes="Patrones que pueden impedir la fusión: lógica que cambia según la medida, IF o SWITCH con ramas distintas, o filtros sobre columnas diferentes. Comprobarlo siempre en Server Timings, no a ojo. Discusión del original, diapositiva 47: ¿qué hacemos si se rompe? Filtros uniformes, VAR para evaluar una vez, simplificar condicionales. Y modelado más DAX igual a éxito.">
   <div class="slide-inner">
-    <div class="tag">Bloque 5 · <b>DAX Fusion</b></div>
+    <div class="tag">Bloque 6 · <b>DAX Fusion</b></div>
     <h2 class="slide-title">¿Qué la rompe? ¿Qué hacemos?</h2>
     <div class="cards c2 grow">
       <div class="card fe-card">
@@ -2666,7 +2760,7 @@ EVALUATE ROW ( "Pendiente", "pega tu consulta" )
 <!-- ═════════════════ 47 · CALLBACK CÓDIGO ═════════════════ -->
 <section class="slide slide-code" data-notes="El ejemplo de la diapositiva 51. El SE no sabe evaluar el IF y pide al FE que lo evalúe durante el escaneo: es el «cell by cell» de tabular. Se detecta en DAX Studio: las consultas SE con CallbackDataID aparecen en negrita. Antes de enseñarlo, comprobar con la versión actual que sigue generando callback: el motor cambia entre versiones.">
   <div class="slide-inner">
-    <div class="tag">Bloque 5 · <b>Callbacks</b></div>
+    <div class="tag">Bloque 6 · <b>Callbacks</b></div>
     <h2 class="slide-title">¿Qué es un callback?</h2>
     <div class="code-container">
       <div class="code-header"><span>DAX</span><span>diap. 51 · test</span></div>
@@ -2687,7 +2781,7 @@ EVALUATE ROW ( "Pendiente", "pega tu consulta" )
 <!-- ═════════════════ 48 · CALLBACK (SVG) ═════════════════ -->
 <section class="slide slide-svg-visual" data-notes="Visualmente: el SE va escaneando filas y, por cada evaluación, salta al FE para resolver la expresión y vuelve. Por eso el callback es el cell by cell de tabular y produce problemas de rendimiento. Cómo se evita: con sutileza y cuidado, no hay fórmulas mágicas.">
   <div class="slide-inner">
-    <div class="tag">Bloque 5 · <b>Callbacks</b></div>
+    <div class="tag">Bloque 6 · <b>Callbacks</b></div>
     <h2 class="slide-title">El «cell by cell» de tabular</h2>
     <div class="svg-wrap">
       <svg class="svg-anim" viewBox="0 0 1300 440" xmlns="http://www.w3.org/2000/svg">
@@ -2725,7 +2819,7 @@ EVALUATE ROW ( "Pendiente", "pega tu consulta" )
 <!-- ═════════════════ 49 · REESCRITURA ═════════════════ -->
 <section class="slide slide-code" data-notes="Reescritura clásica con CALCULATE y un filtro de columna. Ojo: no es idéntica, porque devuelve BLANK donde la original devuelve 0. Si hace falta el 0, añadir más cero o COALESCE con cero, y medir el efecto.">
   <div class="slide-inner">
-    <div class="tag">Bloque 5 · <b>Callbacks</b></div>
+    <div class="tag">Bloque 6 · <b>Callbacks</b></div>
     <h2 class="slide-title">Evitando el callback</h2>
     <div class="code-container">
       <div class="code-header"><span>DAX</span><span>reescritura clásica</span></div>
@@ -2744,7 +2838,7 @@ EVALUATE ROW ( "Pendiente", "pega tu consulta" )
 <!-- ═════════════════ 50 · MATERIALIZACIÓN ═════════════════ -->
 <section class="slide slide-content" data-notes="Materialización. Un FILTER que itera una tabla de hechos grande con predicados complejos o con medidas, que provocan transición de contexto por fila, o un SUMMARIZE o ADDCOLUMNS con muchas columnas, puede crear una caché enorme. Con un predicado simple sobre una columna, el optimizador suele generar el mismo plan que un filtro de columna. Indicador principal: filas y KB en Server Timings.">
   <div class="slide-inner">
-    <div class="tag">Bloque 5 · <b>Materialización</b></div>
+    <div class="tag">Bloque 6 · <b>Materialización</b></div>
     <h2 class="slide-title">El tamaño de la caché importa</h2>
     <div class="row grow">
       <div class="col">
@@ -2783,10 +2877,10 @@ EVALUATE ROW ( "Pendiente", "pega tu consulta" )
   </div>
 </section>
 
-<!-- ─── Laboratorio · Bloque 5 · DAX Fusion: vertical y horizontal ─── -->
+<!-- ─── Laboratorio · Bloque 6 · DAX Fusion: vertical y horizontal ─── -->
 <section class="slide slide-lab" data-lab="DAX Fusion: vertical y horizontal" data-notes="Vertical: cuatro agregaciones con el mismo filtro deberían salir en una sola consulta SE. Rota: cada medida con un filtro distinto sobre columnas diferentes, varias consultas SE. Horizontal: la misma medida filtrada por tres años distintos se fusiona en una consulta agrupada por año. Mira el número de consultas SE.">
   <div class="slide-inner">
-    <div class="lab-head"><div class="tag">Bloque 5 · <b>Laboratorio</b></div><h2 class="lab-title">DAX Fusion: vertical y horizontal</h2></div>
+    <div class="lab-head"><div class="tag">Bloque 6 · <b>Laboratorio</b></div><h2 class="lab-title">DAX Fusion: vertical y horizontal</h2></div>
     <div class="lab-grid">
       <dax-lab compact fill label="DAX Fusion" editor-height="230px">
         <dax-variant label="Fusión · vertical">
@@ -2837,10 +2931,10 @@ EVALUATE ROW ( "Pendiente", "pega tu consulta" )
   </div>
 </section>
 
-<!-- ─── Laboratorio · Bloque 5 · Callbacks: detectar y eliminar ─── -->
+<!-- ─── Laboratorio · Bloque 6 · Callbacks: detectar y eliminar ─── -->
 <section class="slide slide-lab" data-lab="Callbacks: detectar y eliminar" data-notes="La primera variante es el ejemplo de la diapositiva 51: SUMX con IF. Si genera callback, la fila xmSQL sale en rojo con CallbackDataID. La reescritura con CALCULATE devuelve BLANK donde la original devuelve 0: la variante + 0 da el mismo resultado; compara su coste. ROUND dentro del iterador es otro sospechoso habitual.">
   <div class="slide-inner">
-    <div class="lab-head"><div class="tag">Bloque 5 · <b>Laboratorio</b></div><h2 class="lab-title">Callbacks: detectar y eliminar</h2></div>
+    <div class="lab-head"><div class="tag">Bloque 6 · <b>Laboratorio</b></div><h2 class="lab-title">Callbacks: detectar y eliminar</h2></div>
     <div class="lab-grid">
       <dax-lab compact fill label="Callbacks" editor-height="200px">
         <dax-variant label="Callback · SUMX + IF">
@@ -2884,10 +2978,10 @@ SUMMARIZECOLUMNS (
   </div>
 </section>
 
-<!-- ─── Laboratorio · Bloque 5 · Materialización ─── -->
+<!-- ─── Laboratorio · Bloque 6 · Materialización ─── -->
 <section class="slide slide-lab" data-lab="Materialización" data-notes="Con un predicado simple, FILTER y CALCULATE suelen dar el mismo plan: compruébalo en Consultas SE. La tercera variante usa una medida dentro de FILTER: transición de contexto por cada producto. Mira filas y KB de las cachés de datos.">
   <div class="slide-inner">
-    <div class="lab-head"><div class="tag">Bloque 5 · <b>Laboratorio</b></div><h2 class="lab-title">Materialización</h2></div>
+    <div class="lab-head"><div class="tag">Bloque 6 · <b>Laboratorio</b></div><h2 class="lab-title">Materialización</h2></div>
     <div class="lab-grid">
       <dax-lab compact fill label="Materialización" editor-height="200px">
         <dax-variant label="Materialización · FILTER sobre el hecho">
@@ -2929,7 +3023,7 @@ SUMMARIZECOLUMNS (
   <div class="slide-inner">
     <div class="ia-head">
       <svg class="ia-chip" viewBox="0 0 70 70"><rect x="15" y="15" width="40" height="40" rx="6"/><rect class="core" x="25" y="25" width="20" height="20" rx="3"/><line x1="25" y1="5" x2="25" y2="15"/><line x1="45" y1="5" x2="45" y2="15"/><line x1="25" y1="55" x2="25" y2="65"/><line x1="45" y1="55" x2="45" y2="65"/><line x1="5" y1="25" x2="15" y2="25"/><line x1="5" y1="45" x2="15" y2="45"/><line x1="55" y1="25" x2="65" y2="25"/><line x1="55" y1="45" x2="65" y2="45"/></svg>
-      <div><div class="tag">Bloque 5 · <b>IA</b></div><h2 class="slide-title">Y esto con IA, ¿qué?</h2></div>
+      <div><div class="tag">Bloque 6 · <b>IA</b></div><h2 class="slide-title">Y esto con IA, ¿qué?</h2></div>
     </div>
     <div class="cards c2">
       <div class="card"><h3>Reto en vivo</h3><p>Solo código → propuestas. Código + traza → propuestas. <strong>Compara.</strong></p></div>
@@ -2943,13 +3037,13 @@ SUMMARIZECOLUMNS (
 </section>
 
 <!-- ═════════════════ 53 · SECCIÓN 06 ═════════════════ -->
-<section class="slide slide-section" data-notes="Bloque 6, 25 minutos: otras optimizaciones DAX, UDF y el checklist 2.0.">
+<section class="slide slide-section" data-notes="Bloque 7, 25 minutos: otras optimizaciones DAX, UDF y el checklist 2.0.">
   <svg class="trace" style="top:640px;height:200px" viewBox="0 0 1600 200" preserveAspectRatio="none">
     <path class="ghost" d="M0,100 Q200,10 400,100 T800,100 T1200,100 T1600,100"/>
     <path d="M0,100 Q200,10 400,100 T800,100 T1200,100 T1600,100"/>
   </svg>
   <div class="slide-inner">
-    <div class="section-number">06</div>
+    <div class="section-number">07</div>
     <h2 class="section-title">Otras optimizaciones DAX</h2>
     <p class="section-subtitle">Lo que queda en la caja: VAR, iteradores, filtros, ORs, UDF… y el checklist 2.0</p>
     <div class="section-time">25 MIN</div>
@@ -2959,7 +3053,7 @@ SUMMARIZECOLUMNS (
 <!-- ═════════════════ 54 · OPTIMIZACIONES ═════════════════ -->
 <section class="slide slide-content" data-notes="Agenda de la diapositiva 40 y checklist de la 54. VAR para evaluar una sola vez. Iteradores anidados y transición de contexto: cuándo multiplican el trabajo del FE. Filtros de columna frente a filtros de tabla en CALCULATE y KEEPFILTERS. Filtros dinámicos. Lógica con ORs, sobre todo en RLS: la expresión del rol es DAX que se aplica en cada consulta, así que su coste se paga en todas las visuales. DIVIDE cuando el denominador es una expresión que puede devolver 0 o BLANK y el operador barra con denominador constante, según la guía de Microsoft. SUMMARIZE solo para agrupar.">
   <div class="slide-inner">
-    <div class="tag">Bloque 6 · <b>DAX</b></div>
+    <div class="tag">Bloque 7 · <b>DAX</b></div>
     <h2 class="slide-title">Lo que sigue funcionando</h2>
     <div class="cards c3 grow">
       <div class="card"><h3><code>VAR</code></h3><p>Evaluar una sola vez.</p></div>
@@ -2975,7 +3069,7 @@ SUMMARIZECOLUMNS (
 <!-- ═════════════════ 55 · UDF ═════════════════ -->
 <section class="slide slide-code" data-notes="UDF de DAX: sirven para empaquetar patrones; su objetivo es reutilizar y mantener el código, no acelerarlo. Fuentes secundarias las dan como GA desde junio de 2026, con nivel de compatibilidad 1702 o superior; confirmarlo. Ojo con el modo de paso: VAL evalúa el argumento una vez en el contexto de quien llama; EXPR lo evalúa donde se usa dentro de la función, y puede hacerlo varias veces. Medir siempre frente a la versión sin UDF.">
   <div class="slide-inner">
-    <div class="tag">Bloque 6 · <b>UDF</b></div>
+    <div class="tag">Bloque 7 · <b>UDF</b></div>
     <h2 class="slide-title">Funciones de usuario (UDF) <span class="badge check">GA jun. 2026 según fuentes secundarias 🔎</span></h2>
     <div class="row">
       <div class="col" style="flex:1.2">
@@ -3002,7 +3096,7 @@ ROW (
 <!-- ═════════════════ 56 · CHECKLIST 2.0 ═════════════════ -->
 <section class="slide slide-content" data-notes="Checklist 2.0, evolución del de marzo de 2022 de la diapositiva 54. Seis puntos heredados y actualizados, seis nuevos. El primero que hay que mirar: el tamaño de las cachés de datos.">
   <div class="slide-inner" style="gap:18px">
-    <div class="tag">Bloque 6 · <b>Checklist 2.0</b></div>
+    <div class="tag">Bloque 7 · <b>Checklist 2.0</b></div>
     <h2 class="slide-title">Checklist 2.0</h2>
     <div class="row" style="gap:30px">
       <div class="col" style="gap:0">
@@ -3052,10 +3146,10 @@ ROW (
   </div>
 </section>
 
-<!-- ─── Laboratorio · Bloque 6 · RLS con ORs ─── -->
+<!-- ─── Laboratorio · Bloque 7 · RLS con ORs ─── -->
 <section class="slide slide-lab" data-lab="RLS con ORs" data-notes="La misma consulta sin rol, con el rol que usa ORs entre columnas y con el rol simplificado (IN o tabla de permisos). El puente abre la conexión con el rol aplicado, como «Ver como» de Desktop. La expresión del rol se paga en cada consulta: compara tiempo y consultas SE.">
   <div class="slide-inner">
-    <div class="lab-head"><div class="tag">Bloque 6 · <b>Laboratorio</b></div><h2 class="lab-title">RLS con ORs</h2></div>
+    <div class="lab-head"><div class="tag">Bloque 7 · <b>Laboratorio</b></div><h2 class="lab-title">RLS con ORs</h2></div>
     <div class="lab-grid">
       <dax-lab compact fill label="RLS" editor-height="200px">
         <dax-variant label="RLS · sin rol (administrador)">
@@ -3094,10 +3188,10 @@ SUMMARIZECOLUMNS (
   </div>
 </section>
 
-<!-- ─── Laboratorio · Bloque 6 · UDF: VAL frente a EXPR ─── -->
+<!-- ─── Laboratorio · Bloque 7 · UDF: VAL frente a EXPR ─── -->
 <section class="slide slide-lab" data-lab="UDF: VAL frente a EXPR" data-notes="La misma lógica sin UDF, con UDF en modo VAL (el argumento se evalúa una vez, en el contexto de quien llama) y en modo EXPR (se evalúa donde se usa, y puede hacerlo varias veces). Las UDF sirven para reutilizar, no para acelerar: compara planes y tiempos.">
   <div class="slide-inner">
-    <div class="lab-head"><div class="tag">Bloque 6 · <b>Laboratorio</b></div><h2 class="lab-title">UDF: VAL frente a EXPR</h2></div>
+    <div class="lab-head"><div class="tag">Bloque 7 · <b>Laboratorio</b></div><h2 class="lab-title">UDF: VAL frente a EXPR</h2></div>
     <div class="lab-grid">
       <dax-lab compact fill label="UDF" editor-height="200px">
         <dax-variant label="UDF · sin UDF">
@@ -3137,7 +3231,7 @@ SUMMARIZECOLUMNS ( {{Fecha.Año}}, "Margen %", MargenPct ( [Ventas], [Coste] ) )
   <div class="slide-inner">
     <div class="ia-head">
       <svg class="ia-chip" viewBox="0 0 70 70"><rect x="15" y="15" width="40" height="40" rx="6"/><rect class="core" x="25" y="25" width="20" height="20" rx="3"/><line x1="25" y1="5" x2="25" y2="15"/><line x1="45" y1="5" x2="45" y2="15"/><line x1="25" y1="55" x2="25" y2="65"/><line x1="45" y1="55" x2="45" y2="65"/><line x1="5" y1="25" x2="15" y2="25"/><line x1="5" y1="45" x2="15" y2="45"/><line x1="55" y1="25" x2="65" y2="25"/><line x1="55" y1="45" x2="65" y2="45"/></svg>
-      <div><div class="tag">Bloque 6 · <b>IA</b></div><h2 class="slide-title">Y esto con IA, ¿qué?</h2></div>
+      <div><div class="tag">Bloque 7 · <b>IA</b></div><h2 class="slide-title">Y esto con IA, ¿qué?</h2></div>
     </div>
     <ul class="content-list">
       <li><strong>Auditoría asistida:</strong> VertiPaq Analyzer + BPA + medidas → informe priorizado (impacto/esfuerzo)</li>
@@ -3158,7 +3252,7 @@ SUMMARIZECOLUMNS ( {{Fecha.Año}}, "Margen %", MargenPct ( [Ventas], [Coste] ) )
 <!-- ═════════════════ 60 · CIERRE Y RETOS ═════════════════ -->
 <section class="slide slide-content" data-notes="Cierre, 10 minutos. Repaso del checklist 2.0. La tabla benchmark de la sala: qué patrón ganó en qué escenario. Retos para casa: volver a medir un patrón que ya tienes en producción, pasar el BPA y VertiPaq Analyzer sobre un modelo propio y probar la inteligencia de tiempo basada en calendarios en una copia del modelo.">
   <div class="slide-inner">
-    <div class="tag">Bloque 7 · <b>Cierre</b></div>
+    <div class="tag">Bloque 8 · <b>Cierre</b></div>
     <h2 class="slide-title">Benchmark de la sala y retos</h2>
     <div class="row grow">
       <div class="col">
