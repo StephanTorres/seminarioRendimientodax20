@@ -1,0 +1,43 @@
+table 'Time Calcs'
+	lineageTag: 32ed6644-7811-4170-a5a9-c6329ab20828
+
+	calculationGroup
+
+		calculationItem Actual = SELECTEDMEASURE()
+
+		/// SAMEPERIODLASTYEAR sobre Fecha[Date]
+		calculationItem 'AA V1' = CALCULATE ( SELECTEDMEASURE (), SAMEPERIODLASTYEAR ( 'Fecha'[Date] ) )
+
+		/// Restar 1 al año (offset de año)
+		calculationItem 'AA V2' =
+				VAR _anio = MAX ( 'Fecha'[Year] ) - 1
+				RETURN
+				    CALCULATE ( SELECTEDMEASURE (), 'Fecha'[Year] = _anio )
+
+		/// Columna desplazada en los hechos (FechaAA) con relación inactiva
+		calculationItem 'AA V3' = CALCULATE ( SELECTEDMEASURE (), USERELATIONSHIP ( 'Fecha'[Date], 'Internet Sales'[FechaAA] ) )
+
+		/// OFFSET -1 sobre el año
+		calculationItem 'AA V4' = CALCULATE ( SELECTEDMEASURE (), OFFSET ( -1, ALLSELECTED ( 'Fecha'[Year] ), ORDERBY ( 'Fecha'[Year], ASC ) ) )
+
+		/// Inteligencia de tiempo basada en calendarios (Gregoriano)
+		calculationItem 'AA V5 Calendario' = CALCULATE ( SELECTEDMEASURE (), SAMEPERIODLASTYEAR ( 'Gregoriano' ) )
+
+	column 'Time Calcs'
+		dataType: string
+		lineageTag: bfc61161-0875-4c65-8d37-4096d51c5c1e
+		summarizeBy: none
+		sourceColumn: Name
+		sortByColumn: Ordinal
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordinal
+		dataType: int64
+		isHidden
+		lineageTag: acac3e36-e57d-40f9-b0ce-217adbdc01d4
+		summarizeBy: sum
+		sourceColumn: Ordinal
+
+		annotation SummarizationSetBy = Automatic
+

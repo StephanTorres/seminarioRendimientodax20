@@ -1,0 +1,42 @@
+table 'Sales Reason'
+	lineageTag: 55c43187-c2e8-4111-9e88-e6f82cafc98d
+
+	column SalesReasonKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 5fc1fcc5-7666-4876-9d0b-d292bf99babf
+		summarizeBy: none
+		sourceColumn: SalesReasonKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column SalesReasonName
+		dataType: string
+		lineageTag: 2f613d03-9068-4ffe-a55d-1f9ebea52c4d
+		summarizeBy: none
+		sourceColumn: SalesReasonName
+
+		annotation SummarizationSetBy = Automatic
+
+	column SalesReasonReasonType
+		dataType: string
+		lineageTag: 5561fd7d-5e11-46df-93d6-5f80fd175829
+		summarizeBy: none
+		sourceColumn: SalesReasonReasonType
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Sales Reason-b5afe0f8-2af8-4292-86b7-5f85a9189866' = m
+		mode: import
+		source =
+				let
+				    Origen = Sql.Database(Servidor, BaseDatos),
+				    dbo_DimSalesReason = Origen{[Schema="dbo",Item="DimSalesReason"]}[Data],
+				    #"Otras columnas quitadas" = Table.SelectColumns(dbo_DimSalesReason,{"SalesReasonKey", "SalesReasonName", "SalesReasonReasonType"})
+				in
+				    #"Otras columnas quitadas"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

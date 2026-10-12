@@ -1,0 +1,135 @@
+table Customer
+	lineageTag: bdbb4386-2335-4d77-a9c2-d5b008ad5e05
+
+	column CustomerKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 878892e6-004d-4f42-8d03-c1970f0db703
+		summarizeBy: none
+		sourceColumn: CustomerKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column GeographyKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 42c5ad6b-9a59-4554-b197-ed9f437efdca
+		summarizeBy: none
+		sourceColumn: GeographyKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column MaritalStatus
+		dataType: string
+		lineageTag: a37a30a3-1b75-4777-ace6-dc284ddd0249
+		summarizeBy: none
+		sourceColumn: MaritalStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column Gender
+		dataType: string
+		lineageTag: 89ce77ab-cf9c-4752-a69b-0d4c669a5aec
+		summarizeBy: none
+		sourceColumn: Gender
+
+		annotation SummarizationSetBy = Automatic
+
+	column TotalChildren
+		dataType: int64
+		formatString: 0
+		lineageTag: 5ec0b631-df3a-4385-88cf-62d725b0cbef
+		summarizeBy: none
+		sourceColumn: TotalChildren
+
+		annotation SummarizationSetBy = Automatic
+
+	column NumberChildrenAtHome
+		dataType: int64
+		formatString: 0
+		lineageTag: ad8d480e-fc1f-497c-9f3f-4d8e94090073
+		summarizeBy: none
+		sourceColumn: NumberChildrenAtHome
+
+		annotation SummarizationSetBy = Automatic
+
+	column EnglishEducation
+		dataType: string
+		lineageTag: 88784d0e-3e5b-489f-9e8d-ecd0b44ed20c
+		summarizeBy: none
+		sourceColumn: EnglishEducation
+
+		annotation SummarizationSetBy = Automatic
+
+	column SpanishEducation
+		dataType: string
+		lineageTag: 9f3594c9-cd47-4a4d-a5cb-9dd02d37cae4
+		summarizeBy: none
+		sourceColumn: SpanishEducation
+
+		annotation SummarizationSetBy = Automatic
+
+	column FrenchEducation
+		dataType: string
+		lineageTag: 6585cfa8-ffac-4064-87d0-1f319617bdf7
+		summarizeBy: none
+		sourceColumn: FrenchEducation
+
+		annotation SummarizationSetBy = Automatic
+
+	column EnglishOccupation
+		dataType: string
+		lineageTag: f6fc9bb4-f565-40d3-8552-a3eff3ffa507
+		summarizeBy: none
+		sourceColumn: EnglishOccupation
+
+		annotation SummarizationSetBy = Automatic
+
+	column SpanishOccupation
+		dataType: string
+		lineageTag: ab5b0986-0c64-47db-b786-7a6ecb66c84c
+		summarizeBy: none
+		sourceColumn: SpanishOccupation
+
+		annotation SummarizationSetBy = Automatic
+
+	column FrenchOccupation
+		dataType: string
+		lineageTag: 129a8bc6-1fb7-4982-84ab-798c611d365d
+		summarizeBy: none
+		sourceColumn: FrenchOccupation
+
+		annotation SummarizationSetBy = Automatic
+
+	column Name
+		dataType: string
+		lineageTag: 98f4906c-c55a-4603-8623-df0480765367
+		summarizeBy: none
+		sourceColumn: Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ventas = CALCULATE(sum('Internet Sales'[SalesAmount]))
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: a92e6f46-9fe9-4385-a7bf-42ffc54d761c
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
+
+	partition Customer-56fd7dd2-df73-4534-bad9-14b9c6e3c248 = m
+		mode: import
+		source =
+				let
+				    Origen = Sql.Database(Servidor, BaseDatos),
+				    dbo_DimCustomer = Origen{[Schema="dbo",Item="DimCustomer"]}[Data],
+				    #"Otras columnas quitadas" = Table.SelectColumns(dbo_DimCustomer,{"CustomerKey", "GeographyKey", "FirstName", "MiddleName", "LastName", "MaritalStatus", "Gender", "TotalChildren", "NumberChildrenAtHome", "EnglishEducation", "SpanishEducation", "FrenchEducation", "EnglishOccupation", "SpanishOccupation", "FrenchOccupation"}),
+				    #"Columnas combinadas" = Table.CombineColumns(#"Otras columnas quitadas",{"FirstName", "MiddleName", "LastName"},Combiner.CombineTextByDelimiter(" ", QuoteStyle.None),"Name")
+				in
+				    #"Columnas combinadas"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

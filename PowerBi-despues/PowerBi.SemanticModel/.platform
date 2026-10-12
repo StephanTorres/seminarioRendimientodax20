@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "PowerBi"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "b40bd175-8af8-4229-a4b5-cbe7d20ca75e"
+  }
+}

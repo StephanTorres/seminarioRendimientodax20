@@ -1,0 +1,292 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 77.166586576568832,
+        "y": 264.91209618554041
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 856.55239199999994,
+            "y": 507.05053800000007
+          },
+          "nodeIndex": "Internet Sales",
+          "size": {
+            "height": 223.82287699999995,
+            "width": 234
+          },
+          "zIndex": 16
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 473.13307400000008
+          },
+          "nodeIndex": "_Currency_Rate",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 15
+        },
+        {
+          "location": {
+            "x": 290.37697399999996,
+            "y": 795.09551400000021
+          },
+          "nodeIndex": "Currency",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 7
+        },
+        {
+          "location": {
+            "x": 1049.4,
+            "y": 780.5
+          },
+          "nodeIndex": "Customer",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 8
+        },
+        {
+          "location": {
+            "x": 788.1,
+            "y": 0
+          },
+          "nodeIndex": "Product",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 9
+        },
+        {
+          "location": {
+            "x": 1038,
+            "y": 177.3
+          },
+          "nodeIndex": "Promotion",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 10
+        },
+        {
+          "location": {
+            "x": 668.787171,
+            "y": 876.48902500000008
+          },
+          "nodeIndex": "Sales Territory",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 11
+        },
+        {
+          "location": {
+            "x": 1170,
+            "y": 585.3
+          },
+          "nodeIndex": "_Internet_Sales_Reason",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 13
+        },
+        {
+          "location": {
+            "x": 1449.7,
+            "y": 420.1
+          },
+          "nodeIndex": "Sales Reason",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 12
+        },
+        {
+          "location": {
+            "x": 1813.5,
+            "y": 0
+          },
+          "nodeIndex": "Time Calcs",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 6
+        },
+        {
+          "location": {
+            "x": 2488.1228770000002,
+            "y": 432.26088400000043
+          },
+          "nodeIndex": "Multi Idioma product",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 14
+        },
+        {
+          "location": {
+            "x": 2482.6372619999993,
+            "y": 611.18854500000054
+          },
+          "nodeIndex": "Multi Idioma Promotion",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 3106.856729,
+            "y": 631.13259400000061
+          },
+          "nodeIndex": "Idiomas",
+          "size": {
+            "height": 124,
+            "width": 234
+          },
+          "zIndex": 5
+        },
+        {
+          "location": {
+            "x": 3678.9,
+            "y": 0
+          },
+          "nodeIndex": "Currency  Destination",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 4075.1,
+            "y": 0
+          },
+          "nodeIndex": "Fecha y Hora",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 4359.1,
+            "y": 390.25
+          },
+          "nodeIndex": "Fecha",
+          "nodeLineageTag": "179e2b98-7384-4d34-be28-4b60301a0076",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4643.1,
+            "y": 390.25
+          },
+          "nodeIndex": "Fecha entrega",
+          "nodeLineageTag": "7cd24edf-35a4-46bd-a8c9-03bc590594e7",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4927.1,
+            "y": 390.25
+          },
+          "nodeIndex": "Fecha envío",
+          "nodeLineageTag": "1e279b32-2a79-4062-b5cd-8c78e592f4e7",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "Todas las tablas",
+      "zoomValue": 125.70207430874423,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    },
+    {
+      "ordinal": 1,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 269,
+            "y": 183
+          },
+          "nodeIndex": "Multi Idioma product",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 827,
+            "y": 147
+          },
+          "nodeIndex": "Multi Idioma Promotion",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 468,
+            "y": 536
+          },
+          "nodeIndex": "Idiomas",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "Disposición 1",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "Todas las tablas",
+  "defaultDiagram": "Todas las tablas"
+}

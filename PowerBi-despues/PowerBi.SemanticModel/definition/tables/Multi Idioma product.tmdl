@@ -1,0 +1,51 @@
+table 'Multi Idioma product'
+	isHidden
+	lineageTag: 1bb23283-f275-44d3-884a-744b416081ea
+
+	column 'Product translation'
+		isHidden
+		lineageTag: fb866a06-37a3-410e-aa15-b6b8b266cb90
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Product translation Orden'
+
+		relatedColumnDetails
+			groupByColumn: 'Product Category'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Product Category'
+		isHidden
+		lineageTag: 7145ad6d-93c3-439d-857b-085e7f0c0d5a
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Product translation Orden'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Product translation Orden'
+		isHidden
+		formatString: 0
+		lineageTag: 790b7244-b2e0-4bc1-b87e-10ba1ec141ab
+		summarizeBy: none
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Multi Idioma product-e7f20ab8-7f8f-4acb-a9f8-6aff85918246' = calculated
+		mode: import
+		source =
+				{
+				    ("English Product Category Name", NAMEOF('Product'[English Product Category Name]), 0),
+				    ("French Product Category Name", NAMEOF('Product'[French Product Category Name]), 1),
+				    ("Spanish Product Category Name", NAMEOF('Product'[Spanish Product Category Name]), 2)
+				}
+
+	annotation PBI_Id = 7e083c1f389a474d9d4767e46ecf4dd2
+

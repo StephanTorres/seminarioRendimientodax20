@@ -1,0 +1,32 @@
+cultureInfo es-ES
+
+	linguisticMetadata =
+			{
+			  "Version": "1.0.0",
+			  "Language": "en-US",
+			  "Entities": {
+			    "product.spanish_product_category_name": {
+			      "Binding": {
+			        "ConceptualEntity": "Product",
+			        "ConceptualProperty": "Spanish Product Category Name"
+			      },
+			      "State": "Generated"
+			    },
+			    "promotion.spanishpromotionname": {
+			      "Binding": {
+			        "ConceptualEntity": "Promotion",
+			        "ConceptualProperty": "SpanishPromotionName"
+			      },
+			      "State": "Generated"
+			    },
+			    "date.spanishmonthname": {
+			      "Binding": {
+			        "ConceptualEntity": "Date",
+			        "ConceptualProperty": "SpanishMonthName"
+			      },
+			      "State": "Generated"
+			    }
+			  }
+			}
+		contentType: json
+

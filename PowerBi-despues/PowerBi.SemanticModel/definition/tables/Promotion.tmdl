@@ -1,0 +1,108 @@
+table Promotion
+	lineageTag: a5ec7c88-79a6-4698-84f5-2d46c5499142
+
+	column PromotionKey
+		dataType: int64
+		formatString: 0
+		lineageTag: a58ac2dc-2f93-4943-8dd7-d264b7834b71
+		summarizeBy: none
+		sourceColumn: PromotionKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column EnglishPromotionName
+		dataType: string
+		lineageTag: 619144b8-639f-4bb4-94e3-af44ffd65aea
+		summarizeBy: none
+		sourceColumn: EnglishPromotionName
+
+		annotation SummarizationSetBy = Automatic
+
+	column SpanishPromotionName
+		dataType: string
+		lineageTag: 5a5eb253-4700-45e7-acbb-634f03eef5ff
+		summarizeBy: none
+		sourceColumn: SpanishPromotionName
+
+		annotation SummarizationSetBy = Automatic
+
+	column FrenchPromotionName
+		dataType: string
+		lineageTag: 82f4a091-5729-4fea-ad68-07a86364e14d
+		summarizeBy: none
+		sourceColumn: FrenchPromotionName
+
+		annotation SummarizationSetBy = Automatic
+
+	column DiscountPct
+		dataType: double
+		lineageTag: 2839189c-7c19-493d-b0c8-086ad9af33a2
+		summarizeBy: none
+		sourceColumn: DiscountPct
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column EnglishPromotionType
+		dataType: string
+		lineageTag: b36d6d20-0c60-4270-9c66-fa657f9634b7
+		summarizeBy: none
+		sourceColumn: EnglishPromotionType
+
+		annotation SummarizationSetBy = Automatic
+
+	column SpanishPromotionType
+		dataType: string
+		lineageTag: d6ca9f7f-5ae0-4973-a746-7f5092a779c6
+		summarizeBy: none
+		sourceColumn: SpanishPromotionType
+
+		annotation SummarizationSetBy = Automatic
+
+	column FrenchPromotionType
+		dataType: string
+		lineageTag: 99ef8177-985f-4aef-9a8e-32132f3ace42
+		summarizeBy: none
+		sourceColumn: FrenchPromotionType
+
+		annotation SummarizationSetBy = Automatic
+
+	column EnglishPromotionCategory
+		dataType: string
+		lineageTag: d90667d1-3b2f-40ce-8c8b-1990043fac5c
+		summarizeBy: none
+		sourceColumn: EnglishPromotionCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column SpanishPromotionCategory
+		dataType: string
+		lineageTag: baa518a8-3b35-4a2c-9e06-0fce1b51fc6a
+		summarizeBy: none
+		sourceColumn: SpanishPromotionCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column FrenchPromotionCategory
+		dataType: string
+		lineageTag: 1a3c7ef1-0541-4cd1-b508-4c4430e49985
+		summarizeBy: none
+		sourceColumn: FrenchPromotionCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Promotion-2da36361-9852-4a27-9d19-b414e0ae24b8 = m
+		mode: import
+		source =
+				let
+				    Origen = Sql.Database(Servidor, BaseDatos),
+				    dbo_DimPromotion = Origen{[Schema="dbo",Item="DimPromotion"]}[Data],
+				    #"Otras columnas quitadas" = Table.SelectColumns(dbo_DimPromotion,{"PromotionKey", "EnglishPromotionName", "SpanishPromotionName", "FrenchPromotionName", "DiscountPct", "EnglishPromotionType", "SpanishPromotionType", "FrenchPromotionType", "EnglishPromotionCategory", "SpanishPromotionCategory", "FrenchPromotionCategory"})
+				in
+				    #"Otras columnas quitadas"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

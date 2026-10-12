@@ -1,0 +1,24 @@
+table 'Fecha y Hora'
+	lineageTag: 7e3b729d-7867-4090-ac60-374d0a129a05
+
+	column 'Fecha Y hora'
+		formatString: General Date
+		lineageTag: e9bfc9f9-7ed3-4afc-a06a-9a5d617b3bc8
+		summarizeBy: none
+		sourceColumn: [Value]
+
+		annotation SummarizationSetBy = Automatic
+
+	column anio = YEAR('Fecha y Hora'[Fecha Y hora])
+		formatString: 0
+		lineageTag: 62539770-1d88-49de-908b-506b9e7c6e8e
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Fecha y Hora-7bfa3e4c-3794-4bfd-b7ec-d9ba5ad2b1ec' = calculated
+		mode: import
+		source = { UTCNOW() }
+
+	annotation PBI_Id = 988154b6986248319d068259a03bab19
+

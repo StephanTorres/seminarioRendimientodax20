@@ -1,0 +1,51 @@
+table 'Multi Idioma Promotion'
+	isHidden
+	lineageTag: 17f401cf-20e2-436c-86fe-d6c23f153a62
+
+	column 'Multi Idioma Promotion'
+		isHidden
+		lineageTag: ccaa0e47-edb6-4cb1-9ce7-283aab151cb5
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Multi Idioma Promotion Orden'
+
+		relatedColumnDetails
+			groupByColumn: 'Promotion Name'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Promotion Name'
+		isHidden
+		lineageTag: d6a95d27-6584-46a8-8add-d9d282d356b5
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Multi Idioma Promotion Orden'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Multi Idioma Promotion Orden'
+		isHidden
+		formatString: 0
+		lineageTag: 3f6014ca-0c3d-438a-a66f-2146063178be
+		summarizeBy: none
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Multi Idioma Promotion-9de19205-c71e-4f58-8403-cd831de1ca1a' = calculated
+		mode: import
+		source =
+				{
+				    ("EnglishPromotionName", NAMEOF('Promotion'[EnglishPromotionName]), 0),
+				    ("FrenchPromotionName", NAMEOF('Promotion'[FrenchPromotionName]), 1),
+				    ("SpanishPromotionName", NAMEOF('Promotion'[SpanishPromotionName]), 2)
+				}
+
+	annotation PBI_Id = 4b21f26975ae4417ba740c067decccc8
+

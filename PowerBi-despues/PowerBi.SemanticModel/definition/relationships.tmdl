@@ -1,0 +1,89 @@
+relationship e27bb0e7-31f5-4c8b-ad96-314d6bc83ef4
+	fromColumn: 'Internet Sales'.CurrencyKey
+	toColumn: Currency.CurrencyKey
+
+	annotation PBI_IsFromSource = FS
+
+relationship 45280ef1-ae12-40a9-94d2-e8c90cb5ebc2
+	fromColumn: 'Internet Sales'.CustomerKey
+	toColumn: Customer.CustomerKey
+
+	annotation PBI_IsFromSource = FS
+
+relationship 23cd5ca2-dac6-4f79-b975-31366b2461f5
+	fromColumn: 'Internet Sales'.ProductKey
+	toColumn: Product.ProductKey
+
+	annotation PBI_IsFromSource = FS
+
+relationship 2841658f-91bb-48a8-b3bd-bf88f978a12a
+	fromColumn: 'Internet Sales'.PromotionKey
+	toColumn: Promotion.PromotionKey
+
+	annotation PBI_IsFromSource = FS
+
+relationship 858d7de2-417f-4d63-8ab4-cf26300b6ed1
+	fromColumn: 'Internet Sales'.SalesTerritoryKey
+	toColumn: 'Sales Territory'.SalesTerritoryKey
+
+	annotation PBI_IsFromSource = FS
+
+relationship 349160e1-ae15-4382-8d66-71827f89610d
+	fromColumn: _Currency_Rate.CurrencyKey
+	toColumn: Currency.CurrencyKey
+
+	annotation PBI_IsFromSource = FS
+
+relationship d5d45fbd-359f-45e9-93f1-410c4a88099a
+	fromColumn: _Internet_Sales_Reason.SalesReasonKey
+	toColumn: 'Sales Reason'.SalesReasonKey
+
+	annotation PBI_IsFromSource = FS
+
+relationship 912d578a-84bb-4618-ab22-4cb56df3f360
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: Idiomas.Idioma
+	toColumn: 'Multi Idioma product'.'Product translation Orden'
+
+relationship 100bd187-20bf-4781-a0f6-5f48fa66dd48
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: Idiomas.Idioma
+	toColumn: 'Multi Idioma Promotion'.'Multi Idioma Promotion Orden'
+
+relationship afb86925-4ba7-4c67-b354-2182cf77ad88
+	isActive: false
+	fromColumn: 'Internet Sales'.CurrencyKey
+	toColumn: 'Currency  Destination'.CurrencyKey
+
+	annotation PBI_IsFromSource = FS
+
+relationship 559b1e0b-eecd-40f1-a10d-8107f5573496
+	isActive: false
+	fromColumn: _Currency_Rate.CurrencyKey
+	toColumn: 'Currency  Destination'.CurrencyKey
+
+	annotation PBI_IsFromSource = FS
+
+relationship 'Ventas FechaPedido a Fecha'
+	fromColumn: 'Internet Sales'.FechaPedido
+	toColumn: Fecha.Date
+
+relationship 'Ventas FechaAA a Fecha (inactiva)'
+	isActive: false
+	fromColumn: 'Internet Sales'.FechaAA
+	toColumn: Fecha.Date
+
+relationship 'Tipo de cambio a Fecha'
+	fromColumn: _Currency_Rate.DateKey
+	toColumn: Fecha.idFecha
+
+relationship 'Ventas ShipDateKey a Fecha envío'
+	fromColumn: 'Internet Sales'.ShipDateKey
+	toColumn: 'Fecha envío'.idFecha
+
+relationship 'Ventas DueDateKey a Fecha entrega'
+	fromColumn: 'Internet Sales'.DueDateKey
+	toColumn: 'Fecha entrega'.idFecha
+

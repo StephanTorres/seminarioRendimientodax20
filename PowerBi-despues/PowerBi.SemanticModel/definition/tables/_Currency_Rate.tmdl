@@ -1,0 +1,70 @@
+table _Currency_Rate
+	isHidden
+	lineageTag: 517850f5-b5ba-475d-b097-a93dff623922
+
+	column CurrencyKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c1406c2f-d8b4-4913-a927-fe73a57758c7
+		summarizeBy: none
+		sourceColumn: CurrencyKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column DateKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9637cc93-1c4e-4695-80b5-1dad3a3cad93
+		summarizeBy: none
+		sourceColumn: DateKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column AverageRate
+		dataType: double
+		isHidden
+		lineageTag: d43ad9a4-f07e-480e-a1a1-1c27b5f8ad1d
+		summarizeBy: none
+		sourceColumn: AverageRate
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column EndOfDayRate
+		dataType: double
+		isHidden
+		lineageTag: 848dacb1-37df-4aa1-b399-a743a7b9788a
+		summarizeBy: none
+		sourceColumn: EndOfDayRate
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition _Currency_Rate-8ac5ab70-7db3-4b81-b98d-68e1103a78a4 = m
+		mode: import
+		source =
+				let
+				    Origen = Sql.Database(Servidor, BaseDatosHechos),
+				    dbo_FactCurrencyRate = Origen{[Schema="dbo",Item="FactCurrencyRate"]}[Data],
+				    #"Columnas quitadas" = Table.RemoveColumns(dbo_FactCurrencyRate,{"Date"})
+				in
+				    #"Columnas quitadas"
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+
