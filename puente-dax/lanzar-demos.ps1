@@ -1,4 +1,4 @@
-<#
+﻿<#
   Arranca los dos puentes de la demo antes/después y abre la presentación.
 
   Requisitos: los dos Power BI Desktop abiertos, uno con PowerBi\PowerBi.pbip (ANTES) y otro con
@@ -45,7 +45,7 @@ function Get-Modelo([string]$pbip) {
 $antes = Get-Modelo 'PowerBi\PowerBi.pbip'
 $despues = Get-Modelo 'PowerBi-despues\Despues.pbip'
 Write-Host "ANTES   : localhost:$($antes.Puerto)  base $($antes.Base)  -> puente $PuertoAntes"
-Write-Host "DESPUÉS : localhost:$($despues.Puerto)  base $($despues.Base)  -> puente $PuertoDespues"
+Write-Host "DESPUES : localhost:$($despues.Puerto)  base $($despues.Base)  -> puente $PuertoDespues"
 
 # Cerrar puentes anteriores (los lanzados desde Herramientas externas apuntan al modelo de su Desktop)
 Get-Process PuenteDax -ErrorAction SilentlyContinue | Stop-Process -Force
@@ -58,16 +58,17 @@ Start-Process $Exe -WindowStyle Minimized -ArgumentList @(
     '--server', "localhost:$($despues.Puerto)", '--database', $despues.Base,
     '--port', $PuertoDespues, '--token', $Token, '--allow-origin', "http://127.0.0.1:$PuertoAntes")
 
-# Esperar a que respondan
+# Esperar a que respondan (/api/health es abierta, no necesita token)
 foreach ($p in $PuertoAntes, $PuertoDespues) {
     $ok = $false
-    for ($i = 0; $i -lt 30 -and -not $ok; $i++) {
-        try { Invoke-WebRequest "http://127.0.0.1:$p/api/instances" -Headers @{ 'X-Puente-Token' = $Token } -UseBasicParsing -TimeoutSec 2 | Out-Null; $ok = $true }
+    for ($i = 0; $i -lt 20 -and -not $ok; $i++) {
+        try { Invoke-WebRequest "http://127.0.0.1:$p/api/health" -UseBasicParsing -TimeoutSec 2 | Out-Null; $ok = $true }
         catch { Start-Sleep -Seconds 1 }
     }
-    if (-not $ok) { Write-Warning "El puente $p no responde." } else { Write-Host "Puente $p listo." }
+    if ($ok) { Write-Host "Puente $p listo." } else { Write-Warning "El puente $p no responde (mira su ventana minimizada)." }
 }
 
 if (-not $SinNavegador) {
+    Write-Host 'Abriendo la presentacion en el navegador...'
     Start-Process "http://127.0.0.1:$PuertoAntes/rendimiento-dax-2.0-datasaturday-madrid-2026.html"
 }
