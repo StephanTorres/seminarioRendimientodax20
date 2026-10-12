@@ -9,6 +9,15 @@
         "page": "1.3.75"
       },
       "type": "SharedResources"
+    },
+    "customTheme": {
+      "name": "TerminalDAX-df17a97e.json",
+      "reportVersionAtImport": {
+        "visual": "1.8.75",
+        "report": "2.0.75",
+        "page": "1.3.75"
+      },
+      "type": "RegisteredResources"
     }
   },
   "objects": {
@@ -48,6 +57,17 @@
           "name": "CY22SU09",
           "path": "BaseThemes/CY22SU09.json",
           "type": "BaseTheme"
+        }
+      ]
+    },
+    {
+      "name": "RegisteredResources",
+      "type": "RegisteredResources",
+      "items": [
+        {
+          "name": "TerminalDAX-df17a97e.json",
+          "path": "TerminalDAX-df17a97e.json",
+          "type": "CustomTheme"
         }
       ]
     }
