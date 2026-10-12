@@ -122,7 +122,7 @@ public sealed class PowerBiBackend : IDaxBackend
 
             var marker = Guid.NewGuid().ToString("N");
             var trace = session.Trace;
-            var capture = trace.BeginCapture(marker);
+            var capture = trace.BeginCapture(marker, request.Dax);
             try
             {
                 var dax = $"/* puente:{marker} */\n{request.Dax}";

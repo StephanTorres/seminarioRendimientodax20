@@ -1080,6 +1080,72 @@ body.spotlight-active { cursor: none; }
   </div>
 </section>
 
+<!-- ─── Laboratorio · Bloque 1 · Moneda: local, dólares y euros a la vez ─── -->
+<section class="slide slide-lab" data-lab="Moneda: local, dólares y euros a la vez" data-notes="Misma pregunta, dos modelos: el importe en moneda local, en dólares y en euros a la vez, por año. A la izquierda, el ANTES: Dólar y Euro son columnas calculadas por cada fila de los hechos (12 millones de valores distintos y 237 MB cada una), así que las medidas son un SUM y cuestan casi nada en tiempo. A la derecha, el DESPUÉS: esas columnas ya no existen, y las medidas necesarias son SUMX sobre la fecha y la moneda, con la tasa buscada con TREATAS. Pulsa Frío en las dos y mira las pestañas Storage Engine y Formula Engine: el SE pasa de una consulta a cuatro o cinco y el tiempo, de unos 100 ms a unos 700 ms en frío; el modelo pesa mucho menos. La lección: SUM es azúcar de SUMX, y el coste está en lo que pones dentro de la expresión (lo veremos con los callbacks en el bloque 5). La tabla de la derecha reúne las dos mediciones con el botón Benchmark.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 1 · <b>Laboratorio</b></div><h2 class="lab-title">Moneda: local, dólares y euros a la vez</h2></div>
+    <div class="lab-grid dual">
+      <dax-lab compact fill plan watch="Fecha.Fecha" rows="8" label="Moneda · ANTES" editor-height="330px" panel-height="260px">
+        <dax-variant label="Moneda · ANTES" note="Modelo ANTES: Dólar y Euro son columnas por fila; las medidas son un SUM">
+DEFINE
+    -- Dólar y Euro ya están calculados en cada fila de los hechos
+    MEASURE {{Ventas}}[Local]    = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Dólares] = SUM ( 'Internet Sales'[Sales Amount Dolar] )
+    MEASURE {{Ventas}}[Euros]   = SUM ( 'Internet Sales'[Sales Amount Euro] )
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Local", [Local], "Dólares", [Dólares], "Euros", [Euros]
+)
+ORDER BY {{Fecha.Año}}
+        </dax-variant>
+      </dax-lab>
+      <dax-lab compact fill plan watch="Fecha.Fecha" rows="8" label="Moneda · DESPUÉS" bridge="http://127.0.0.1:5200" token="workshop" editor-height="330px" panel-height="260px">
+        <dax-variant label="Moneda · DESPUÉS" note="Modelo DESPUÉS: sin columnas por fila; las medidas son SUMX sobre fecha y moneda">
+DEFINE
+    MEASURE {{Ventas}}[Local] =
+        SUM ( 'Internet Sales'[SalesAmountEntero] ) + SUM ( 'Internet Sales'[SalesAmountCent] ) / 100
+    MEASURE {{Ventas}}[Dólares] =
+        SUMX (
+            ADDCOLUMNS (
+                SUMMARIZE ( {{Ventas}}, {{Ventas.ClaveFecha}}, 'Internet Sales'[CurrencyKey] ),
+                "_importe", [Local],
+                "_tasa", CALCULATE ( MAX ( _Currency_Rate[AverageRate] ),
+                    TREATAS ( { {{Ventas.ClaveFecha}} }, _Currency_Rate[DateKey] ),
+                    TREATAS ( { 'Internet Sales'[CurrencyKey] }, _Currency_Rate[CurrencyKey] ) )
+            ),
+            DIVIDE ( [_importe], [_tasa] )
+        )
+    MEASURE {{Ventas}}[Euros] =
+        SUMX (
+            ADDCOLUMNS (
+                SUMMARIZE ( {{Ventas}}, {{Ventas.ClaveFecha}}, 'Internet Sales'[CurrencyKey] ),
+                "_importe", [Local],
+                "_tasa", CALCULATE ( MAX ( _Currency_Rate[AverageRate] ),
+                    TREATAS ( { {{Ventas.ClaveFecha}} }, _Currency_Rate[DateKey] ),
+                    TREATAS ( { 'Internet Sales'[CurrencyKey] }, _Currency_Rate[CurrencyKey] ) ),
+                "_tasaEuro", CALCULATE ( MAX ( _Currency_Rate[AverageRate] ),
+                    TREATAS ( { {{Ventas.ClaveFecha}} }, _Currency_Rate[DateKey] ),
+                    TREATAS ( { 36 }, _Currency_Rate[CurrencyKey] ) )
+            ),
+            DIVIDE ( [_importe], [_tasa] ) * [_tasaEuro]
+        )
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Local", [Local], "Dólares", [Dólares], "Euros", [Euros]
+)
+ORDER BY {{Fecha.Año}}
+        </dax-variant>
+      </dax-lab>
+      <div class="lab-side">
+        <dax-benchmark compact filter="Moneda ·" title="Moneda · antes y después"></dax-benchmark>
+        <div class="lab-tip"><b>Qué mirar</b><br>· <b>Antes</b>: 3 <code>SUM</code> sobre columnas ya calculadas.<br>· <b>Después</b>: <code>SUMX</code> con la tasa buscada por fecha y moneda.<br>· Pestañas <b>Storage Engine</b> y <b>Formula Engine</b>: nº de consultas SE y reparto del tiempo.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ─── Laboratorio · Bloque 1 · Una columna de alta cardinalidad ─── -->
 <section class="slide slide-lab" data-lab="Una columna de alta cardinalidad" data-notes="Demo B. Primera variante: una consulta que no toca la columna de alta cardinalidad (su tiempo apenas depende de ella: almacenamiento columnar). Segunda: DISTINCTCOUNT sobre la columna de texto de pedidos. Tercera: DISTINCTCOUNT sobre una clave entera de baja cardinalidad. Compara en la tabla de la derecha.">
   <div class="slide-inner">

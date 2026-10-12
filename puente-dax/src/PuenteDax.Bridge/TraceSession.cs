@@ -100,9 +100,9 @@ internal sealed class TraceSession : IDisposable
         return session;
     }
 
-    public QueryCapture BeginCapture(string marker)
+    public QueryCapture BeginCapture(string marker, string text)
     {
-        var capture = new QueryCapture(marker, IncludesExecutionMetrics);
+        var capture = new QueryCapture(marker, text, IncludesExecutionMetrics);
         _capture = capture;
         return capture;
     }
@@ -219,6 +219,7 @@ internal sealed class TraceSession : IDisposable
 internal sealed class QueryCapture
 {
     private readonly string _marker;
+    private readonly string _text;
     private readonly bool _expectMetrics;
     private readonly ConcurrentQueue<(int Index, TraceRecord Record)> _events = new();
     private readonly TaskCompletionSource _queryEnd = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -227,11 +228,14 @@ internal sealed class QueryCapture
     private int _endIndex = -1;
     private volatile string? _activityId;
 
-    public QueryCapture(string marker, bool expectMetrics)
+    public QueryCapture(string marker, string text, bool expectMetrics)
     {
         _marker = marker;
+        _text = Collapse(text);
         _expectMetrics = expectMetrics;
     }
+
+    private static string Collapse(string text) => System.Text.RegularExpressions.Regex.Replace(text ?? string.Empty, @"\s+", " ").Trim();
 
     public void Add(TraceRecord record)
     {
@@ -239,10 +243,10 @@ internal sealed class QueryCapture
         _events.Enqueue((index, record));
         if (record.Kind == TraceKind.QueryBegin
             && (record.TextData.Contains(_marker, StringComparison.Ordinal)
-                // Algunos motores (p. ej. Power BI Desktop) quitan el comentario inicial del texto del evento.
-                // La traza ya está filtrada a la sesión del puente, que serializa las consultas: el primer
-                // QueryBegin tras abrir la captura es el nuestro.
-                || _activityId is null))
+                // Algunos motores (p. ej. Power BI Desktop) quitan el comentario inicial del texto del evento:
+                // la consulta es la que tiene el mismo texto que la enviada. Así un evento tardío de una consulta
+                // anterior (por ejemplo, una que falló) no se confunde con la actual.
+                || (_activityId is null && Collapse(record.TextData) == _text)))
         {
             _beginIndex = index;
             _activityId ??= record.ActivityId;

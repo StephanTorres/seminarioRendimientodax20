@@ -51,6 +51,19 @@ Las copias de la tabla de fechas pesan unos 8,6 MB cada una (`Fecha envío`, `Fe
 Demo C (cardinalidad), solo en el antes: sin tocar la columna 146 ms; `DISTINCTCOUNT` sobre el pedido-línea en texto **7 246 ms**;
 `DISTINCTCOUNT` sobre una clave entera 57 ms.
 
+## Moneda: local, dólares y euros a la vez (diapositiva «Moneda»)
+
+La misma consulta por año con las tres medidas, definidas a la vista en cada ventana (antes: `SUM` de columnas por fila;
+después: `SUMX` sobre fecha y moneda con la tasa buscada con `TREATAS`). Mediana de 3 ejecuciones.
+
+| | Frío | FE | SE | Consultas SE | Caliente |
+|---|---:|---:|---:|---:|---:|
+| Antes | 190 ms | 53 ms | 137 ms | 1 | 13 ms |
+| Después | **1 143 ms** | 444 ms | 685 ms | 7 | **326 ms** |
+
+En el después el Formula Engine pesa mucho más y ni siquiera la caché lo arregla (326 ms en caliente): el `SUMX` por fecha y moneda se
+evalúa casi entero en el FE. Los totales difieren en unos cientos por el redondeo de los importes a 2 decimales.
+
 ## Qué se puede afirmar
 
 - El «después» pesa **86 % menos** (5 186 → 744 MB). Casi todo viene del pedido-línea en texto, de las columnas de dólar y euro por fila y de partir los importes.

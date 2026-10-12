@@ -40,13 +40,13 @@ Para compilarlo tú: `dotnet publish src/PuenteDax.Bridge -c Release -r win-x64 
 ## Las demos del workshop, dentro de la presentación
 
 `rendimiento-dax-2.0-datasaturday-madrid-2026.html` (raíz del repositorio) lleva las demos integradas:
-detrás de cada portada **DEMO** vienen sus diapositivas de **Laboratorio** (17 en total) y, al final,
+detrás de cada portada **DEMO** vienen sus diapositivas de **Laboratorio** (18 en total) y, al final,
 una diapositiva **Backstage** para preparar la charla. En las portadas, cada demo va marcada como
 **▶ AQUÍ** (se hace en la presentación) o **⧉ DESKTOP** (hay que pasar a Power BI Desktop).
 
 | Bloque | Laboratorios |
 |---|---|
-| 1 · VertiPaq | Antes y después de los 5 pasos: diccionario, encoding y tamaño (dos modelos abiertos y comparación entre ellos) · Columna de alta cardinalidad |
+| 1 · VertiPaq | Antes y después de los 5 pasos: diccionario, encoding y tamaño (dos modelos abiertos y comparación entre ellos) · Moneda: local, dólares y euros a la vez (antes y después) · Columna de alta cardinalidad |
 | 2 · Medir | Frío, caliente y benchmark |
 | 3 · Tiempo | Dimensión tiempo (DAX en vivo, PQ y T-SQL al lado) · **Año anterior en 5 laboratorios** (SAMEPERIODLASTYEAR · offset · calendarios · columna desplazada en los hechos · los cuatro día a día, con el 29 de febrero) · Acumulado anual (5 variantes) |
 | 4 · Idioma y moneda | Multi-idioma · Multi-moneda |
