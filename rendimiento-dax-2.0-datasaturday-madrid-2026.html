@@ -1038,6 +1038,20 @@ body.spotlight-active { cursor: none; }
   </div>
 </section>
 
+<!-- ═════════════════ 13b · PASO 5 EN DETALLE ═════════════════ -->
+<section class="slide slide-content" data-notes="Paso 5 con cifras medidas en la demo (50 millones de filas; modelo antes de 5 186 MB, después de 744 MB). Tres técnicas, y ninguna es gratis. A) Quitar la columna calculada por fila y sustituirla por una medida: Dólar y Euro tenían 12 millones de valores distintos y 237 MB cada una; la medida con SUMX las quita, pero cada consulta cuesta más (106 ms frente a 691 ms en frío). B) SUM no es el problema: SUM ( col ) es azúcar sintáctico de SUMX ( tabla, col ). Lo que pesa es lo que pones dentro de la expresión; lo veremos con los callbacks en el bloque 5. C) Partir el importe en parte entera y céntimos (dos decimales): SalesAmount pasa de 461 146 valores distintos a 4 895 y 100, y de 190 MB a 61 MB; con las cuatro columnas de importe se baja de 693 MB a 166 MB. A cambio, cada suma lee dos columnas y el importe se redondea a dos decimales (2 643 de diferencia sobre 25 600 millones).">
+  <div class="slide-inner">
+    <div class="tag">Bloque 1 · <b>Cardinalidad</b></div>
+    <h2 class="slide-title">Paso 5: bajar la cardinalidad de un importe</h2>
+    <div class="cards c3">
+      <div class="card"><span class="num">A</span><h3>Una medida en vez de una columna</h3><p>Dólar y Euro por fila: <b>12 M</b> de valores distintos y <b>237 MB</b> cada una. Con <code>SUMX</code> desaparecen… y la consulta pasa de <b>106</b> a <b>691 ms</b> en frío.</p></div>
+      <div class="card"><span class="num">B</span><h3><code>SUM</code> es <code>SUMX</code></h3><p><code>SUM ( col )</code> es azúcar sintáctico de <code>SUMX ( tabla, col )</code>: no es lento por sí mismo. Depende de la <b>expresión</b>; lo veremos con los callbacks.</p></div>
+      <div class="card"><span class="num">C</span><h3>Entero y céntimos por separado</h3><p><code>SalesAmount</code>: de <b>461 146</b> valores distintos y <b>190 MB</b> a <b>4 895</b> y <b>100</b>, <b>61 MB</b>. Las 4 columnas de importe: <b>693 MB → 166 MB</b>.</p></div>
+      <div class="card" style="border-color:var(--info)"><span class="num" style="color:var(--info)">→</span><h3>Resultado</h3><p>Modelo de <b>5 186 MB</b> a <b>744 MB</b>. Más pequeño, <b>no más rápido</b>: cada suma lee dos columnas y el importe se redondea a 2 decimales.</p></div>
+    </div>
+  </div>
+</section>
+
 <!-- ═════════════════ 14 · DEMO BLOQUE 1 ═════════════════ -->
 <section class="slide slide-demo" data-notes="Las demos marcadas AQUÍ se hacen en las diapositivas de laboratorio que siguen, sin salir de la presentación. Demo A: diccionario real de DateCode y ShopId con VertiPaq Analyzer. Demo B: modelo antes y después de los 5 pasos, tamaño total y por columna. Demo C: mismo modelo con y sin columna GUID en la tabla de hechos; tamaño en memoria; una consulta que no la usa (su tiempo apenas cambia) y otra que sí, por ejemplo DISTINCTCOUNT. También: mismo dato ordenado y sin ordenar.">
   <div class="slide-inner">
@@ -1386,7 +1400,7 @@ plan y cómo comprobar que es idéntico.</pre>
 </section>
 
 <!-- ═════════════════ 24b · TRES FECHAS, TRES ROLES ═════════════════ -->
-<section class="slide slide-content" data-notes="Pedido, envío y entrega son tres fechas de la misma venta. El patrón habitual es el role-playing: una sola tabla de fechas y una relación activa más varias inactivas que se activan con USERELATIONSHIP. Funciona para ver las ventas por una fecha u otra, pero no para cruzarlas: solo hay una relación activa por visual, así que no puedes poner el mes del pedido en filas y el mes de entrega en columnas. La alternativa es una tabla de fechas por rol, con su relación activa cada una. Pesan casi nada: en el modelo de la demo, 0,4 MB cada copia frente a 5 GB de hechos. Y permiten la pregunta de negocio: de lo que vendí en diciembre, ¿cuándo se fue entregando? Es el retraso de la entrega.">
+<section class="slide slide-content" data-notes="Pedido, envío y entrega son tres fechas de la misma venta. El patrón habitual es el role-playing: una sola tabla de fechas y una relación activa más varias inactivas que se activan con USERELATIONSHIP. Funciona para ver las ventas por una fecha u otra, pero no para cruzarlas: solo hay una relación activa por visual, así que no puedes poner el mes del pedido en filas y el mes de entrega en columnas. La alternativa es una tabla de fechas por rol, con su relación activa cada una. Pesan casi nada: en el modelo de la demo, unos 9 MB cada copia frente a 5 GB de hechos (menos del 0,2 %). Y permiten la pregunta de negocio: de lo que vendí en diciembre, ¿cuándo se fue entregando? Es el retraso de la entrega.">
   <div class="slide-inner">
     <div class="tag">Bloque 3 · <b>Dimensión tiempo</b></div>
     <h2 class="slide-title">Una venta, tres fechas: ¿role-playing o tres tablas?</h2>
@@ -1409,7 +1423,7 @@ plan y cómo comprobar que es idéntico.</pre>
             <li><b>Fecha</b>, <b>Fecha envío</b> y <b>Fecha entrega</b>: tres relaciones activas</li>
             <li>Filas = mes del pedido · columnas = mes de entrega: «de lo que vendí en diciembre, ¿cuándo se entregó?»</li>
             <li>Es el <strong>retraso de la entrega</strong>, sin una medida por cada combinación</li>
-            <li>Coste: <strong>0,4 MB</strong> por copia frente a 5 GB de hechos</li>
+            <li>Coste: unos <strong>9 MB</strong> por copia frente a 5 GB de hechos (menos del 0,2 %)</li>
           </ul>
         </div>
       </div>
@@ -1452,7 +1466,7 @@ ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
       </dax-lab>
       <div class="lab-side">
         <dax-benchmark compact filter="Fechas ·" title="Tres fechas · comparativa"></dax-benchmark>
-        <div class="lab-tip"><b>Qué mirar</b><br>· Diciembre se entrega en <b>diciembre y enero</b>: ese es el retraso.<br>· Con role-playing solo hay <b>dos columnas de medidas</b>, no un cruce.<br>· Las tablas de fechas extra pesan <b>0,4 MB</b>: <i>Analizar</i> en el bloque 1.</div>
+        <div class="lab-tip"><b>Qué mirar</b><br>· Diciembre se entrega en <b>diciembre y enero</b>: ese es el retraso.<br>· Con role-playing solo hay <b>dos columnas de medidas</b>, no un cruce.<br>· Cada tabla de fechas extra pesa unos <b>9 MB</b> frente a 5 GB de hechos: <i>Analizar</i> en el bloque 1.</div>
       </div>
     </div>
   </div>

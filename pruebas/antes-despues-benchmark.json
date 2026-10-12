@@ -1,0 +1,150 @@
+{
+ "ANTES": {
+  "Ventas por año (Sales Amount)": {
+   "frio": [
+    131,
+    133,
+    154
+   ],
+   "frio_med": 133,
+   "fe": 51,
+   "se": 83,
+   "seq": 1,
+   "caliente_med": 3
+  },
+  "Ventas por año y categoría": {
+   "frio": [
+    108,
+    93,
+    88
+   ],
+   "frio_med": 93,
+   "fe": 37,
+   "se": 58,
+   "seq": 1,
+   "caliente_med": 3
+  },
+  "Coste, impuesto y transporte por año": {
+   "frio": [
+    154,
+    150,
+    140
+   ],
+   "frio_med": 150,
+   "fe": 40,
+   "se": 113,
+   "seq": 1,
+   "caliente_med": 3
+  },
+  "Dólares por año (Total Sales Currency Dolar)": {
+   "frio": [
+    106,
+    100,
+    126
+   ],
+   "frio_med": 106,
+   "fe": 37,
+   "se": 69,
+   "seq": 1,
+   "caliente_med": 2
+  },
+  "Euros por año (Total Sales Currency Euro)": {
+   "frio": [
+    97,
+    94,
+    93
+   ],
+   "frio_med": 94,
+   "fe": 37,
+   "se": 60,
+   "seq": 1,
+   "caliente_med": 1
+  },
+  "Dólares por año y mes": {
+   "frio": [
+    88,
+    86,
+    94
+   ],
+   "frio_med": 88,
+   "fe": 30,
+   "se": 58,
+   "seq": 1,
+   "caliente_med": 4
+  }
+ },
+ "DESPUES": {
+  "Ventas por año (Sales Amount)": {
+   "frio": [
+    340,
+    131,
+    140
+   ],
+   "frio_med": 140,
+   "fe": 50,
+   "se": 91,
+   "seq": 1,
+   "caliente_med": 10
+  },
+  "Ventas por año y categoría": {
+   "frio": [
+    326,
+    206,
+    172
+   ],
+   "frio_med": 206,
+   "fe": 70,
+   "se": 136,
+   "seq": 1,
+   "caliente_med": 4
+  },
+  "Coste, impuesto y transporte por año": {
+   "frio": [
+    275,
+    221,
+    217
+   ],
+   "frio_med": 221,
+   "fe": 41,
+   "se": 183,
+   "seq": 1,
+   "caliente_med": 4
+  },
+  "Dólares por año (Total Sales Currency Dolar)": {
+   "frio": [
+    748,
+    671,
+    691
+   ],
+   "frio_med": 691,
+   "fe": 137,
+   "se": 568,
+   "seq": 4,
+   "caliente_med": 70
+  },
+  "Euros por año (Total Sales Currency Euro)": {
+   "frio": [
+    641,
+    664,
+    710
+   ],
+   "frio_med": 664,
+   "fe": 154,
+   "se": 501,
+   "seq": 5,
+   "caliente_med": 103
+  },
+  "Dólares por año y mes": {
+   "frio": [
+    746,
+    813,
+    803
+   ],
+   "frio_med": 803,
+   "fe": 153,
+   "se": 641,
+   "seq": 4,
+   "caliente_med": 96
+  }
+ }
+}
