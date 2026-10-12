@@ -383,7 +383,11 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
     .fe-note { font:13px/1.5 var(--dl-mono); color:var(--dl-muted); padding:2px 0 8px; }
     .fe-note b { color:var(--dl-fe); }
     .compact .label, .compact .title { font-size:17px; }
-    .compact textarea { font-size:14px; }
+    .compact textarea { font-size:var(--dl-editor-font,14px); }
+    .box.collapsed textarea { display:none; }
+    .compact.kpi-wide .kpis:not(.vp) { grid-template-columns:repeat(4,1fr); }
+    .compact.kpi-wide .kpis:not(.vp) .kpi b { font-size:19px; }
+    .compact.kpi-wide .kpis:not(.vp) .kpi > span { font-size:10px; }
     .compact .kpis.vp { grid-template-columns:1.25fr .7fr .8fr 1.6fr; gap:8px; }
     .compact .kpis.vp .kpi { padding:7px 10px; }
     .compact .kpis.vp .kpi b { font-size:19px; }
@@ -433,12 +437,12 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
       this._showInternal = false;
 
       const root = this.attachShadow({ mode: 'open' });
-      for (const [attr, prop] of [['editor-height', '--dl-editor-height'], ['panel-height', '--dl-panel-height']]) {
+      for (const [attr, prop] of [['editor-height', '--dl-editor-height'], ['panel-height', '--dl-panel-height'], ['editor-font', '--dl-editor-font']]) {
         if (this.getAttribute(attr)) this.style.setProperty(prop, this.getAttribute(attr));
       }
       root.innerHTML = `
         <style>${CSS}</style>
-        <div class="box ${this.hasAttribute('compact') ? 'compact' : ''} ${this.hasAttribute('fill') ? 'fill' : ''}">
+        <div class="box ${this.hasAttribute('compact') ? 'compact' : ''} ${this.hasAttribute('fill') ? 'fill' : ''} ${this.hasAttribute('editor-collapsed') ? 'collapsed' : ''} ${this.hasAttribute('kpi-wide') ? 'kpi-wide' : ''}">
           <div class="head">
             <span class="label"></span>
             <button data-run="cold" title="Limpia la caché y ejecuta (Ctrl+Enter)">▶ Frío</button>
@@ -446,6 +450,7 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
             <button data-run="bench" class="ghost" title="Varias ejecuciones en frío y en caliente">⏱ Benchmark</button>
             <label class="opt"><input type="checkbox" data-plan> plan</label>
             <button data-llm class="llm hidden" title="Copia consulta, tiempos, xmSQL y planes en un texto listo para pegar en un LLM">🤖 Copiar para LLM</button>
+            <button data-toggle class="ghost" title="Muestra u oculta la consulta">${this.hasAttribute('editor-collapsed') ? '▸' : '▾'} Consulta</button>
             <button data-save class="ghost" title="Guardar la medición como JSON">⤓</button>
           </div>
           <div class="variants ${this._variants.length > 1 ? '' : 'hidden'}"></div>
@@ -465,6 +470,11 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
       this._buttons = [...root.querySelectorAll('.head button')];
       root.querySelectorAll('[data-run]').forEach((b) => b.addEventListener('click', () => this.run(b.dataset.run)));
       root.querySelector('[data-save]').addEventListener('click', () => this.save());
+      const toggle = root.querySelector('[data-toggle]');
+      toggle.addEventListener('click', () => {
+        const hidden = root.querySelector('.box').classList.toggle('collapsed');
+        toggle.textContent = `${hidden ? '▸' : '▾'} Consulta`;
+      });
       this._llm = root.querySelector('[data-llm]');
       this._llm.addEventListener('click', () => this.copyForLlm());
       isolateKeyboard(root, () => this.run('cold'));

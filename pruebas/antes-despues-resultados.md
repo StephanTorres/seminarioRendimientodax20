@@ -58,11 +58,11 @@ después: `SUMX` sobre fecha y moneda con la tasa buscada con `TREATAS`). Median
 
 | | Frío | FE | SE | Consultas SE | Caliente |
 |---|---:|---:|---:|---:|---:|
-| Antes | 190 ms | 53 ms | 137 ms | 1 | 13 ms |
-| Después | **1 143 ms** | 444 ms | 685 ms | 7 | **326 ms** |
+| Antes | 198 ms | 57 ms | 141 ms | 1 | 10 ms |
+| Después | **872 ms** | 277 ms | 590 ms | 6 | **220 ms** |
 
 En el después el Formula Engine pesa mucho más y ni siquiera la caché lo arregla (326 ms en caliente): el `SUMX` por fecha y moneda se
-evalúa casi entero en el FE. Los totales difieren en unos cientos por el redondeo de los importes a 2 decimales.
+evalúa casi entero en el FE (en caliente se queda en 220 ms, frente a 10 ms del antes). La consulta del después usa dos medidas auxiliares de tasa (`Tasa`, `Tasa euro`); una primera versión con la tasa repetida dentro de cada medida tardaba 1 143 ms en frío y 326 ms en caliente. Los totales difieren en unos cientos por el redondeo de los importes a 2 decimales.
 
 ## Qué se puede afirmar
 
