@@ -9,7 +9,7 @@ model Model
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBI_QueryOrder = ["Internet Sales","_Currency_Rate","Currency","Customer","Date","Product","Promotion","Sales Territory","_Internet_Sales_Reason","Sales Reason","_Date_Mxn","Idiomas","Currency  Destination"]
+annotation PBI_QueryOrder = ["Internet Sales","_Currency_Rate","Currency","Customer","Product","Promotion","Sales Territory","_Internet_Sales_Reason","Sales Reason","Idiomas","Currency  Destination","Fecha","Servidor","BaseDatos","BaseDatosHechos","_StartYear","_EndYear","_FiscalStartMonth","_FiscalYearBasis"]
 
 annotation __TEdtr = 1
 
@@ -31,6 +31,8 @@ ref table Idiomas
 ref table 'Currency  Destination'
 ref table 'Fecha y Hora'
 ref table Fecha
+ref table 'Fecha envío'
+ref table 'Fecha entrega'
 
 ref cultureInfo es-ES
 

@@ -32,9 +32,9 @@ table 'Sales Reason'
 				let
 				    Origen = Sql.Database(Servidor, BaseDatos),
 				    dbo_DimSalesReason = Origen{[Schema="dbo",Item="DimSalesReason"]}[Data],
-				    #"Columnas quitadas" = Table.RemoveColumns(dbo_DimSalesReason,{"SalesReasonAlternateKey", "FactInternetSalesReason"})
+				    #"Otras columnas quitadas" = Table.SelectColumns(dbo_DimSalesReason,{"SalesReasonKey", "SalesReasonName", "SalesReasonReasonType"})
 				in
-				    #"Columnas quitadas"
+				    #"Otras columnas quitadas"
 
 	annotation PBI_ResultType = Table
 

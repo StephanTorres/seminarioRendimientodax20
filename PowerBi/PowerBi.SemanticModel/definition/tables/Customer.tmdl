@@ -124,11 +124,10 @@ table Customer
 				let
 				    Origen = Sql.Database(Servidor, BaseDatos),
 				    dbo_DimCustomer = Origen{[Schema="dbo",Item="DimCustomer"]}[Data],
-				    #"Columnas quitadas" = Table.RemoveColumns(dbo_DimCustomer,{"CustomerAlternateKey", "Title"}),
-				    #"Columnas combinadas" = Table.CombineColumns(#"Columnas quitadas",{"FirstName", "MiddleName", "LastName"},Combiner.CombineTextByDelimiter(" ", QuoteStyle.None),"Name"),
-				    #"Columnas quitadas1" = Table.RemoveColumns(#"Columnas combinadas",{"NameStyle", "BirthDate", "Suffix", "EmailAddress", "YearlyIncome", "HouseOwnerFlag", "NumberCarsOwned", "AddressLine1", "AddressLine2", "Phone", "DateFirstPurchase", "CommuteDistance", "DimGeography", "FactInternetSales(CustomerKey)", "FactInternetSales(CustomerKey) 2", "FactSurveyResponse"})
+				    #"Otras columnas quitadas" = Table.SelectColumns(dbo_DimCustomer,{"CustomerKey", "GeographyKey", "FirstName", "MiddleName", "LastName", "MaritalStatus", "Gender", "TotalChildren", "NumberChildrenAtHome", "EnglishEducation", "SpanishEducation", "FrenchEducation", "EnglishOccupation", "SpanishOccupation", "FrenchOccupation"}),
+				    #"Columnas combinadas" = Table.CombineColumns(#"Otras columnas quitadas",{"FirstName", "MiddleName", "LastName"},Combiner.CombineTextByDelimiter(" ", QuoteStyle.None),"Name")
 				in
-				    #"Columnas quitadas1"
+				    #"Columnas combinadas"
 
 	annotation PBI_ResultType = Table
 

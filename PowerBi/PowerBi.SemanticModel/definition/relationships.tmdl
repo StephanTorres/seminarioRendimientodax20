@@ -79,3 +79,11 @@ relationship 'Tipo de cambio a Fecha'
 	fromColumn: _Currency_Rate.DateKey
 	toColumn: Fecha.idFecha
 
+relationship 'Ventas ShipDateKey a Fecha envío'
+	fromColumn: 'Internet Sales'.ShipDateKey
+	toColumn: 'Fecha envío'.idFecha
+
+relationship 'Ventas DueDateKey a Fecha entrega'
+	fromColumn: 'Internet Sales'.DueDateKey
+	toColumn: 'Fecha entrega'.idFecha
+

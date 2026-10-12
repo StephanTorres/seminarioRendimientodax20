@@ -713,14 +713,22 @@ table 'Internet Sales'
 		summarizeBy: none
 		sourceColumn: FechaAA
 
+	/// Pedido y línea en texto (SO43697-1). Casi un valor distinto por fila: ocupa mucho y no se usa para analizar.
+	column SalesOrderLine
+		dataType: string
+		displayFolder: Claves
+		lineageTag: ab433c7e-6f6d-4d57-a966-dbd59c5c415d
+		summarizeBy: none
+		sourceColumn: SalesOrderLine
+
 	partition 'Internet Sales-9947076a-1393-497e-bef9-607c82a101d2' = m
 		mode: import
 		source =
 				let
 				    Origen = Sql.Database(Servidor, BaseDatosHechos),
 				    dbo_vFactInternetSales = Origen{[Schema="dbo",Item="vFactInternetSales"]}[Data],
-				    #"Otras columnas quitadas" = Table.SelectColumns(dbo_vFactInternetSales,{"ProductKey", "OrderDateKey", "DueDateKey", "ShipDateKey", "CustomerKey", "PromotionKey", "CurrencyKey", "SalesTerritoryKey", "RevisionNumber", "OrderQuantity", "UnitPrice", "DiscountAmount", "ProductStandardCost", "TotalProductCost", "SalesAmount", "TaxAmt", "Freight", "FechaPedido"}),
-				    #"FechaPedido tipada" = Table.TransformColumnTypes(#"Otras columnas quitadas",{{"FechaPedido", type date}}),
+				    #"Otras columnas quitadas" = Table.SelectColumns(dbo_vFactInternetSales,{"ProductKey", "OrderDateKey", "DueDateKey", "ShipDateKey", "CustomerKey", "PromotionKey", "CurrencyKey", "SalesTerritoryKey", "RevisionNumber", "OrderQuantity", "UnitPrice", "DiscountAmount", "ProductStandardCost", "TotalProductCost", "SalesAmount", "TaxAmt", "Freight", "FechaPedido", "SalesOrderLine"}),
+				    #"FechaPedido tipada" = Table.TransformColumnTypes(#"Otras columnas quitadas",{{"FechaPedido", type date}, {"SalesOrderLine", type text}}),
 				    #"FechaAA agregada" = Table.AddColumn(#"FechaPedido tipada", "FechaAA", each Date.AddYears([FechaPedido], 1), type date),
 				    #"Consultas combinadas" = Table.NestedJoin(#"FechaAA agregada", {"OrderDateKey", "CurrencyKey"}, _Currency_Rate, {"DateKey", "CurrencyKey"}, "_Currency_Rate", JoinKind.LeftOuter),
 				    #"Se expandió _Currency_Rate" = Table.ExpandTableColumn(#"Consultas combinadas", "_Currency_Rate", {"AverageRate"}, {"_Currency_Rate.AverageRate"}),

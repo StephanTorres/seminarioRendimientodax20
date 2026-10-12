@@ -200,6 +200,32 @@
             "width": 234
           },
           "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4643.1,
+            "y": 390.25
+          },
+          "nodeIndex": "Fecha entrega",
+          "nodeLineageTag": "e5e6838b-602a-47a6-a4b5-95ddd17b7a97",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4927.1,
+            "y": 390.25
+          },
+          "nodeIndex": "Fecha envío",
+          "nodeLineageTag": "db003f0a-7ce7-4b18-9cbf-f4e736d48c8d",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
         }
       ],
       "name": "Todas las tablas",

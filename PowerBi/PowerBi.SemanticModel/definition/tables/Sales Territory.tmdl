@@ -40,9 +40,9 @@ table 'Sales Territory'
 				let
 				    Origen = Sql.Database(Servidor, BaseDatos),
 				    dbo_DimSalesTerritory = Origen{[Schema="dbo",Item="DimSalesTerritory"]}[Data],
-				    #"Columnas quitadas" = Table.RemoveColumns(dbo_DimSalesTerritory,{"DimEmployee", "DimGeography", "FactInternetSales", "FactResellerSales", "SalesTerritoryAlternateKey", "SalesTerritoryImage"})
+				    #"Otras columnas quitadas" = Table.SelectColumns(dbo_DimSalesTerritory,{"SalesTerritoryKey", "SalesTerritoryRegion", "SalesTerritoryCountry", "SalesTerritoryGroup"})
 				in
-				    #"Columnas quitadas"
+				    #"Otras columnas quitadas"
 
 	annotation PBI_ResultType = Table
 

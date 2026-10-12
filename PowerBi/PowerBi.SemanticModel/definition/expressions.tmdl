@@ -2,13 +2,17 @@
 expression Servidor = "A01P0717" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: 30c3e052-0f8a-466f-a5b7-6195cbbe1b90
 
+	annotation PBI_ResultType = Text
+
 /// Base con las dimensiones (AdventureWorksDW2022)
 expression BaseDatos = "AdventureWorksDW2022" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: 6012e141-c8d4-41a1-966a-999176523ef5
 
-/// Base con los hechos sinteticos (datos-sinteticos/01-crear-datos-sinteticos.sql)
-expression BaseDatosHechos = "RendimientoDax" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+/// Base con los hechos sinteticos (datos-sinteticos/01-crear-datos-sinteticos.sql, MULT=6, ~50 M filas)
+expression BaseDatosHechos = "RendimientoDax50M" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: 97be5d9b-08e6-41e9-9264-78bec8e906de
+
+	annotation PBI_ResultType = Text
 
 /// Primer año de la dimensión Fecha
 expression _StartYear = 2011 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]

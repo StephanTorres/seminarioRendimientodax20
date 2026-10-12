@@ -1,0 +1,177 @@
+/// Dimensión de fecha para DueDateKey (fecha de entrega). Copia de 'Fecha': una tabla por rol, para poder cruzarla con otras fechas en el mismo visual.
+table 'Fecha entrega'
+	lineageTag: e5e6838b-602a-47a6-a4b5-95ddd17b7a97
+
+	column Date
+		formatString: Short Date
+		lineageTag: 69bed566-4e1e-41fb-951a-4c28ef2a0111
+		isNameInferred
+		sourceColumn: Fecha[Date]
+
+	column Year
+		lineageTag: 5d0676ce-d7e5-4e0f-84cc-6f29c4786e76
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Fecha[Year]
+
+	column Month
+		lineageTag: 848d2b71-6318-4d3a-8843-d7d14ff5ae88
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Fecha[Month]
+
+	column 'Month Name'
+		lineageTag: 50c8f517-b5a3-4536-b66a-cc85bbc749eb
+		isNameInferred
+		sourceColumn: Fecha[Month Name]
+		sortByColumn: Month
+
+	column MonthKey
+		lineageTag: e995b928-7d18-4ac7-b9d3-9b94ba8d7187
+		isNameInferred
+		sourceColumn: Fecha[MonthKey]
+
+	column 'Month Name Short'
+		lineageTag: 100b16ad-0a9b-42d7-9e53-35466905364d
+		isNameInferred
+		sourceColumn: Fecha[Month Name Short]
+		sortByColumn: Month
+
+	column 'Month Name Complete'
+		lineageTag: 5dfa66c3-3250-45d5-8317-c3469746bae9
+		isNameInferred
+		sourceColumn: Fecha[Month Name Complete]
+
+	column 'Month Name Short Complete'
+		lineageTag: 93addf80-14f9-487a-b4e3-cceaf63c0221
+		isNameInferred
+		sourceColumn: Fecha[Month Name Short Complete]
+
+	column Quarter
+		lineageTag: 3b96a34e-14b4-4fc9-849b-2578593aec40
+		isNameInferred
+		sourceColumn: Fecha[Quarter]
+
+	column QuarterCode
+		lineageTag: 480bc310-7b26-42de-9513-ed9f9f55968d
+		isNameInferred
+		sourceColumn: Fecha[QuarterCode]
+
+	column 'Week of Year'
+		lineageTag: c6822c08-150b-4f1f-b995-00a4569fd5d0
+		isNameInferred
+		sourceColumn: Fecha[Week of Year]
+
+	column Day
+		lineageTag: bcf25226-5fb5-4794-8649-9c25056feb3a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Fecha[Day]
+
+	column 'Day of Week'
+		lineageTag: 0b7e2d75-78a6-4d22-8676-7096648b3eca
+		isNameInferred
+		sourceColumn: Fecha[Day of Week]
+
+	column 'Day of Year'
+		lineageTag: f137bd50-5eba-477b-8346-18381d362195
+		isNameInferred
+		sourceColumn: Fecha[Day of Year]
+
+	column 'Day Name'
+		lineageTag: 157a992a-13d7-4494-859c-ec56b3a2b25d
+		isNameInferred
+		sourceColumn: Fecha[Day Name]
+		sortByColumn: 'Day of Week'
+
+	column FiscalYear
+		lineageTag: ab81cf97-95a4-40ad-970d-151df588bd8e
+		isNameInferred
+		sourceColumn: Fecha[FiscalYear]
+
+	column FiscalMonthNumber
+		lineageTag: 7fa2446f-7b32-4e20-9569-20e0a82d0225
+		isNameInferred
+		sourceColumn: Fecha[FiscalMonthNumber]
+
+	column 'Fiscal Month Name'
+		lineageTag: 485d6d9b-0ce8-4b2b-aeb7-c4655ff5804b
+		isNameInferred
+		sourceColumn: Fecha[Fiscal Month Name]
+
+	column 'Current Year'
+		lineageTag: 12a1aa17-e6f2-4f52-b017-6ff06f586fa2
+		isNameInferred
+		sourceColumn: Fecha[Current Year]
+
+	column 'Current Month'
+		lineageTag: e7e07d91-91b6-4a49-b918-04ac2ae12793
+		isNameInferred
+		sourceColumn: Fecha[Current Month]
+
+	column 'Current Week'
+		lineageTag: 2bebc636-5122-4537-b540-e6a05e466c70
+		isNameInferred
+		sourceColumn: Fecha[Current Week]
+
+	column 'Current Day'
+		lineageTag: b5f4ed63-6714-4448-aabf-149389d67ea3
+		isNameInferred
+		sourceColumn: Fecha[Current Day]
+
+	column 'Current Fiscal Year'
+		lineageTag: cf3f2ca4-2a79-4045-83b7-901e4aa14089
+		isNameInferred
+		sourceColumn: Fecha[Current Fiscal Year]
+
+	column IsoYear
+		lineageTag: 22e9ce8a-06fa-431c-b40b-7dfc7a4d738f
+		isNameInferred
+		sourceColumn: Fecha[IsoYear]
+
+	column IsoWeek
+		lineageTag: 7189830c-3543-4f72-97e8-14594df69086
+		isNameInferred
+		sourceColumn: Fecha[IsoWeek]
+
+	column DayOffset
+		lineageTag: b2de4063-26a3-414c-ac95-e64cffb5fd96
+		isNameInferred
+		sourceColumn: Fecha[DayOffset]
+
+	column MonthOffset
+		lineageTag: 8562281d-252c-4259-85cf-118dad564b86
+		isNameInferred
+		sourceColumn: Fecha[MonthOffset]
+
+	column YearOffset
+		lineageTag: c9fab6d2-e5fe-423d-9964-9f7715f6e997
+		isNameInferred
+		sourceColumn: Fecha[YearOffset]
+
+	column QuarterOffset
+		lineageTag: e4c62534-d46e-4284-812e-dac5003e6978
+		isNameInferred
+		sourceColumn: Fecha[QuarterOffset]
+
+	column idFecha
+		isHidden
+		lineageTag: c29cb05d-1975-4c70-835c-bfdfd7941571
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Fecha[idFecha]
+
+	column IsWorkingDay
+		lineageTag: 1fcb4aae-ca5e-4326-879f-2abbb1880996
+		isNameInferred
+		sourceColumn: Fecha[IsWorkingDay]
+
+	column WorkingDayNumber
+		lineageTag: aa114e74-e11d-4ed8-9cd1-fe9f3a480850
+		isNameInferred
+		sourceColumn: Fecha[WorkingDayNumber]
+
+	partition 'Fecha entrega' = calculated
+		mode: import
+		source = 'Fecha'
+

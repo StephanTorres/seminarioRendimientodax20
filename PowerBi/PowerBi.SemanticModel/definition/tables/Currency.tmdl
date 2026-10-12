@@ -32,8 +32,8 @@ table Currency
 				let
 				    Origen = Sql.Database(Servidor, BaseDatos),
 				    dbo_DimCurrency = Origen{[Schema="dbo",Item="DimCurrency"]}[Data],
-				    #"Columnas quitadas" = Table.RemoveColumns(dbo_DimCurrency,{"DimOrganization", "FactCurrencyRate", "FactInternetSales(CurrencyKey)", "FactInternetSales(CurrencyKey) 2", "FactResellerSales"}),
-				    #"Columnas con nombre cambiado" = Table.RenameColumns(#"Columnas quitadas",{{"CurrencyAlternateKey", "Currency Name Short"}})
+				    #"Otras columnas quitadas" = Table.SelectColumns(dbo_DimCurrency,{"CurrencyKey", "CurrencyAlternateKey", "CurrencyName"}),
+				    #"Columnas con nombre cambiado" = Table.RenameColumns(#"Otras columnas quitadas",{{"CurrencyAlternateKey", "Currency Name Short"}})
 				in
 				    #"Columnas con nombre cambiado"
 

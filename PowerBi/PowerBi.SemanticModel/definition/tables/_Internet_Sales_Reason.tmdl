@@ -34,8 +34,8 @@ table _Internet_Sales_Reason
 				let
 				    Origen = Sql.Database(Servidor, BaseDatos),
 				    dbo_FactInternetSalesReason = Origen{[Schema="dbo",Item="FactInternetSalesReason"]}[Data],
-				    #"Columnas quitadas" = Table.RemoveColumns(dbo_FactInternetSalesReason,{"DimSalesReason", "FactInternetSales"}),
-				    #"Valor reemplazado" = Table.ReplaceValue(#"Columnas quitadas","SO","",Replacer.ReplaceText,{"SalesOrderNumber"}),
+				    #"Otras columnas quitadas" = Table.SelectColumns(dbo_FactInternetSalesReason,{"SalesOrderNumber", "SalesOrderLineNumber", "SalesReasonKey"}),
+				    #"Valor reemplazado" = Table.ReplaceValue(#"Otras columnas quitadas","SO","",Replacer.ReplaceText,{"SalesOrderNumber"}),
 				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Valor reemplazado",{{"SalesOrderNumber", Int64.Type}, {"SalesOrderLineNumber", Int64.Type}}),
 				    #"Personalizada agregada" = Table.AddColumn(#"Tipo cambiado", "SalesKey", each [SalesOrderNumber]*100+[SalesOrderLineNumber]),
 				    #"Columnas quitadas1" = Table.RemoveColumns(#"Personalizada agregada",{"SalesOrderNumber", "SalesOrderLineNumber"})
