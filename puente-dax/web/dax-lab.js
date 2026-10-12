@@ -384,10 +384,15 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
     .fe-note b { color:var(--dl-fe); }
     .compact .label, .compact .title { font-size:17px; }
     .compact textarea { font-size:14px; }
+    .compact .kpis.vp { grid-template-columns:1.25fr .7fr .8fr 1.6fr; gap:8px; }
+    .compact .kpis.vp .kpi { padding:7px 10px; }
+    .compact .kpis.vp .kpi b { font-size:19px; }
+    .compact .kpis.vp .kpi > span { font-size:10.5px; letter-spacing:.06em; }
+    .box .kpi b .up, .box .kpi b .down { font:inherit; letter-spacing:normal; text-transform:none; }
     .box.big .kpis { grid-template-columns:repeat(2,1fr); gap:10px; padding:12px 14px 6px; }
     .box.big .kpi { padding:10px 14px; }
     .box.big .kpi b { font-size:34px; }
-    .box.big .kpi span { font-size:12px; letter-spacing:.08em; }
+    .box.big .kpi > span { font-size:12px; letter-spacing:.08em; }
     .compact .kpis { grid-template-columns:repeat(8,1fr); gap:6px; }
     .compact .kpi { padding:5px 7px; }
     .compact .kpi b { font-size:16px; }
@@ -911,6 +916,7 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
         if (!d) return '=';
         return `<span class="${d > 0 ? 'up' : 'down'}">${d > 0 ? '+' : '−'}${bytes(Math.abs(d))}</span>`;
       };
+      const slim = this.hasAttribute('compact');
       const largest = s.columns[0];
 
       this._status.innerHTML = `${sourceBadge(s.source, this._recordedAt)}<span>${esc(s.database)} · ${esc(when(s.measuredAt))}</span>
@@ -918,7 +924,7 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
         ${missingBase ? `<span class="err">Analiza primero ${esc(base.name)} para poder comparar.</span>` : ''}
         ${compare && base.other ? `<span>comparado con ${esc(base.name)}</span>` : ''}`;
       this._out.innerHTML = `
-        <div class="kpis">
+        <div class="kpis vp">
           <div class="kpi se"><b>${bytes(s.totalSize)}</b><span>Tamaño del modelo</span></div>
           <div class="kpi"><b>${compare ? delta(s.totalSize, snap.totalSize) : num(s.tables.length)}</b><span>${compare ? `Δ vs ${esc(base.short)}` : 'Tablas'}</span></div>
           <div class="kpi"><b>${num(s.columns.length)}</b><span>Columnas</span></div>
@@ -926,15 +932,15 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
         </div>
         <div class="panel">
           <table>
-            <thead><tr><th>Columna</th><th class="n">Filas</th><th class="n">Cardinalidad</th><th>Encoding</th><th class="n">Diccionario</th>
-              <th class="n">Datos</th><th class="n">Jerarq.</th><th class="n">Total</th><th class="n">% modelo</th>${compare ? `<th class="n">Δ ${esc(base.short)}</th>` : ''}<th></th></tr></thead>
+            <thead><tr><th>Columna</th>${slim ? '' : '<th class="n">Filas</th>'}<th class="n">Cardinalidad</th><th>Encoding</th><th class="n">Diccionario</th>
+              <th class="n">Datos</th>${slim ? '' : '<th class="n">Jerarq.</th>'}<th class="n">Total</th>${slim ? '' : '<th class="n">% modelo</th>'}${compare ? `<th class="n">Δ ${esc(base.short)}</th>` : ''}<th></th></tr></thead>
             <tbody>${shown.map((c) => `<tr class="${isFocus(c) ? 'focus' : ''}">
-              <td>${isFocus(c) ? '★ ' : ''}${esc(c.table)}[${esc(c.column)}]</td><td class="n">${num(c.rows)}</td><td class="n">${num(c.cardinality)}</td>
+              <td>${isFocus(c) ? '★ ' : ''}${esc(slim ? c.column : `${c.table}[${c.column}]`)}</td>${slim ? '' : `<td class="n">${num(c.rows)}</td>`}<td class="n">${num(c.cardinality)}</td>
               <td>${esc(c.encoding || '–')}</td><td class="n">${bytes(c.dictionarySize)}</td><td class="n">${bytes(c.dataSize)}</td>
-              <td class="n">${bytes(c.hierarchiesSize)}</td><td class="n">${bytes(c.totalSize)}</td><td class="n">${num(Math.round(c.percentDatabase * 1000) / 10)}%</td>
+              ${slim ? '' : `<td class="n">${bytes(c.hierarchiesSize)}</td>`}<td class="n">${bytes(c.totalSize)}</td>${slim ? '' : `<td class="n">${num(Math.round(c.percentDatabase * 1000) / 10)}%</td>`}
               ${compare ? `<td class="n">${delta(c.totalSize, before.get(key(c))?.totalSize)}</td>` : ''}
               <td class="sizebar"><div class="sb" style="width:${Math.max(2, Math.round((c.totalSize / maxSize) * 100))}%"></div></td></tr>`).join('')}
-              ${removed.map((c) => `<tr class="cache"><td>${esc(c.table)}[${esc(c.column)}]</td><td colspan="7">${base.other ? 'eliminada respecto a ' + esc(base.name) : 'eliminada desde la foto'}</td><td></td>
+              ${removed.map((c) => `<tr class="cache"><td>${esc(c.table)}[${esc(c.column)}]</td><td colspan="${slim ? 5 : 7}">${base.other ? 'eliminada respecto a ' + esc(base.name) : 'eliminada desde la foto'}</td>${slim ? '' : '<td></td>'}
                 <td class="n"><span class="down">−${bytes(c.totalSize)}</span></td><td></td></tr>`).join('')}
             </tbody>
           </table>

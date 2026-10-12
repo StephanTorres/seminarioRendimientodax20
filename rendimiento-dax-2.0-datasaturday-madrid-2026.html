@@ -1071,15 +1071,12 @@ body.spotlight-active { cursor: none; }
 </section>
 
 <!-- ─── Laboratorio · Bloque 1 · Diccionario y encoding en tu modelo ─── -->
-<section class="slide slide-lab" data-lab="Diccionario y encoding en tu modelo" data-notes="Demo A dentro de la presentación, con los dos modelos abiertos: el ANTES a la izquierda (un puente en el 5199) y el DESPUÉS ya cocinado a la derecha (otro puente en el 5200). Cada pantalla mide su propio modelo; no hace falta foto. Las columnas marcadas con estrella son las de la demo: compara las claves enteras (encoding VALUE, sin diccionario: el «diccionario innecesario» de la diapositiva 13) con la columna de texto pedido-línea (HASH, con un diccionario enorme) que solo existe en el ANTES, y con el importe partido en entero y céntimos del DESPUÉS.">
+<section class="slide slide-lab" data-lab="Diccionario y encoding en tu modelo" data-notes="Demo A dentro de la presentación, con los dos modelos abiertos: el ANTES a la izquierda (un puente en el 5199) y el DESPUÉS ya cocinado a la derecha (otro puente en el 5200). Cada pantalla mide su propio modelo; no hace falta foto. Las columnas marcadas con estrella son las de la demo: compara las claves enteras (encoding VALUE, sin diccionario: el «diccionario innecesario» de la diapositiva 13) con la columna de texto pedido-línea (HASH, con un diccionario enorme) que solo existe en el ANTES, y con el importe partido en entero y céntimos del DESPUÉS (4 895 y 100 valores distintos frente a 461 146). Qué mirar: VALUE frente a HASH, y cardinalidad frente a tamaño. Pulsa Analizar en los dos y Comparar en el de la derecha.">
   <div class="slide-inner">
     <div class="lab-head"><div class="tag">Bloque 1 · <b>Laboratorio</b></div><h2 class="lab-title">Diccionario y encoding: antes y después</h2></div>
-    <div class="lab-grid dual">
-      <dax-vertipaq compact no-compare focus="Ventas.ClaveFecha, Ventas.ClaveProducto, Ventas.Pedido, Ventas.Importe" top="9" title="ANTES"></dax-vertipaq>
-      <dax-vertipaq compact no-compare focus="Ventas.ClaveFecha, Ventas.ClaveProducto, Ventas.ImporteEntero, Ventas.ImporteCent" top="9" bridge="http://127.0.0.1:5200" token="workshop" title="DESPUÉS"></dax-vertipaq>
-      <div class="lab-side">
-        <div class="lab-tip"><b>Qué mirar</b><br>· <b>VALUE</b> vs <b>HASH</b>: las claves enteras no necesitan diccionario.<br>· Cardinalidad frente a tamaño: el texto de pedido-línea manda en el <b>antes</b> y <b>no existe</b> en el después.<br>· El importe del después va partido en <b>entero</b> y <b>céntimos</b>: poca cardinalidad.<br>· ★ = columnas de la demo (configurables).</div>
-      </div>
+    <div class="lab-grid dual2">
+      <dax-vertipaq id="vpd-antes" compact no-compare focus="Ventas.ClaveFecha, Ventas.ClaveProducto, Ventas.Pedido, Ventas.Importe" top="9" title="ANTES"></dax-vertipaq>
+      <dax-vertipaq id="vpd-despues" compact focus="Ventas.ClaveFecha, Ventas.ClaveProducto, Ventas.ImporteEntero, Ventas.ImporteCent" top="9" bridge="http://127.0.0.1:5200" token="workshop" compare-with="vpd-antes" compare-label="ANTES" title="DESPUÉS"></dax-vertipaq>
     </div>
   </div>
 </section>
