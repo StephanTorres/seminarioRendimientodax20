@@ -107,54 +107,16 @@ table 'Internet Sales'
 
 		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
 
-	measure 'Total Sales Currency Dolar' =
-			VAR _FechaYMoneda =
-			    ADDCOLUMNS (
-			        SUMMARIZE ( 'Internet Sales', 'Internet Sales'[OrderDateKey], 'Internet Sales'[CurrencyKey] ),
-			        "_importe", [Sales Amount],
-			        "_tasa",
-			            VAR _fecha = 'Internet Sales'[OrderDateKey]
-			            VAR _moneda = 'Internet Sales'[CurrencyKey]
-			            RETURN
-			                CALCULATE (
-			                    MAX ( _Currency_Rate[AverageRate] ),
-			                    TREATAS ( { _fecha }, _Currency_Rate[DateKey] ),
-			                    TREATAS ( { _moneda }, _Currency_Rate[CurrencyKey] )
-			                )
-			    )
-			RETURN
-			    SUMX ( _FechaYMoneda, DIVIDE ( [_importe], [_tasa] ) )
+	/// Dólares ya calculados en el origen y partidos en entero y céntimos: SUMX sin tasas.
+	measure 'Total Sales Currency Dolar' = SUMX ( 'Internet Sales', 'Internet Sales'[DolaresEntero] + 'Internet Sales'[DolaresCent] / 100 )
 		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
 		displayFolder: 4 Moneda
 		lineageTag: b3cd9fa4-b279-4c24-9f1a-e0657a1684eb
 
 		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
 
-	measure 'Total Sales Currency Euro' =
-			VAR _FechaYMoneda =
-			    ADDCOLUMNS (
-			        SUMMARIZE ( 'Internet Sales', 'Internet Sales'[OrderDateKey], 'Internet Sales'[CurrencyKey] ),
-			        "_importe", [Sales Amount],
-			        "_tasa",
-			            VAR _fecha = 'Internet Sales'[OrderDateKey]
-			            VAR _moneda = 'Internet Sales'[CurrencyKey]
-			            RETURN
-			                CALCULATE (
-			                    MAX ( _Currency_Rate[AverageRate] ),
-			                    TREATAS ( { _fecha }, _Currency_Rate[DateKey] ),
-			                    TREATAS ( { _moneda }, _Currency_Rate[CurrencyKey] )
-			                ),
-			        "_tasaEuro",
-			            VAR _fecha = 'Internet Sales'[OrderDateKey]
-			            RETURN
-			                CALCULATE (
-			                    MAX ( _Currency_Rate[AverageRate] ),
-			                    TREATAS ( { _fecha }, _Currency_Rate[DateKey] ),
-			                    TREATAS ( { 36 }, _Currency_Rate[CurrencyKey] )
-			                )
-			    )
-			RETURN
-			    SUMX ( _FechaYMoneda, DIVIDE ( [_importe], [_tasa] ) * [_tasaEuro] )
+	/// Euros ya calculados en el origen y partidos en entero y céntimos: SUMX sin tasas.
+	measure 'Total Sales Currency Euro' = SUMX ( 'Internet Sales', 'Internet Sales'[EurosEntero] + 'Internet Sales'[EurosCent] / 100 )
 		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
 		displayFolder: 4 Moneda
 		lineageTag: db063e22-2668-4b50-a51f-0e94708ddd66
@@ -486,6 +448,38 @@ table 'Internet Sales'
 		displayFolder: 7 Demo año anterior\Cuadre
 		lineageTag: b70f9302-db1f-4dc6-8fba-2ea34b2a971b
 
+	measure 'Tasa (fecha y moneda de la fila)' =
+			CALCULATE ( MAX ( _Currency_Rate[AverageRate] ),
+			    TREATAS ( { MAX ( 'Internet Sales'[OrderDateKey] ) }, _Currency_Rate[DateKey] ),
+			    TREATAS ( { MAX ( 'Internet Sales'[CurrencyKey] ) }, _Currency_Rate[CurrencyKey] ) )
+		isHidden
+		displayFolder: 4 Moneda\Con tasa
+		lineageTag: 62fb69d8-09b6-4e1f-b6ce-d226b77e1d2a
+
+	measure 'Tasa euro (fecha de la fila)' =
+			CALCULATE ( MAX ( _Currency_Rate[AverageRate] ),
+			    TREATAS ( { MAX ( 'Internet Sales'[OrderDateKey] ) }, _Currency_Rate[DateKey] ),
+			    TREATAS ( { 36 }, _Currency_Rate[CurrencyKey] ) )
+		isHidden
+		displayFolder: 4 Moneda\Con tasa
+		lineageTag: 3ce47e94-b960-40b4-9fc7-43eb721e6571
+
+	/// Dólares calculados al vuelo: SUMX sobre fecha y moneda con la tasa buscada con TREATAS. Sin columnas por fila: ocupa menos y cuesta más CPU.
+	measure 'Total Sales Currency Dolar (tasa)' =
+			SUMX ( SUMMARIZE ( 'Internet Sales', 'Internet Sales'[OrderDateKey], 'Internet Sales'[CurrencyKey] ),
+			    DIVIDE ( [Sales Amount], [Tasa (fecha y moneda de la fila)] ) )
+		formatString: #,0.00 €
+		displayFolder: 4 Moneda\Con tasa
+		lineageTag: 0c03a5d6-327e-4c53-adeb-d3fa282be2a8
+
+	/// Euros calculados al vuelo: como los dólares, por la tasa del euro de la fecha.
+	measure 'Total Sales Currency Euro (tasa)' =
+			SUMX ( SUMMARIZE ( 'Internet Sales', 'Internet Sales'[OrderDateKey], 'Internet Sales'[CurrencyKey] ),
+			    DIVIDE ( [Sales Amount], [Tasa (fecha y moneda de la fila)] ) * [Tasa euro (fecha de la fila)] )
+		formatString: #,0.00 €
+		displayFolder: 4 Moneda\Con tasa
+		lineageTag: a6e8130e-a2f4-4d63-8741-bcdc54052fbf
+
 	column ProductKey
 		dataType: int64
 		isHidden
@@ -692,13 +686,47 @@ table 'Internet Sales'
 		summarizeBy: none
 		sourceColumn: TotalProductCostCent
 
+	/// Parte entera de los dólares (ya calculados en el origen). Dólares = Entero + Céntimos / 100.
+	column DolaresEntero
+		dataType: int64
+		isHidden
+		displayFolder: Importes partidos
+		lineageTag: d53e290d-cae1-4b23-bd1a-10c5e89a7f78
+		summarizeBy: none
+		sourceColumn: DolaresEntero
+
+	column DolaresCent
+		dataType: int64
+		isHidden
+		displayFolder: Importes partidos
+		lineageTag: a6e7fe62-a251-4c83-a045-008c37a16c07
+		summarizeBy: none
+		sourceColumn: DolaresCent
+
+	/// Parte entera de los euros (ya calculados en el origen).
+	column EurosEntero
+		dataType: int64
+		isHidden
+		displayFolder: Importes partidos
+		lineageTag: 40f9a56d-0e18-4b4b-be92-002ab13c5994
+		summarizeBy: none
+		sourceColumn: EurosEntero
+
+	column EurosCent
+		dataType: int64
+		isHidden
+		displayFolder: Importes partidos
+		lineageTag: 0a79ba66-289d-4b1e-b9fe-870201ca18b7
+		summarizeBy: none
+		sourceColumn: EurosCent
+
 	partition 'Internet Sales-9947076a-1393-497e-bef9-607c82a101d2' = m
 		mode: import
 		source =
 				let
 				    Origen = Sql.Database(Servidor, BaseDatosHechos),
 				    dbo_vFactInternetSalesOpt = Origen{[Schema="dbo",Item="vFactInternetSalesOpt"]}[Data],
-				    #"Otras columnas quitadas" = Table.SelectColumns(dbo_vFactInternetSalesOpt,{"ProductKey", "OrderDateKey", "DueDateKey", "ShipDateKey", "CustomerKey", "PromotionKey", "CurrencyKey", "SalesTerritoryKey", "OrderQuantity", "ProductStandardCost", "FechaPedido", "SalesAmountEntero", "SalesAmountCent", "TaxAmtEntero", "TaxAmtCent", "FreightEntero", "FreightCent", "TotalProductCostEntero", "TotalProductCostCent"}),
+				    #"Otras columnas quitadas" = Table.SelectColumns(dbo_vFactInternetSalesOpt,{"ProductKey", "OrderDateKey", "DueDateKey", "ShipDateKey", "CustomerKey", "PromotionKey", "CurrencyKey", "SalesTerritoryKey", "OrderQuantity", "ProductStandardCost", "FechaPedido", "SalesAmountEntero", "SalesAmountCent", "TaxAmtEntero", "TaxAmtCent", "FreightEntero", "FreightCent", "TotalProductCostEntero", "TotalProductCostCent", "DolaresEntero", "DolaresCent", "EurosEntero", "EurosCent"}),
 				    #"FechaPedido tipada" = Table.TransformColumnTypes(#"Otras columnas quitadas",{{"FechaPedido", type date}}),
 				    #"FechaAA agregada" = Table.AddColumn(#"FechaPedido tipada", "FechaAA", each Date.AddYears([FechaPedido], 1), type date)
 				in
