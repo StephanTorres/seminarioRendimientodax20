@@ -5,7 +5,7 @@
   PowerBi-despues\Despues.pbip (DESPUÉS), con los datos ya cargados.
 
     powershell -ExecutionPolicy Bypass -File .\puente-dax\lanzar-demos.ps1
-    ... -Exe "C:\ruta\PuenteDax.exe"     (por defecto: el de puente-dax\instalar, y si no, el instalado)
+    ... -Exe "C:\ruta\PuenteDax.exe"     (por defecto: puente-daxin-local, y si no, instalar o el instalado)
 
   Los puertos de Desktop cambian en cada apertura: el script los averigua cada vez.
   Antes -> puente 5199 (sirve también la presentación). Después -> puente 5200.
@@ -21,7 +21,7 @@ $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 
 if (-not $Exe) {
-    foreach ($c in @((Join-Path $PSScriptRoot 'instalar\PuenteDax.exe'), (Join-Path $env:LOCALAPPDATA 'PuenteDax\PuenteDax.exe'))) {
+    foreach ($c in @((Join-Path $PSScriptRoot 'bin-local\PuenteDax.exe'), (Join-Path $PSScriptRoot 'instalar\PuenteDax.exe'), (Join-Path $env:LOCALAPPDATA 'PuenteDax\PuenteDax.exe'))) {
         if (Test-Path $c) { $Exe = $c; break }
     }
 }

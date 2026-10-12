@@ -12,3 +12,4 @@ powerbi-*/**/.pbi/unappliedChanges.json
 puente-dax/instalar/*.exe
 puente-dax/instalar/*.dll
 puente-dax/**/launchSettings.json
+puente-dax/bin-local/
