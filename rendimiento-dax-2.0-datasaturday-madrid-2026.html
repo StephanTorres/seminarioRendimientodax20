@@ -690,6 +690,10 @@ body.spotlight-active { cursor: none; }
 .lab-grid.backstage { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
 .lab-grid.dual { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 330px; }
 .lab-grid.dual2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.lab-grid.tri { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.lab-swap { margin-left: auto; font: 700 20px var(--font-mono, monospace); color: #04100b; background: var(--accent); border: 0; border-radius: 999px; padding: 10px 22px; cursor: pointer; }
+.lab-swap:hover { filter: brightness(1.12); }
+.lab-swap.on { background: var(--warn, #ffb347); }
 .lab-grid > dax-lab, .lab-grid > dax-vertipaq, .lab-grid > dax-model-check { min-height: 0; height: 100%; }
 .lab-side { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
 .lab-side dax-benchmark { flex: 1; min-height: 0; }
@@ -1601,6 +1605,120 @@ ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
       </tbody>
     </table>
     <p class="source-note mt-auto">Medición del seminario original (diap. 25) · re-medir con el motor actual · añadir: calendario, OFFSET/WINDOW, UDF</p>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 3 · AA, tres aproximaciones lado a lado (1/2): a nivel anual ─── -->
+<section class="slide slide-lab" data-lab="AA · v1, v2 y v3 · anual" data-notes="Modelado puro: las tres aproximaciones de siempre, una al lado de otra y al mismo nivel de agregación. Primero por AÑO: pulsa Frío en cada columna y mira Storage Engine y Formula Engine. v1 usa SAMEPERIODLASTYEAR sobre la columna de fecha, v2 filtra el año menos uno (sin tocar fechas), v3 usa una columna de los hechos con la fecha más un año y una relación inactiva (USERELATIONSHIP). El botón «Sustituir v1 por calendario» cambia la primera columna por la medida con calendarios (SAMEPERIODLASTYEAR sobre el calendario Gregoriano) para compararla con las otras dos sin cambiar de diapositiva. Cuanto más agregada es la consulta, más se nota la diferencia: con pocas filas de salida el coste está en lo que el motor tiene que resolver por cada fecha, no en el volumen. Medido el 12-oct-2026 con el Puente DAX, mediana de 3 ejecuciones en frío sobre el modelo ANTES (49,6 M filas): v1 378 ms con 4 consultas SE, calendario 343 ms con 4, v2 269 ms con 4 y v3 236 ms con 2. Los tiempos en frío varían unos ±100 ms de una ejecución a otra: la señal estable es el número de consultas SE (v3 hace la mitad). Las cifras buenas, las de tu máquina.">
+  <div class="slide-inner">
+    <div class="lab-head">
+      <div class="tag">Bloque 3 · <b>Año anterior · modelado</b></div>
+      <h2 class="lab-title">AA a nivel de año: v1, v2 y v3</h2>
+      <button class="lab-swap" data-swap title="Cambia la primera columna entre v1 (SAMEPERIODLASTYEAR sobre la fecha) y los nuevos calendarios">⇄ Sustituir v1 por calendario</button>
+    </div>
+    <div class="lab-grid tri">
+      <dax-lab compact fill plan rows="8" label="AA · v1" editor-height="170px" editor-font="12px" panel-height="260px">
+        <dax-variant label="AA · v1 · SPLY" note="SAMEPERIODLASTYEAR sobre la columna de fecha">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( {{Fecha.Fecha}} ) )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
+ORDER BY {{Fecha.Año}}
+        </dax-variant>
+        <dax-variant label="AA · Calendario" note="Los nuevos calendarios: SAMEPERIODLASTYEAR sobre el calendario Gregoriano (preview)">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( {{Calendario}} ) )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
+ORDER BY {{Fecha.Año}}
+        </dax-variant>
+      </dax-lab>
+      <dax-lab compact fill plan rows="8" label="AA · v2" editor-height="170px" editor-font="12px" panel-height="260px">
+        <dax-variant label="AA · v2 · año − 1" note="Filtro del año menos uno: no toca fechas">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        VAR _anio = MAX ( {{Fecha.Año}} ) - 1
+        RETURN
+            CALCULATE ( [Ventas], {{Fecha.Año}} = _anio )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
+ORDER BY {{Fecha.Año}}
+        </dax-variant>
+      </dax-lab>
+      <dax-lab compact fill plan rows="8" label="AA · v3" editor-height="170px" editor-font="12px" panel-height="260px">
+        <dax-variant label="AA · v3 · columna + USERELATIONSHIP" note="Columna de los hechos con la fecha del pedido más un año y relación inactiva con la tabla de fechas">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE ( [Ventas], USERELATIONSHIP ( {{Fecha.Fecha}}, {{AA.FechaAA}} ) )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
+ORDER BY {{Fecha.Año}}
+        </dax-variant>
+      </dax-lab>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 3 · AA, tres aproximaciones lado a lado (2/2): a nivel mensual ─── -->
+<section class="slide slide-lab" data-lab="AA · v1, v2 y v3 · mensual" data-notes="Lo mismo, ahora por AÑO Y MES: más filas de salida y más contextos de filtro, así que el motor tiene que resolver más veces la medida. Pulsa Frío en cada columna y compara el nº de consultas SE, las filas y el tiempo con la diapositiva anterior. El botón cambia la primera columna entre v1 y los nuevos calendarios. Idea para la conversación: la diferencia entre aproximaciones crece con el nivel de detalle; a nivel de año casi no se nota, a nivel de mes ya sí. Y recuerda que v2 solo da el año anterior porque filtra el año: no sirve para otros periodos (trimestre, semana, acumulados). Medido el 12-oct-2026 (mediana de 3 en frío, modelo ANTES): v1 291 ms con 4 consultas SE, calendario 486 ms con 7, v2 490 ms con 5 y v3 323 ms con 2. Ojo: contra lo que podría esperarse, a nivel de mes el calendario y v2 salen peores que v1, y v3 sigue siendo la que menos consultas SE hace; con tanta dispersión (±100 ms) conviene medir en directo y no prometer una ganadora. En caliente todas quedan entre 13 y 26 ms.">
+  <div class="slide-inner">
+    <div class="lab-head">
+      <div class="tag">Bloque 3 · <b>Año anterior · modelado</b></div>
+      <h2 class="lab-title">AA a nivel de mes: v1, v2 y v3</h2>
+      <button class="lab-swap" data-swap title="Cambia la primera columna entre v1 (SAMEPERIODLASTYEAR sobre la fecha) y los nuevos calendarios">⇄ Sustituir v1 por calendario</button>
+    </div>
+    <div class="lab-grid tri">
+      <dax-lab compact fill plan rows="8" label="AA · v1" editor-height="170px" editor-font="12px" panel-height="260px">
+        <dax-variant label="AA · v1 · SPLY" note="SAMEPERIODLASTYEAR sobre la columna de fecha">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( {{Fecha.Fecha}} ) )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+        <dax-variant label="AA · Calendario" note="Los nuevos calendarios: SAMEPERIODLASTYEAR sobre el calendario Gregoriano (preview)">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( {{Calendario}} ) )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+      </dax-lab>
+      <dax-lab compact fill plan rows="8" label="AA · v2" editor-height="170px" editor-font="12px" panel-height="260px">
+        <dax-variant label="AA · v2 · año − 1" note="Filtro del año menos uno: no toca fechas">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        VAR _anio = MAX ( {{Fecha.Año}} ) - 1
+        RETURN
+            CALCULATE ( [Ventas], {{Fecha.Año}} = _anio )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+      </dax-lab>
+      <dax-lab compact fill plan rows="8" label="AA · v3" editor-height="170px" editor-font="12px" panel-height="260px">
+        <dax-variant label="AA · v3 · columna + USERELATIONSHIP" note="Columna de los hechos con la fecha del pedido más un año y relación inactiva con la tabla de fechas">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas AA] =
+        CALCULATE ( [Ventas], USERELATIONSHIP ( {{Fecha.Fecha}}, {{AA.FechaAA}} ) )
+EVALUATE
+SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas", [Ventas], "Ventas AA", [Ventas AA] )
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+      </dax-lab>
+    </div>
   </div>
 </section>
 
@@ -3144,6 +3262,17 @@ SUMMARIZECOLUMNS ( {{Fecha.Año}}, "Margen %", MargenPct ( [Ventas], [Coste] ) )
      Las demos usan {{Clave}} y se adaptan a tu modelo cambiando SOLO este bloque.
      Por defecto: AdventureWorksDW ('Internet Sales'[SalesAmount], como la diapositiva 51).
      La slide Backstage (la última) comprueba cada nombre contra el modelo abierto. -->
+<script>
+// Botón «Sustituir v1 por calendario»: cambia la variante de la primera ventana de la diapositiva
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-swap]');
+  if (!b) return;
+  const lab = b.closest('.slide').querySelector('dax-lab');
+  const on = b.classList.toggle('on');
+  lab.select(on ? 1 : 0);
+  b.textContent = on ? '⇄ Volver a v1' : '⇄ Sustituir v1 por calendario';
+});
+</script>
 <script>
 window.PUENTE_DAX_MODELO = {
   // ── Modelo base ──
