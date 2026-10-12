@@ -1392,6 +1392,79 @@ plan y cómo comprobar que es idéntico.</pre>
   </div>
 </section>
 
+<!-- ═════════════════ 24b · TRES FECHAS, TRES ROLES ═════════════════ -->
+<section class="slide slide-content" data-notes="Pedido, envío y entrega son tres fechas de la misma venta. El patrón habitual es el role-playing: una sola tabla de fechas y una relación activa más varias inactivas que se activan con USERELATIONSHIP. Funciona para ver las ventas por una fecha u otra, pero no para cruzarlas: solo hay una relación activa por visual, así que no puedes poner el mes del pedido en filas y el mes de entrega en columnas. La alternativa es una tabla de fechas por rol, con su relación activa cada una. Pesan casi nada: en el modelo de la demo, 0,4 MB cada copia frente a 5 GB de hechos. Y permiten la pregunta de negocio: de lo que vendí en diciembre, ¿cuándo se fue entregando? Es el retraso de la entrega.">
+  <div class="slide-inner">
+    <div class="tag">Bloque 3 · <b>Dimensión tiempo</b></div>
+    <h2 class="slide-title">Una venta, tres fechas: ¿role-playing o tres tablas?</h2>
+    <div class="row grow">
+      <div class="col">
+        <div class="card">
+          <h3>Role-playing · una tabla de fechas</h3>
+          <ul>
+            <li>Pedido, envío y entrega apuntan a <strong>la misma</strong> tabla</li>
+            <li>Una relación activa; las demás, inactivas con <code>USERELATIONSHIP</code></li>
+            <li>Ventas por fecha de pedido <strong>o</strong> por fecha de entrega</li>
+            <li><span class="cb">No cruza:</span> no puedes poner el mes del pedido en filas y el de entrega en columnas</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card grow" style="border-color:var(--accent)">
+          <h3>Una tabla de fechas por rol</h3>
+          <ul>
+            <li><b>Fecha</b>, <b>Fecha envío</b> y <b>Fecha entrega</b>: tres relaciones activas</li>
+            <li>Filas = mes del pedido · columnas = mes de entrega: «de lo que vendí en diciembre, ¿cuándo se entregó?»</li>
+            <li>Es el <strong>retraso de la entrega</strong>, sin una medida por cada combinación</li>
+            <li>Coste: <strong>0,4 MB</strong> por copia frente a 5 GB de hechos</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Laboratorio · Bloque 3 · Tres fechas ─── -->
+<section class="slide slide-lab" data-lab="Tres fechas: pedido, envío y entrega" data-notes="Primera variante: con una tabla de fechas por rol, el mes del pedido en filas y el de entrega en columnas: lo vendido en diciembre de 2021 se entregó parte en diciembre y parte en enero. Segunda: con role-playing solo puedes poner dos medidas sobre el mismo eje (ventas por fecha de pedido y por fecha de entrega, emulando la relación inactiva con TREATAS), pero no el cruce. Comprueba en la pestaña Storage Engine que las dos funcionan sin callbacks.">
+  <div class="slide-inner">
+    <div class="lab-head"><div class="tag">Bloque 3 · <b>Laboratorio</b></div><h2 class="lab-title">Tres fechas: pedido, envío y entrega</h2></div>
+    <div class="lab-grid">
+      <dax-lab compact fill label="Fechas" editor-height="230px" rows="12">
+        <dax-variant label="Fechas · una tabla por rol" note="Mes del pedido en filas, mes de entrega en columnas: el cruce que el role-playing no permite">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+EVALUATE
+CALCULATETABLE (
+    SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, {{FechaEntrega.Año}}, {{FechaEntrega.Mes}}, "Ventas", [Ventas] ),
+    {{Fecha.Año}} = {{Demo.AñoSiguiente}}, {{Fecha.Mes}} = 12
+)
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}, {{FechaEntrega.Año}}, {{FechaEntrega.Mes}}
+        </dax-variant>
+        <dax-variant label="Fechas · role-playing (dos medidas)" note="Role-playing emulado con TREATAS: dos medidas sobre el mismo eje, sin cruce">
+DEFINE
+    MEASURE {{Ventas}}[Ventas] = SUM ( {{Ventas.Importe}} )
+    MEASURE {{Ventas}}[Ventas por fecha de entrega] =
+        CALCULATE (
+            [Ventas],
+            REMOVEFILTERS ( {{Fecha}} ),
+            TREATAS ( VALUES ( {{Fecha.Clave}} ), {{Ventas.ClaveEntrega}} )
+        )
+EVALUATE
+CALCULATETABLE (
+    SUMMARIZECOLUMNS ( {{Fecha.Año}}, {{Fecha.Mes}}, "Ventas (pedido)", [Ventas], "Ventas (entrega)", [Ventas por fecha de entrega] ),
+    {{Fecha.Año}} = {{Demo.AñoSiguiente}}, {{Fecha.Mes}} IN { 11, 12 }
+)
+ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
+        </dax-variant>
+      </dax-lab>
+      <div class="lab-side">
+        <dax-benchmark compact filter="Fechas ·" title="Tres fechas · comparativa"></dax-benchmark>
+        <div class="lab-tip"><b>Qué mirar</b><br>· Diciembre se entrega en <b>diciembre y enero</b>: ese es el retraso.<br>· Con role-playing solo hay <b>dos columnas de medidas</b>, no un cruce.<br>· Las tablas de fechas extra pesan <b>0,4 MB</b>: <i>Analizar</i> en el bloque 1.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ═════════════════ 25 · IMPLEMENTACIÓN ═════════════════ -->
 <section class="slide slide-content" data-notes="Evolución de cómo implementamos los cálculos de tiempo: DAX uno a uno, patrones en Tabular Editor con un poco de C#, grupos de cálculo con SELECTEDMEASURE y formato dinámico, y la novedad: inteligencia de tiempo basada en calendarios, en preview desde septiembre de 2025.">
   <div class="slide-inner">
@@ -2998,12 +3071,17 @@ window.PUENTE_DAX_MODELO = {
   'Ventas.Cantidad':      "'Internet Sales'[OrderQuantity]",
   'Ventas.ClaveFecha':    "'Internet Sales'[OrderDateKey]",
   'Ventas.ClaveProducto': "'Internet Sales'[ProductKey]",
-  'Ventas.Pedido':        "'Internet Sales'[SalesOrderNumber]",
+  'Ventas.Pedido':        "'Internet Sales'[SalesOrderLine]",   // pedido y línea concatenados en texto (SO43697-1): solo en el modelo «antes»
   'Fecha':                "'Fecha'",
   'Fecha.Fecha':          "'Fecha'[Date]",
   'Fecha.Año':            "'Fecha'[Year]",
   'Fecha.Mes':            "'Fecha'[Month]",
   'Fecha.Dia':            "'Fecha'[Day]",
+  'Fecha.Clave':          "'Fecha'[idFecha]",
+  'FechaEntrega':         "'Fecha entrega'",                  // una tabla de fechas por rol: Fecha (pedido), Fecha envío, Fecha entrega
+  'FechaEntrega.Año':     "'Fecha entrega'[Year]",
+  'FechaEntrega.Mes':     "'Fecha entrega'[Month]",
+  'Ventas.ClaveEntrega':  "'Internet Sales'[DueDateKey]",
   'Producto.Categoria':   "'Product Category'[EnglishProductCategoryName]",
   'Producto.NombreES':    "'Product'[SpanishProductName]",
   'Demo.AñoA': 2011, 'Demo.AñoB': 2012, 'Demo.AñoC': 2013,

@@ -2,4 +2,8 @@
 powerbi/**/.pbi/cache.abf
 powerbi/**/.pbi/localSettings.json
 powerbi/**/.pbi/unappliedChanges.json
+# Copia «después» del modelo (demo antes/después del bloque 1)
+powerbi-*/**/.pbi/cache.abf
+powerbi-*/**/.pbi/localSettings.json
+powerbi-*/**/.pbi/unappliedChanges.json
 *.pbix
