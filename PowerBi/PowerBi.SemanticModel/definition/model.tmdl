@@ -19,15 +19,12 @@ ref table 'Internet Sales'
 ref table _Currency_Rate
 ref table Currency
 ref table Customer
-ref table Date
 ref table Product
 ref table Promotion
 ref table 'Sales Territory'
 ref table _Internet_Sales_Reason
 ref table 'Sales Reason'
 ref table 'Time Calcs'
-ref table _Date_Mxn
-ref table 'Multi Idioma fecha'
 ref table 'Multi Idioma product'
 ref table 'Multi Idioma Promotion'
 ref table Idiomas

@@ -1,8 +1,9 @@
 /*
   Datos sintéticos para las demos de Rendimiento DAX 2.0
   ------------------------------------------------------
-  Crea la base RendimientoDax (ficheros en $(RUTA), no en C:) con:
-    dbo.FactInternetSales  ~200 M filas, 2011-01-01 .. $(FIN), columnstore agrupado.
+  Crea la base $(DB) (ficheros en $(RUTA), no en C:) con:
+    dbo.FactInternetSales  ~8,3 M filas x $(MULT) (MULT=24 -> ~200 M, MULT=6 -> ~50 M), 2011-01-01 .. $(FIN),
+                           columnstore agrupado.
     dbo.FactCurrencyRate   14 monedas x cada día de 2010-12-29 .. 2026-12-31.
 
   Origen: AdventureWorksDW2022 (solo lectura). Las dimensiones NO se copian: el modelo
@@ -17,24 +18,25 @@
      x ruido de fila (0,85 .. 1,15).
 
   Uso (si la base ya existe, aborta sin tocar nada):
-    (PowerShell)  $env:RUTA = 'D:\SQLData'; $env:FIN = '20261011'
+    (PowerShell)  $env:RUTA = 'D:\SQLServer\Data'; $env:FIN = '20261011'
+                  $env:DB = 'RendimientoDax50M'; $env:MULT = '6'
                   sqlcmd -S A01P0717 -E -b -i 01-crear-datos-sinteticos.sql
-    (sqlcmd toma $(RUTA) y $(FIN) de las variables de entorno si no se pasan con -v)
+    (sqlcmd toma $(RUTA), $(FIN), $(DB) y $(MULT) de las variables de entorno si no se pasan con -v)
 */
 SET NOCOUNT ON;
 GO
 USE master;
 GO
-IF DB_ID(N'RendimientoDax') IS NOT NULL
-    RAISERROR(N'La base RendimientoDax ya existe: no se toca nada. Eliminala a mano para regenerar.', 16, 1);
+IF DB_ID(N'$(DB)') IS NOT NULL
+    RAISERROR(N'La base $(DB) ya existe: no se toca nada. Eliminala a mano para regenerar.', 16, 1);
 GO
-CREATE DATABASE RendimientoDax
-ON PRIMARY (NAME = RendimientoDax,     FILENAME = N'$(RUTA)\RendimientoDax.mdf',     SIZE = 2GB, FILEGROWTH = 1GB)
-LOG ON     (NAME = RendimientoDax_log, FILENAME = N'$(RUTA)\RendimientoDax_log.ldf', SIZE = 2GB, FILEGROWTH = 1GB);
+CREATE DATABASE $(DB)
+ON PRIMARY (NAME = $(DB),     FILENAME = N'$(RUTA)\$(DB).mdf',     SIZE = 2GB, FILEGROWTH = 1GB)
+LOG ON     (NAME = $(DB)_log, FILENAME = N'$(RUTA)\$(DB)_log.ldf', SIZE = 2GB, FILEGROWTH = 1GB);
 GO
-ALTER DATABASE RendimientoDax SET RECOVERY SIMPLE;
+ALTER DATABASE $(DB) SET RECOVERY SIMPLE;
 GO
-USE RendimientoDax;
+USE $(DB);
 GO
 CREATE TABLE dbo.FactInternetSales (
     ProductKey            int      NOT NULL,
@@ -105,7 +107,7 @@ FROM (SELECT DISTINCT anio FROM #dias) AS y;
 SELECT anio, ROUND(factor, 3) AS factor_anual FROM #factor ORDER BY anio;
 
 /* ---------- Hechos: un INSERT por año (minimiza log, rowgroups completos) ---------- */
-DECLARE @mult int = 24, @y int = 2011, @ymax int = (SELECT MAX(anio) FROM #dias);
+DECLARE @mult int = $(MULT), @y int = 2011, @ymax int = (SELECT MAX(anio) FROM #dias);
 DECLARE @t0 datetime2 = SYSDATETIME(), @n bigint;
 WHILE @y <= @ymax
 BEGIN

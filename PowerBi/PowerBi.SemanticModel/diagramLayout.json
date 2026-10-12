@@ -58,18 +58,6 @@
         },
         {
           "location": {
-            "x": 344.2,
-            "y": 43.099999999999994
-          },
-          "nodeIndex": "Date",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 17
-        },
-        {
-          "location": {
             "x": 788.1,
             "y": 0
           },
@@ -139,30 +127,6 @@
             "width": 234
           },
           "zIndex": 6
-        },
-        {
-          "location": {
-            "x": 324.71097499999996,
-            "y": 491.34497600000003
-          },
-          "nodeIndex": "_Date_Mxn",
-          "size": {
-            "height": 128,
-            "width": 234
-          },
-          "zIndex": 18
-        },
-        {
-          "location": {
-            "x": 2491.8369310000007,
-            "y": 822.00430400000073
-          },
-          "nodeIndex": "Multi Idioma fecha",
-          "size": {
-            "height": 152,
-            "width": 234
-          },
-          "zIndex": 3
         },
         {
           "location": {
@@ -252,18 +216,6 @@
         "y": 0
       },
       "nodes": [
-        {
-          "location": {
-            "x": 535,
-            "y": 143
-          },
-          "nodeIndex": "Multi Idioma fecha",
-          "size": {
-            "height": 152,
-            "width": 234
-          },
-          "zIndex": 0
-        },
         {
           "location": {
             "x": 269,

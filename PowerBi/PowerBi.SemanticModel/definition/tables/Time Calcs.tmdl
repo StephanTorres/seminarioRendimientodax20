@@ -5,22 +5,23 @@ table 'Time Calcs'
 
 		calculationItem Actual = SELECTEDMEASURE()
 
-		calculationItem 'AA V1' =
-				CALCULATE (
-				    SELECTEDMEASURE (),
-				    SAMEPERIODLASTYEAR ( 'Date'[Date] )
-				)
+		/// SAMEPERIODLASTYEAR sobre Fecha[Date]
+		calculationItem 'AA V1' = CALCULATE ( SELECTEDMEASURE (), SAMEPERIODLASTYEAR ( 'Fecha'[Date] ) )
 
+		/// Restar 1 al año (offset de año)
 		calculationItem 'AA V2' =
-				VAR _anio =
-				    MAX ( 'Date'[Calendar Year] ) - 1
-				VAR _resultado =
-				    CALCULATE (
-				        SELECTEDMEASURE (),
-				        'Date'[Calendar Year] = _anio
-				    )
+				VAR _anio = MAX ( 'Fecha'[Year] ) - 1
 				RETURN
-				    _resultado
+				    CALCULATE ( SELECTEDMEASURE (), 'Fecha'[Year] = _anio )
+
+		/// Columna desplazada en los hechos (FechaAA) con relación inactiva
+		calculationItem 'AA V3' = CALCULATE ( SELECTEDMEASURE (), USERELATIONSHIP ( 'Fecha'[Date], 'Internet Sales'[FechaAA] ) )
+
+		/// OFFSET -1 sobre el año
+		calculationItem 'AA V4' = CALCULATE ( SELECTEDMEASURE (), OFFSET ( -1, ALLSELECTED ( 'Fecha'[Year] ), ORDERBY ( 'Fecha'[Year], ASC ) ) )
+
+		/// Inteligencia de tiempo basada en calendarios (Gregoriano)
+		calculationItem 'AA V5 Calendario' = CALCULATE ( SELECTEDMEASURE (), SAMEPERIODLASTYEAR ( 'Gregoriano' ) )
 
 	column 'Time Calcs'
 		dataType: string

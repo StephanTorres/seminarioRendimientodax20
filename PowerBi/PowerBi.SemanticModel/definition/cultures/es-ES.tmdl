@@ -2,71 +2,29 @@ cultureInfo es-ES
 
 	linguisticMetadata =
 			{
-			  "Version": "2.0.0",
+			  "Version": "1.0.0",
 			  "Language": "en-US",
 			  "Entities": {
 			    "product.spanish_product_category_name": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Product",
-			          "ConceptualProperty": "Spanish Product Category Name"
-			        }
+			      "Binding": {
+			        "ConceptualEntity": "Product",
+			        "ConceptualProperty": "Spanish Product Category Name"
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Spanish Product Category Name": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "promotion.spanishpromotionname": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Promotion",
-			          "ConceptualProperty": "SpanishPromotionName"
-			        }
+			      "Binding": {
+			        "ConceptualEntity": "Promotion",
+			        "ConceptualProperty": "SpanishPromotionName"
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "SpanishPromotionName": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "date.spanishmonthname": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Date",
-			          "ConceptualProperty": "SpanishMonthName"
-			        }
+			      "Binding": {
+			        "ConceptualEntity": "Date",
+			        "ConceptualProperty": "SpanishMonthName"
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "SpanishMonthName": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    }
 			  }
 			}

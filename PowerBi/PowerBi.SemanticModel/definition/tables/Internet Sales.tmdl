@@ -47,199 +47,6 @@ table 'Internet Sales'
 
 		changedProperty = FormatString
 
-	measure 'Order Quantity (AA v1)' = CALCULATE( [Order Quantity], SAMEPERIODLASTYEAR('Date'[Date]))
-		displayFolder: 2 Año anterior\v1
-		lineageTag: 8f0ef176-02c9-4425-b625-c4833318313c
-
-	measure 'Standard Cost (AA v1)' = CALCULATE( [Standard Cost], SAMEPERIODLASTYEAR('Date'[Date]))
-		displayFolder: 2 Año anterior\v1
-		lineageTag: f43dfa23-8c39-4b2d-8ba4-f8b272aef87a
-
-	measure 'Total Cost (AA v1)' = CALCULATE( [Total Cost], SAMEPERIODLASTYEAR('Date'[Date]))
-		displayFolder: 2 Año anterior\v1
-		lineageTag: 1860b4ab-f47d-4f14-a034-aba0a660d7e8
-
-	measure 'Sales Amount (AA v1)' = CALCULATE( [Sales Amount], SAMEPERIODLASTYEAR('Date'[Date]))
-		displayFolder: 2 Año anterior\v1
-		lineageTag: 2aab6624-5b2b-4808-9f35-c5e757d44a65
-
-	measure 'Freight (AA v1)' = CALCULATE( [Freight], SAMEPERIODLASTYEAR('Date'[Date]))
-		displayFolder: 2 Año anterior\v1
-		lineageTag: af47239d-b0fc-4e89-90ab-5ba6c0a8907e
-
-	measure 'Tax Amount (AA v1)' = CALCULATE( [Tax Amount], SAMEPERIODLASTYEAR('Date'[Date]))
-		displayFolder: 2 Año anterior\v1
-		lineageTag: 9e8e2e65-bced-467f-b6fd-ee7434812c1e
-
-	measure 'Profit (AA v1)' = CALCULATE( [Profit], SAMEPERIODLASTYEAR('Date'[Date]))
-		displayFolder: 2 Año anterior\v1
-		lineageTag: fce0499d-8804-4f3b-bae5-6409bd6a5b3d
-
-	measure 'Profit % (AA v1)' = CALCULATE( [Profit %], SAMEPERIODLASTYEAR('Date'[Date]))
-		displayFolder: 2 Año anterior\v1
-		lineageTag: ba501d28-4df7-48b1-a819-a818dae7e41d
-
-	measure 'Order Quantity (AA v2)' = ```
-			 var _anio= max('Date'[Calendar Year]) -1
-			 var _resultado= CALCULATE( [Order Quantity], 'Date'[Calendar Year]=_anio)
-			 return _resultado
-			```
-		formatString: #,##0.00
-		displayFolder: 2 Año anterior\v2
-		lineageTag: 58b30eeb-2282-44ad-8dff-88ad40e904c3
-
-	measure 'Standard Cost (AA v2)' =
-			VAR _anio =
-			    MAX ( 'Date'[Calendar Year] ) - 1
-			VAR _resultado =
-			    CALCULATE ( [Standard Cost], 'Date'[Calendar Year] = _anio )
-			RETURN
-			    _resultado
-		formatString: #,##0.00
-		displayFolder: 2 Año anterior\v2
-		lineageTag: b8476d77-f6b9-406d-8ff3-f95d5bc780b2
-
-	measure 'Total Cost (AA v2)' =
-			VAR _anio =
-			    MAX ( 'Date'[Calendar Year] ) - 1
-			VAR _resultado =
-			    CALCULATE ( [Total Cost], 'Date'[Calendar Year] = _anio )
-			RETURN
-			    _resultado
-		formatString: #,##0.00
-		displayFolder: 2 Año anterior\v2
-		lineageTag: 47edf5f3-e9b5-4e10-9bce-a17cf2a622bb
-
-		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
-
-	measure 'Sales Amount (AA v2)' =
-			VAR _anio =
-			    MAX ( 'Date'[Calendar Year] ) - 1
-			VAR _resultado =
-			    CALCULATE ( [Sales Amount], 'Date'[Calendar Year] = _anio )
-			RETURN
-			    _resultado
-		formatString: #,##0.00
-		displayFolder: 2 Año anterior\v2
-		lineageTag: 72fc430c-edbc-4593-a725-6f49e1e80857
-
-	measure 'Freight (AA v2)' =
-			VAR _anio =
-			    MAX ( 'Date'[Calendar Year] ) - 1
-			VAR _resultado =
-			    CALCULATE ( [Freight], 'Date'[Calendar Year] = _anio )
-			RETURN
-			    _resultado
-		formatString: #,##0.00
-		displayFolder: 2 Año anterior\v2
-		lineageTag: 9e0bb0d2-fe4c-4e24-9aa2-7658d98cad49
-
-	measure 'Tax Amount (AA v2)' =
-			VAR _anio =
-			    MAX ( 'Date'[Calendar Year] ) - 1
-			VAR _resultado =
-			    CALCULATE ( [Tax Amount], 'Date'[Calendar Year] = _anio )
-			RETURN
-			    _resultado
-		formatString: #,##0.00
-		displayFolder: 2 Año anterior\v2
-		lineageTag: 913fed50-c3bb-480c-9367-2c211431a677
-
-	measure 'Profit (AA v2)' =
-			VAR _anio =
-			    MAX ( 'Date'[Calendar Year] ) - 1
-			VAR _resultado =
-			    CALCULATE ( [Profit], 'Date'[Calendar Year] = _anio )
-			RETURN
-			    _resultado
-		formatString: #,##0.00
-		displayFolder: 2 Año anterior\v2
-		lineageTag: 78db491c-9801-48aa-9b84-840791f6d4cc
-
-	measure 'Profit % (AA v2)' =
-			VAR _anio =
-			    MAX ( 'Date'[Calendar Year] )
-			VAR _resultado =
-			    CALCULATE ( [Profit %], 'Date'[Calendar Year] = _anio )
-			RETURN
-			    _resultado
-		formatString: #,##0.00
-		displayFolder: 2 Año anterior\v2
-		lineageTag: 1a12ed59-9308-4807-8389-0835a6a619b7
-
-	measure 'Order Quantity (AA v3)' = CALCULATE([Order Quantity],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
-		displayFolder: 2 Año anterior\v3
-		lineageTag: bdfa19ba-925e-4a88-a2e3-09355b945926
-
-	measure 'Standard Cost (AA v3)' = CALCULATE([Standard Cost],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
-		displayFolder: 2 Año anterior\v3
-		lineageTag: 254bf196-1929-4ebd-a6e4-e66d6d8a6f25
-
-	measure 'Total Cost (AA v3)' = CALCULATE([Total Cost],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
-		displayFolder: 2 Año anterior\v3
-		lineageTag: 5ae89603-8a5d-4d42-a77c-c144a28b3def
-
-	measure 'Sales Amount (AA v3)' = CALCULATE([Sales Amount],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
-		displayFolder: 2 Año anterior\v3
-		lineageTag: 697c93a7-724a-44de-bc4c-2a4404d99ed6
-
-	measure 'Freight (AA v3)' = CALCULATE([Freight],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
-		displayFolder: 2 Año anterior\v3
-		lineageTag: d125a068-d4c5-450b-9cad-60cb4a65469f
-
-	measure 'Tax Amount (AA v3)' = CALCULATE([Tax Amount],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
-		displayFolder: 2 Año anterior\v3
-		lineageTag: ff748afc-0cb8-41a7-9e66-e5e15a9e0fb3
-
-	measure 'Profit (AA v3)' = CALCULATE([Profit],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
-		displayFolder: 2 Año anterior\v3
-		lineageTag: b10b2523-f33c-4d73-b092-41eaf6b325f2
-
-	measure 'Profit % (AA v3)' = CALCULATE([Profit %],USERELATIONSHIP('Date'[DateKeyAA],'Internet Sales'[OrderDateKey]))
-		displayFolder: 2 Año anterior\v3
-		lineageTag: 87a5fbed-df20-456d-aa70-7ccf6ec31df3
-
-	measure 'Tax Amount (YTD 1)' = TOTALYTD([Tax Amount],'Date'[Date])
-		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
-		displayFolder: 3 Acumulados YTD
-		lineageTag: 489222ea-c7fb-49d0-90eb-130d315280a6
-
-		changedProperty = FormatString
-
-		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
-
-	measure 'Total Cost (YTD 1)' = totalytd([Total Cost],'Date'[Date])
-		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
-		displayFolder: 3 Acumulados YTD
-		lineageTag: e07e589d-8a93-4d37-a26e-c85542f5f2c6
-
-		changedProperty = FormatString
-
-		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
-
-	measure 'Tax Amount (YTD 2)' =
-			
-			var _fechas=values(_Date_Mxn[DateKeyMxn])
-			var _res=
-			 CALCULATE([Tax Amount],all('Date'),TREATAS(_fechas,'Internet Sales'[OrderDateKey]) )
-			 var _res2=COUNTROWS(values(_Date_Mxn[DateKeyMxn]))
-			 var _Res3=CALCULATE([Tax Amount],USERELATIONSHIP('Date'[DateKey],_Date_Mxn[DateKey]))
-			return _res
-		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
-		displayFolder: 3 Acumulados YTD
-		lineageTag: ea2d4732-4fd9-4b96-be7f-0aee942c93a0
-
-		changedProperty = FormatString
-
-	measure 'Total Cost (YTD 2)' = CALCULATE([Total Cost], USERELATIONSHIP(_Date_Mxn[DateKeyMxn],'Internet Sales'[OrderDateKey]))
-		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
-		displayFolder: 3 Acumulados YTD
-		lineageTag: 599a63f6-ea02-4169-baed-4652e62ddd30
-
-		changedProperty = FormatString
-
-		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
-
 	measure 'Total Sales Currency' = ```
 			
 			VAR _DateAndCurrency =
@@ -315,26 +122,6 @@ table 'Internet Sales'
 
 		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
 
-	measure 'Tax Amount (AA v4)' = ```
-			
-			  Calculate( [Tax Amount], offset(-1,allselected('Date'[Calendar year]), orderby('Date'[Calendar year], asc)))
-			```
-		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
-		displayFolder: 2 Año anterior\v4
-		lineageTag: 88bb74cb-be79-426a-8c8a-712dbb9aa793
-
-		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
-
-	measure 'Total Cost (AA v)' = ```
-			
-			  Calculate( [Total Cost], offset(-1,allselected('Date'[Calendar year]), orderby('Date'[Calendar year], asc)))
-			```
-		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
-		displayFolder: 2 Año anterior\v4
-		lineageTag: 5c0ad74a-57fc-45d3-ae8b-90674951fe68
-
-		annotation PBI_FormatHint = {"currencyCulture":"es-ES"}
-
 	measure #filas = COUNTROWS('Internet Sales')
 		formatString: 0
 		displayFolder: 1 Base
@@ -381,17 +168,9 @@ table 'Internet Sales'
 		displayFolder: 6 Copias "x 2"
 		lineageTag: b8c4a44d-89e1-43fb-85a2-f310433e7d1c
 
-	measure 'Tax Amount (AA v4) x 2' = [Tax Amount (AA v4)]*2
-		displayFolder: 6 Copias "x 2"
-		lineageTag: bfc0b466-fdb6-43cf-bf4c-5ea8c56e425a
-
 	measure 'Total Cost x 2' = [Total Cost]*2
 		displayFolder: 6 Copias "x 2"
 		lineageTag: 205f576c-7ee0-4b57-9ab1-12680e695a96
-
-	measure 'Total Cost (AA v) x 2' = [Total Cost (AA v)]*2
-		displayFolder: 6 Copias "x 2"
-		lineageTag: 6894685c-2037-422a-a980-9e5bb9df5d6c
 
 	measure 'Total Sales Currency Dolar x 2' = [Total Sales Currency Dolar]*2
 		displayFolder: 6 Copias "x 2"
@@ -414,6 +193,259 @@ table 'Internet Sales'
 			```
 		displayFolder: 5 Idioma y auxiliares
 		lineageTag: 4ed897d9-142f-47c5-8401-e94367e0c576
+
+	measure 'Order Quantity (AA v1)' = CALCULATE ( [Order Quantity], SAMEPERIODLASTYEAR ( 'Fecha'[Date] ) )
+		displayFolder: 2 Año anterior\v1
+		lineageTag: 740935e3-57c3-40c2-819f-1dea3a0be5f8
+
+	measure 'Standard Cost (AA v1)' = CALCULATE ( [Standard Cost], SAMEPERIODLASTYEAR ( 'Fecha'[Date] ) )
+		displayFolder: 2 Año anterior\v1
+		lineageTag: 6b8bf31b-b1b2-4e4a-81b4-65d95f91ff7f
+
+	measure 'Total Cost (AA v1)' = CALCULATE ( [Total Cost], SAMEPERIODLASTYEAR ( 'Fecha'[Date] ) )
+		displayFolder: 2 Año anterior\v1
+		lineageTag: 3aaa4f2e-7b3d-4670-b49b-f72caaa06303
+
+	measure 'Sales Amount (AA v1)' = CALCULATE ( [Sales Amount], SAMEPERIODLASTYEAR ( 'Fecha'[Date] ) )
+		displayFolder: 2 Año anterior\v1
+		lineageTag: 0a5772f9-ff00-4e37-b4bd-9c7d8d6ce7ad
+
+	measure 'Freight (AA v1)' = CALCULATE ( [Freight], SAMEPERIODLASTYEAR ( 'Fecha'[Date] ) )
+		displayFolder: 2 Año anterior\v1
+		lineageTag: 218bd809-b326-463c-9182-69726d345ecf
+
+	measure 'Tax Amount (AA v1)' = CALCULATE ( [Tax Amount], SAMEPERIODLASTYEAR ( 'Fecha'[Date] ) )
+		displayFolder: 2 Año anterior\v1
+		lineageTag: 097d7563-9058-4778-b219-cf259a5628c9
+
+	measure 'Profit (AA v1)' = CALCULATE ( [Profit], SAMEPERIODLASTYEAR ( 'Fecha'[Date] ) )
+		displayFolder: 2 Año anterior\v1
+		lineageTag: c123dc73-c221-471e-bc70-4dd2bdae737f
+
+	measure 'Profit % (AA v1)' = CALCULATE ( [Profit %], SAMEPERIODLASTYEAR ( 'Fecha'[Date] ) )
+		displayFolder: 2 Año anterior\v1
+		lineageTag: 9fe54e19-caae-4d6c-9ab7-7ed53e424398
+
+	measure 'Order Quantity (AA v2)' =
+			VAR _anio = MAX ( 'Fecha'[Year] ) - 1
+			RETURN
+			    CALCULATE ( [Order Quantity], 'Fecha'[Year] = _anio )
+		displayFolder: 2 Año anterior\v2
+		lineageTag: b5c9ed71-b9bb-46f1-bd78-be52386b97c1
+
+	measure 'Standard Cost (AA v2)' =
+			VAR _anio = MAX ( 'Fecha'[Year] ) - 1
+			RETURN
+			    CALCULATE ( [Standard Cost], 'Fecha'[Year] = _anio )
+		displayFolder: 2 Año anterior\v2
+		lineageTag: dcff4b19-5693-43b5-8c32-9b1f0ee9fbd1
+
+	measure 'Total Cost (AA v2)' =
+			VAR _anio = MAX ( 'Fecha'[Year] ) - 1
+			RETURN
+			    CALCULATE ( [Total Cost], 'Fecha'[Year] = _anio )
+		displayFolder: 2 Año anterior\v2
+		lineageTag: f59f0e65-9350-49a9-a6e8-b0392fc3ee1b
+
+	measure 'Sales Amount (AA v2)' =
+			VAR _anio = MAX ( 'Fecha'[Year] ) - 1
+			RETURN
+			    CALCULATE ( [Sales Amount], 'Fecha'[Year] = _anio )
+		displayFolder: 2 Año anterior\v2
+		lineageTag: 0aa844d3-6921-4a09-995f-7f1968f18b89
+
+	measure 'Freight (AA v2)' =
+			VAR _anio = MAX ( 'Fecha'[Year] ) - 1
+			RETURN
+			    CALCULATE ( [Freight], 'Fecha'[Year] = _anio )
+		displayFolder: 2 Año anterior\v2
+		lineageTag: 58f6b8fd-b413-4960-95ae-1a8988ada22b
+
+	measure 'Tax Amount (AA v2)' =
+			VAR _anio = MAX ( 'Fecha'[Year] ) - 1
+			RETURN
+			    CALCULATE ( [Tax Amount], 'Fecha'[Year] = _anio )
+		displayFolder: 2 Año anterior\v2
+		lineageTag: f1bd9aae-496b-4c77-bc9a-34a0bedc3c31
+
+	measure 'Profit (AA v2)' =
+			VAR _anio = MAX ( 'Fecha'[Year] ) - 1
+			RETURN
+			    CALCULATE ( [Profit], 'Fecha'[Year] = _anio )
+		displayFolder: 2 Año anterior\v2
+		lineageTag: ac1e4172-18df-4042-9739-796b7453cd40
+
+	measure 'Profit % (AA v2)' =
+			VAR _anio = MAX ( 'Fecha'[Year] ) - 1
+			RETURN
+			    CALCULATE ( [Profit %], 'Fecha'[Year] = _anio )
+		displayFolder: 2 Año anterior\v2
+		lineageTag: 9693ec59-3271-4429-a2dd-a605c41e1776
+
+	measure 'Order Quantity (AA v3)' = CALCULATE ( [Order Quantity], USERELATIONSHIP ( 'Fecha'[Date], 'Internet Sales'[FechaAA] ) )
+		displayFolder: 2 Año anterior\v3
+		lineageTag: ceb7ab68-38f2-456d-a8b1-42912fac16bb
+
+	measure 'Standard Cost (AA v3)' = CALCULATE ( [Standard Cost], USERELATIONSHIP ( 'Fecha'[Date], 'Internet Sales'[FechaAA] ) )
+		displayFolder: 2 Año anterior\v3
+		lineageTag: ccb12aed-6344-4323-85b7-c371dda49bbe
+
+	measure 'Total Cost (AA v3)' = CALCULATE ( [Total Cost], USERELATIONSHIP ( 'Fecha'[Date], 'Internet Sales'[FechaAA] ) )
+		displayFolder: 2 Año anterior\v3
+		lineageTag: 724ee3ea-7fdf-463f-abe5-156bade336af
+
+	measure 'Sales Amount (AA v3)' = CALCULATE ( [Sales Amount], USERELATIONSHIP ( 'Fecha'[Date], 'Internet Sales'[FechaAA] ) )
+		displayFolder: 2 Año anterior\v3
+		lineageTag: ffee9bc5-6630-4c8d-b03f-1f871dac4275
+
+	measure 'Freight (AA v3)' = CALCULATE ( [Freight], USERELATIONSHIP ( 'Fecha'[Date], 'Internet Sales'[FechaAA] ) )
+		displayFolder: 2 Año anterior\v3
+		lineageTag: ae4a4298-aa78-46c5-9f3e-9dcf0784770e
+
+	measure 'Tax Amount (AA v3)' = CALCULATE ( [Tax Amount], USERELATIONSHIP ( 'Fecha'[Date], 'Internet Sales'[FechaAA] ) )
+		displayFolder: 2 Año anterior\v3
+		lineageTag: e44b4e86-699a-48c7-95e2-ad53e91420e4
+
+	measure 'Profit (AA v3)' = CALCULATE ( [Profit], USERELATIONSHIP ( 'Fecha'[Date], 'Internet Sales'[FechaAA] ) )
+		displayFolder: 2 Año anterior\v3
+		lineageTag: 95cce7c2-506b-4376-bf3c-9639db6c873a
+
+	measure 'Profit % (AA v3)' = CALCULATE ( [Profit %], USERELATIONSHIP ( 'Fecha'[Date], 'Internet Sales'[FechaAA] ) )
+		displayFolder: 2 Año anterior\v3
+		lineageTag: 4ff33af5-a2c6-4d3d-badf-215b7505b395
+
+	measure 'Order Quantity (AA v4)' = CALCULATE ( [Order Quantity], OFFSET ( -1, ALLSELECTED ( 'Fecha'[Year] ), ORDERBY ( 'Fecha'[Year], ASC ) ) )
+		displayFolder: 2 Año anterior\v4
+		lineageTag: 9a5a5a28-60c6-424f-9480-8805eff5e420
+
+	measure 'Standard Cost (AA v4)' = CALCULATE ( [Standard Cost], OFFSET ( -1, ALLSELECTED ( 'Fecha'[Year] ), ORDERBY ( 'Fecha'[Year], ASC ) ) )
+		displayFolder: 2 Año anterior\v4
+		lineageTag: c4fe01d5-3612-4280-8be8-c9eae720e3a9
+
+	measure 'Total Cost (AA v4)' = CALCULATE ( [Total Cost], OFFSET ( -1, ALLSELECTED ( 'Fecha'[Year] ), ORDERBY ( 'Fecha'[Year], ASC ) ) )
+		displayFolder: 2 Año anterior\v4
+		lineageTag: 575030b0-9187-4a84-825a-b2ac1bdeeaa2
+
+	measure 'Sales Amount (AA v4)' = CALCULATE ( [Sales Amount], OFFSET ( -1, ALLSELECTED ( 'Fecha'[Year] ), ORDERBY ( 'Fecha'[Year], ASC ) ) )
+		displayFolder: 2 Año anterior\v4
+		lineageTag: 5133498c-4745-4460-94e1-2709cc4f401f
+
+	measure 'Freight (AA v4)' = CALCULATE ( [Freight], OFFSET ( -1, ALLSELECTED ( 'Fecha'[Year] ), ORDERBY ( 'Fecha'[Year], ASC ) ) )
+		displayFolder: 2 Año anterior\v4
+		lineageTag: 0e3c1869-c5f0-497e-8ceb-e4ab6dc5dc03
+
+	measure 'Tax Amount (AA v4)' = CALCULATE ( [Tax Amount], OFFSET ( -1, ALLSELECTED ( 'Fecha'[Year] ), ORDERBY ( 'Fecha'[Year], ASC ) ) )
+		displayFolder: 2 Año anterior\v4
+		lineageTag: 4cdf123d-0a10-44d1-8f4c-52fbdb5464bf
+
+	measure 'Profit (AA v4)' = CALCULATE ( [Profit], OFFSET ( -1, ALLSELECTED ( 'Fecha'[Year] ), ORDERBY ( 'Fecha'[Year], ASC ) ) )
+		displayFolder: 2 Año anterior\v4
+		lineageTag: 90ec8b81-fbe3-43cc-a20a-32663c5e3f8b
+
+	measure 'Profit % (AA v4)' = CALCULATE ( [Profit %], OFFSET ( -1, ALLSELECTED ( 'Fecha'[Year] ), ORDERBY ( 'Fecha'[Year], ASC ) ) )
+		displayFolder: 2 Año anterior\v4
+		lineageTag: 3bb0dd26-eea5-44bd-9875-b8f726edbe90
+
+	measure 'Order Quantity (AA v5 Calendario)' = CALCULATE ( [Order Quantity], SAMEPERIODLASTYEAR ( 'Gregoriano' ) )
+		displayFolder: 2 Año anterior\v5 Calendario
+		lineageTag: 943eeb2d-f8be-40b7-b455-47c23666b389
+
+	measure 'Standard Cost (AA v5 Calendario)' = CALCULATE ( [Standard Cost], SAMEPERIODLASTYEAR ( 'Gregoriano' ) )
+		displayFolder: 2 Año anterior\v5 Calendario
+		lineageTag: d1a878a3-4dae-42d3-a8f2-b2d33abdbc97
+
+	measure 'Total Cost (AA v5 Calendario)' = CALCULATE ( [Total Cost], SAMEPERIODLASTYEAR ( 'Gregoriano' ) )
+		displayFolder: 2 Año anterior\v5 Calendario
+		lineageTag: 9e560823-7b53-4112-8ea3-70e738d60a3c
+
+	measure 'Sales Amount (AA v5 Calendario)' = CALCULATE ( [Sales Amount], SAMEPERIODLASTYEAR ( 'Gregoriano' ) )
+		displayFolder: 2 Año anterior\v5 Calendario
+		lineageTag: 0a60123b-e76b-4352-948f-12198c140f84
+
+	measure 'Freight (AA v5 Calendario)' = CALCULATE ( [Freight], SAMEPERIODLASTYEAR ( 'Gregoriano' ) )
+		displayFolder: 2 Año anterior\v5 Calendario
+		lineageTag: 96a698db-6daf-4111-be3b-089dd59eca13
+
+	measure 'Tax Amount (AA v5 Calendario)' = CALCULATE ( [Tax Amount], SAMEPERIODLASTYEAR ( 'Gregoriano' ) )
+		displayFolder: 2 Año anterior\v5 Calendario
+		lineageTag: 8b8ba95a-4033-47b3-af3f-79e8b6a8130d
+
+	measure 'Profit (AA v5 Calendario)' = CALCULATE ( [Profit], SAMEPERIODLASTYEAR ( 'Gregoriano' ) )
+		displayFolder: 2 Año anterior\v5 Calendario
+		lineageTag: 26a74f5b-797a-4be3-9bbf-5118e34a3303
+
+	measure 'Profit % (AA v5 Calendario)' = CALCULATE ( [Profit %], SAMEPERIODLASTYEAR ( 'Gregoriano' ) )
+		displayFolder: 2 Año anterior\v5 Calendario
+		lineageTag: a471b1ba-b7e9-4b26-b5cd-52e8ee241272
+
+	/// Importe de ventas. Base de las medidas de la demo de año anterior.
+	measure Ventas = SUM ( 'Internet Sales'[SalesAmount] )
+		formatString: #,0
+		displayFolder: 7 Demo año anterior
+		lineageTag: 9624a5ce-5496-4a0e-9087-d742a27c21a0
+
+	/// Demo AA 1/5: SAMEPERIODLASTYEAR clásico.
+	measure 'Ventas AA · SPLY' = CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( 'Fecha'[Date] ) )
+		formatString: #,0
+		displayFolder: 7 Demo año anterior
+		lineageTag: ecf0dda9-9a0e-43b6-bb25-448d517bf41c
+
+	/// Demo AA 2/5: restar 1 al año, respetando mes. Incluye el 29-feb a nivel de mes.
+	measure 'Ventas AA · Offset mes' =
+			VAR _anio = SELECTEDVALUE ( 'Fecha'[Year] )
+			RETURN
+			    CALCULATE ( [Ventas], REMOVEFILTERS ( 'Fecha' ), 'Fecha'[Year] = _anio - 1, VALUES ( 'Fecha'[Month] ) )
+		formatString: #,0
+		displayFolder: 7 Demo año anterior
+		lineageTag: 1339a8ca-3da1-4667-b210-44c503a38a87
+
+	/// Demo AA 2/5: restar 1 al año, respetando mes y día. El 29-feb no tiene pareja.
+	measure 'Ventas AA · Offset día' =
+			VAR _anio = SELECTEDVALUE ( 'Fecha'[Year] )
+			RETURN
+			    CALCULATE (
+			        [Ventas], REMOVEFILTERS ( 'Fecha' ),
+			        'Fecha'[Year] = _anio - 1, VALUES ( 'Fecha'[Month] ), VALUES ( 'Fecha'[Day] )
+			    )
+		formatString: #,0
+		displayFolder: 7 Demo año anterior
+		lineageTag: 93266d7d-3d56-4287-b79f-4d139d768a1f
+
+	/// Demo AA 3/5: inteligencia de tiempo basada en calendarios (preview).
+	measure 'Ventas AA · Calendario' = CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( 'Gregoriano' ) )
+		formatString: #,0
+		displayFolder: 7 Demo año anterior
+		lineageTag: d9125a9d-5df3-4465-86e3-49c412404c26
+
+	/// Demo AA 4/5: columna desplazada en los hechos (FechaAA) con relación inactiva.
+	measure 'Ventas AA · Columna' = CALCULATE ( [Ventas], USERELATIONSHIP ( 'Fecha'[Date], 'Internet Sales'[FechaAA] ) )
+		formatString: #,0
+		displayFolder: 7 Demo año anterior
+		lineageTag: 14cf3995-c373-4cc8-baa2-86aeee04a6da
+
+	/// AA del periodo menos la suma de los AA día a día. Distinto de 0 si el método pierde el 29-feb.
+	measure 'Cuadre 29-feb · SPLY' = [Ventas AA · SPLY] - SUMX ( VALUES ( 'Fecha'[Date] ), [Ventas AA · SPLY] )
+		formatString: #,0
+		displayFolder: 7 Demo año anterior\Cuadre
+		lineageTag: 045e7e84-2a83-47a0-b86d-04ff999ca09c
+
+	/// AA mes menos la suma de los AA día del offset.
+	measure 'Cuadre 29-feb · Offset' = [Ventas AA · Offset mes] - SUMX ( VALUES ( 'Fecha'[Date] ), [Ventas AA · Offset día] )
+		formatString: #,0
+		displayFolder: 7 Demo año anterior\Cuadre
+		lineageTag: fae515ca-de9e-477a-a2d5-dec137d5a87a
+
+	/// AA del periodo menos la suma de los AA día a día con calendarios.
+	measure 'Cuadre 29-feb · Calendario' = [Ventas AA · Calendario] - SUMX ( VALUES ( 'Fecha'[Date] ), [Ventas AA · Calendario] )
+		formatString: #,0
+		displayFolder: 7 Demo año anterior\Cuadre
+		lineageTag: 53396ba3-e040-44fb-8374-29a90a5635be
+
+	/// AA del periodo menos la suma de los AA día a día con la columna desplazada.
+	measure 'Cuadre 29-feb · Columna' = [Ventas AA · Columna] - SUMX ( VALUES ( 'Fecha'[Date] ), [Ventas AA · Columna] )
+		formatString: #,0
+		displayFolder: 7 Demo año anterior\Cuadre
+		lineageTag: b70f9302-db1f-4dc6-8fba-2ea34b2a971b
 
 	column ProductKey
 		dataType: int64
