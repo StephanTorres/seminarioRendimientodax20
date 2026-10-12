@@ -7,3 +7,8 @@ powerbi-*/**/.pbi/cache.abf
 powerbi-*/**/.pbi/localSettings.json
 powerbi-*/**/.pbi/unappliedChanges.json
 *.pbix
+
+# Puente DAX: binarios generados y ajustes locales del depurador
+puente-dax/instalar/*.exe
+puente-dax/instalar/*.dll
+puente-dax/**/launchSettings.json
