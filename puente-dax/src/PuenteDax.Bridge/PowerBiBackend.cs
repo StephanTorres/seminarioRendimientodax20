@@ -120,20 +120,33 @@ public sealed class PowerBiBackend : IDaxBackend
             // La caché del SE es del servidor: se limpia con la sesión de administrador.
             if (request.ClearCache) await Task.Run(() => ClearCache(admin.Connection), ct);
 
-            var marker = Guid.NewGuid().ToString("N");
-            var trace = session.Trace;
-            var capture = trace.BeginCapture(marker, request.Dax);
-            try
+            // Si la traza se queda muda (inactividad o consultas muy largas) no llega el QueryEnd: se recrea y se reintenta una vez.
+            for (var attempt = 1; ; attempt++)
             {
-                var dax = $"/* puente:{marker} */\n{request.Dax}";
-                var result = await Task.Run(() => Execute(session.Connection, dax, Math.Clamp(request.MaxRows, 0, 500)), ct);
-                var events = await capture.WaitAsync(QueryTraceTimeout, ct);
-                var timings = ServerTimingsCalculator.Calculate(events);
-                return new QueryResponse(Mode, request.ClearCache, result, timings, DateTime.UtcNow);
-            }
-            finally
-            {
-                trace.EndCapture(capture);
+                var marker = Guid.NewGuid().ToString("N");
+                var trace = session.Trace!;
+                var capture = trace.BeginCapture(marker, request.Dax);
+                try
+                {
+                    var dax = $"/* puente:{marker} */\n{request.Dax}";
+                    var result = await Task.Run(() => Execute(session.Connection, dax, Math.Clamp(request.MaxRows, 0, 500)), ct);
+                    var events = await capture.WaitAsync(QueryTraceTimeout, ct);
+                    var timings = ServerTimingsCalculator.Calculate(events);
+                    return new QueryResponse(Mode, request.ClearCache, result, timings, DateTime.UtcNow);
+                }
+                catch (TimeoutException) when (attempt == 1)
+                {
+                    _log.LogWarning("No llegó el QueryEnd: se recrea la traza y se reintenta la consulta.");
+                    trace.EndCapture(capture);
+                    trace.Dispose();
+                    session.Trace = await Task.Run(() => StartTrace(session, request.IncludePlan), ct);
+                    if (request.ClearCache) await Task.Run(() => ClearCache(admin.Connection), ct);
+                    continue;
+                }
+                finally
+                {
+                    session.Trace?.EndCapture(capture);
+                }
             }
         }
         finally
