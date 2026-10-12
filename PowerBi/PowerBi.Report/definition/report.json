@@ -50,17 +50,6 @@
           "type": "BaseTheme"
         }
       ]
-    },
-    {
-      "name": "RegisteredResources",
-      "type": "RegisteredResources",
-      "items": [
-        {
-          "name": "2383336120809923265784.jpg",
-          "path": "2383336120809923265784.jpg",
-          "type": "Image"
-        }
-      ]
     }
   ],
   "settings": {
