@@ -1053,7 +1053,7 @@ body.spotlight-active { cursor: none; }
 </section>
 
 <!-- ═════════════════ 14 · DEMO BLOQUE 1 ═════════════════ -->
-<section class="slide slide-demo" data-notes="Las demos marcadas AQUÍ se hacen en las diapositivas de laboratorio que siguen, sin salir de la presentación. Demo A: diccionario real de DateCode y ShopId con VertiPaq Analyzer. Demo B: modelo antes y después de los 5 pasos, tamaño total y por columna. Demo C: mismo modelo con y sin columna GUID en la tabla de hechos; tamaño en memoria; una consulta que no la usa (su tiempo apenas cambia) y otra que sí, por ejemplo DISTINCTCOUNT. También: mismo dato ordenado y sin ordenar.">
+<section class="slide slide-demo" data-notes="Las demos marcadas AQUÍ se hacen en las diapositivas de laboratorio que siguen, sin salir de la presentación. Demo A: dos modelos abiertos a la vez, antes y después de los 5 pasos, con el diccionario, el encoding y el tamaño por columna (VertiPaq Analyzer). Demo B: mismo modelo con y sin columna de texto pedido-línea en la tabla de hechos; tamaño en memoria; una consulta que no la usa (su tiempo apenas cambia) y otra que sí, por ejemplo DISTINCTCOUNT. También: mismo dato ordenado y sin ordenar.">
   <div class="slide-inner">
     <div class="demo-animation">
       <div class="ring ring-1"></div><div class="ring ring-2"></div><div class="ring ring-3"></div>
@@ -1062,38 +1062,26 @@ body.spotlight-active { cursor: none; }
     <div class="demo-mode">MODO DEMO ACTIVADO</div>
     <h2 class="demo-title">DEMO</h2>
     <ul class="demo-list">
-      <li><b>A</b><span>Diccionario real de DateCode y ShopId con el analizador VertiPaq</span><span class="where">▶ AQUÍ</span></li>
-      <li><b>B</b><span>Modelo antes/después de los 5 pasos · ordenado vs sin ordenar</span><span class="where">▶ AQUÍ + ⧉ ALT+TAB</span></li>
-      <li><b>C</b><span>Con y sin GUID: memoria, consulta que no la usa y consulta que sí (<code>DISTINCTCOUNT</code>)</span><span class="where">▶ AQUÍ</span></li>
+      <li><b>A</b><span>Antes y después de los 5 pasos: diccionario, encoding y tamaño con el analizador VertiPaq (dos modelos abiertos)</span><span class="where">▶ AQUÍ</span></li>
+      <li><b>B</b><span>Con y sin columna de texto de pedido-línea: memoria, consulta que no la usa y consulta que sí (<code>DISTINCTCOUNT</code>)</span><span class="where">▶ AQUÍ</span></li>
     </ul>
     <div class="demo-where"><b>▶ AQUÍ</b> = en las diapositivas de laboratorio siguientes, con el Puente DAX · <span style="color:var(--fe)">⧉ DESKTOP</span> = en Power BI Desktop</div>
   </div>
 </section>
 
-<!-- ─── Laboratorio · Bloque 1 · Diccionario y encoding en tu modelo ─── -->
-<section class="slide slide-lab" data-lab="Diccionario y encoding en tu modelo" data-notes="Demo A dentro de la presentación, con los dos modelos abiertos: el ANTES a la izquierda (un puente en el 5199) y el DESPUÉS ya cocinado a la derecha (otro puente en el 5200). Cada pantalla mide su propio modelo; no hace falta foto. Las columnas marcadas con estrella son las de la demo: compara las claves enteras (encoding VALUE, sin diccionario: el «diccionario innecesario» de la diapositiva 13) con la columna de texto pedido-línea (HASH, con un diccionario enorme) que solo existe en el ANTES, y con el importe partido en entero y céntimos del DESPUÉS (4 895 y 100 valores distintos frente a 461 146). Qué mirar: VALUE frente a HASH, y cardinalidad frente a tamaño. Pulsa Analizar en los dos y Comparar en el de la derecha.">
-  <div class="slide-inner">
-    <div class="lab-head"><div class="tag">Bloque 1 · <b>Laboratorio</b></div><h2 class="lab-title">Diccionario y encoding: antes y después</h2></div>
-    <div class="lab-grid dual2">
-      <dax-vertipaq id="vpd-antes" compact no-compare focus="Ventas.ClaveFecha, Ventas.ClaveProducto, Ventas.Pedido, Ventas.Importe" top="9" title="ANTES"></dax-vertipaq>
-      <dax-vertipaq id="vpd-despues" compact focus="Ventas.ClaveFecha, Ventas.ClaveProducto, Ventas.ImporteEntero, Ventas.ImporteCent" top="9" bridge="http://127.0.0.1:5200" token="workshop" compare-with="vpd-antes" compare-label="ANTES" title="DESPUÉS"></dax-vertipaq>
-    </div>
-  </div>
-</section>
-
 <!-- ─── Laboratorio · Bloque 1 · Antes y después de los 5 pasos ─── -->
-<section class="slide slide-lab" data-lab="Antes y después de los 5 pasos" data-notes="Demo B con dos modelos abiertos a la vez, para no perder tiempo: a la izquierda el ANTES (un puente en el puerto 5199) y a la derecha el DESPUÉS con los 5 pasos ya cocinados (otro puente en el 5200). Pulsa Analizar en los dos y luego Comparar en el de la derecha: compara un modelo contra el otro (sin fotos) y la columna delta enseña cuánto ha ganado cada cambio; las columnas eliminadas salen al final. Arranque: PuenteDax.exe --www &lt;carpeta&gt; --server localhost:&lt;puerto del antes&gt;, y otro con --port 5200 --server localhost:&lt;puerto del después&gt; --allow-origin http://127.0.0.1:5199. Los puertos de Desktop cambian en cada apertura: se ven en la consola del puente o en /api/instances.">
+<section class="slide slide-lab" data-lab="Antes y después de los 5 pasos" data-notes="Demo A, con dos modelos abiertos a la vez para no perder tiempo: a la izquierda el ANTES (un puente en el puerto 5199) y a la derecha el DESPUÉS con los 5 pasos ya cocinados (otro puente en el 5200). Pulsa Analizar en los dos y luego Comparar en el de la derecha: compara un modelo contra el otro (sin fotos) y la columna delta enseña cuánto ha ganado cada cambio; las columnas eliminadas salen al final. Las columnas con estrella son las de la demo: compara las claves enteras (encoding VALUE, sin diccionario: el «diccionario innecesario» de la diapositiva «Value, hash y segmentos») con la columna de texto pedido-línea (HASH, con un diccionario de casi 3 GB) que solo existe en el ANTES, y con el importe partido en entero y céntimos del DESPUÉS (4 895 y 100 valores distintos frente a 461 146). Qué mirar: VALUE frente a HASH, y cardinalidad frente a tamaño. Arranque: PuenteDax.exe --www &lt;carpeta&gt; --server localhost:&lt;puerto del antes&gt;, y otro con --port 5200 --server localhost:&lt;puerto del después&gt; --allow-origin http://127.0.0.1:5199. Los puertos de Desktop cambian en cada apertura: se ven en la consola del puente o en /api/instances.">
   <div class="slide-inner">
-    <div class="lab-head"><div class="tag">Bloque 1 · <b>Laboratorio</b></div><h2 class="lab-title">Antes y después de los 5 pasos</h2></div>
+    <div class="lab-head"><div class="tag">Bloque 1 · <b>Laboratorio</b></div><h2 class="lab-title">Antes y después: diccionario, encoding y tamaño</h2></div>
     <div class="lab-grid dual2">
-      <dax-vertipaq id="vp-antes" compact big no-compare top="12" title="ANTES"></dax-vertipaq>
-      <dax-vertipaq id="vp-despues" compact big top="12" bridge="http://127.0.0.1:5200" token="workshop" compare-with="vp-antes" compare-label="ANTES" title="DESPUÉS"></dax-vertipaq>
+      <dax-vertipaq id="vp-antes" compact big no-compare focus="Ventas.Pedido, Ventas.Importe, Ventas.ClaveProducto" top="9" title="ANTES"></dax-vertipaq>
+      <dax-vertipaq id="vp-despues" compact big focus="Ventas.ImporteEntero, Ventas.ImporteCent, Ventas.ClaveProducto" top="9" bridge="http://127.0.0.1:5200" token="workshop" compare-with="vp-antes" compare-label="ANTES" title="DESPUÉS"></dax-vertipaq>
     </div>
   </div>
 </section>
 
 <!-- ─── Laboratorio · Bloque 1 · Una columna de alta cardinalidad ─── -->
-<section class="slide slide-lab" data-lab="Una columna de alta cardinalidad" data-notes="Demo C. Primera variante: una consulta que no toca la columna de alta cardinalidad (su tiempo apenas depende de ella: almacenamiento columnar). Segunda: DISTINCTCOUNT sobre la columna de texto de pedidos. Tercera: DISTINCTCOUNT sobre una clave entera de baja cardinalidad. Compara en la tabla de la derecha.">
+<section class="slide slide-lab" data-lab="Una columna de alta cardinalidad" data-notes="Demo B. Primera variante: una consulta que no toca la columna de alta cardinalidad (su tiempo apenas depende de ella: almacenamiento columnar). Segunda: DISTINCTCOUNT sobre la columna de texto de pedidos. Tercera: DISTINCTCOUNT sobre una clave entera de baja cardinalidad. Compara en la tabla de la derecha.">
   <div class="slide-inner">
     <div class="lab-head"><div class="tag">Bloque 1 · <b>Laboratorio</b></div><h2 class="lab-title">Una columna de alta cardinalidad</h2></div>
     <div class="lab-grid">
