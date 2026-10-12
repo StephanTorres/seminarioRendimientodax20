@@ -611,14 +611,14 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
         <div class="bar" title="FE ${fePct}% · SE ${sePct}%"><div class="fe" style="width:${fePct}%"></div><div class="se" style="width:${sePct}%"></div></div>
         <div class="legend"><span>FE ${fePct}%</span><span>SE ${sePct}%</span></div>
         <div class="kpis">
-          <div class="kpi"><b>${ms(t.totalMs)}</b><span>Total</span></div>
-          <div class="kpi fe"><b>${ms(t.formulaEngineMs)}</b><span>FE</span></div>
-          <div class="kpi se"><b>${ms(t.storageEngineMs)}</b><span>SE</span></div>
-          <div class="kpi"><b>${ms(t.storageEngineCpuMs)}<small>${esc(par)}</small></b><span>SE CPU · paralelismo</span></div>
-          <div class="kpi"><b>${num(t.storageEngineQueries)}</b><span>Consultas SE</span></div>
-          <div class="kpi"><b>${num(t.cacheHits)}</b><span>Aciertos caché</span></div>
-          <div class="kpi ${t.callbacks ? 'cb' : ''}"><b>${num(t.callbacks)}</b><span>Callbacks</span></div>
-          <div class="kpi"><b>${num(t.rows)} · ${num(t.kBytes)}</b><span>Filas · KB</span></div>
+          <div class="kpi" title="Total: ${ms(t.totalMs)}"><b>${ms(t.totalMs)}</b><span>Total</span></div>
+          <div class="kpi fe" title="Formula Engine: ${ms(t.formulaEngineMs)}"><b>${ms(t.formulaEngineMs)}</b><span>FE</span></div>
+          <div class="kpi se" title="Storage Engine: ${ms(t.storageEngineMs)}"><b>${ms(t.storageEngineMs)}</b><span>SE</span></div>
+          <div class="kpi" title="CPU del Storage Engine: ${ms(t.storageEngineCpuMs)} · paralelismo ${esc(par)}"><b>${ms(t.storageEngineCpuMs)}<small>${esc(par)}</small></b><span>SE CPU · paralelismo</span></div>
+          <div class="kpi" title="Consultas del Storage Engine: ${num(t.storageEngineQueries)}"><b>${num(t.storageEngineQueries)}</b><span>Consultas SE</span></div>
+          <div class="kpi" title="Aciertos de caché: ${num(t.cacheHits)}"><b>${num(t.cacheHits)}</b><span>Aciertos caché</span></div>
+          <div class="kpi ${t.callbacks ? 'cb' : ''}" title="Callbacks: ${num(t.callbacks)}"><b>${num(t.callbacks)}</b><span>Callbacks</span></div>
+          <div class="kpi" title="Filas: ${num(t.rows)} · KB: ${num(t.kBytes)}"><b>${num(t.rows)} · ${num(t.kBytes)}</b><span>Filas · KB</span></div>
         </div>
         ${bench ? this._benchHtml(bench) : ''}
         <div class="tabs">
@@ -935,7 +935,7 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
         ${compare && base.other ? `<span>comparado con ${esc(base.name)}</span>` : ''}`;
       this._out.innerHTML = `
         <div class="kpis vp">
-          <div class="kpi se"><b>${bytes(s.totalSize)}</b><span>Tamaño del modelo</span></div>
+          <div class="kpi se" title="Tamaño del modelo: ${bytes(s.totalSize)}"><b>${bytes(s.totalSize)}</b><span>Tamaño del modelo</span></div>
           <div class="kpi"><b>${compare ? delta(s.totalSize, snap.totalSize) : num(s.tables.length)}</b><span>${compare ? `Δ vs ${esc(base.short)}` : 'Tablas'}</span></div>
           <div class="kpi"><b>${num(s.columns.length)}</b><span>Columnas</span></div>
           <div class="kpi fe"><b title="${esc(largest ? `${largest.table}[${largest.column}]` : '')}">${esc(largest ? largest.column : '–')}</b><span>Columna más grande</span></div>
