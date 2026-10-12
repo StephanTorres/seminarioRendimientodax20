@@ -1081,7 +1081,7 @@ body.spotlight-active { cursor: none; }
 </section>
 
 <!-- ─── Laboratorio · Bloque 1 · Moneda: local, dólares y euros a la vez ─── -->
-<section class="slide slide-lab" data-lab="Moneda: local, dólares y euros a la vez" data-notes="Misma pregunta, dos modelos: el importe en moneda local, en dólares y en euros a la vez, por año. A la izquierda, el ANTES: Dólar y Euro son columnas calculadas por cada fila de los hechos (12 millones de valores distintos y 237 MB cada una), así que las medidas son un SUM y cuestan casi nada en tiempo. A la derecha, el DESPUÉS: esas columnas ya no existen, y las medidas necesarias son SUMX sobre la fecha y la moneda, con la tasa buscada con TREATAS. Pulsa Frío en las dos y mira las pestañas Storage Engine y Formula Engine: el SE pasa de una consulta a seis y el tiempo, de unos 200 ms a unos 900 ms en frío (en caliente, de 10 a 220 ms: el FE no se salva con la caché); el modelo pesa mucho menos. Si la consulta no deja ver el resultado, el botón Consulta la oculta. La lección: SUM es azúcar de SUMX, y el coste está en lo que pones dentro de la expresión (lo veremos con los callbacks en el bloque 5). La tabla de la derecha reúne las dos mediciones con el botón Benchmark.">
+<section class="slide slide-lab" data-lab="Moneda: local, dólares y euros a la vez" data-notes="Misma pregunta, dos modelos: el importe en moneda local, en dólares y en euros a la vez, por año. A la izquierda, el ANTES: Dólar y Euro son columnas calculadas por cada fila de los hechos (12 millones de valores distintos y 237 MB cada una), así que las medidas son un SUM y cuestan casi nada en tiempo. A la derecha, el DESPUÉS: esas columnas ya no existen, y las medidas necesarias son SUMX sobre la fecha y la moneda, con la tasa buscada con TREATAS. La ventana de la derecha tiene dos variantes (pastillas): con los dólares y euros ya calculados y partidos en entero y céntimos, o calculados al vuelo con la tasa; pulsa Frío en cada una y en la de la izquierda, y mira las pestañas Storage Engine y Formula Engine: con la tasa al vuelo el SE pasa de una consulta a seis y el tiempo, de unos 177 ms a más de 1 000 ms en frío (en caliente, de 10 a unos 170 ms: el FE no se salva con la caché); con los importes precalculados y SUMX por fila son unos 700 ms con una sola consulta SE; el modelo pesa mucho menos. Si la consulta no deja ver el resultado, el botón Consulta la oculta. La lección: SUM es azúcar de SUMX, y el coste está en lo que pones dentro de la expresión (lo veremos con los callbacks en el bloque 5). La tabla de la derecha reúne las dos mediciones con el botón Benchmark.">
   <div class="slide-inner">
     <div class="lab-head"><div class="tag">Bloque 1 · <b>Laboratorio</b></div><h2 class="lab-title">Moneda: local, dólares y euros a la vez</h2></div>
     <div class="lab-grid dual">
@@ -1101,10 +1101,26 @@ ORDER BY {{Fecha.Año}}
         </dax-variant>
       </dax-lab>
       <dax-lab compact fill plan watch="Fecha.Fecha" rows="8" label="Moneda · DESPUÉS" kpi-wide bridge="http://127.0.0.1:5200" token="workshop" editor-height="150px" editor-font="12px" panel-height="260px">
-        <dax-variant label="Moneda · DESPUÉS" note="Modelo DESPUÉS: sin columnas por fila; las medidas son SUMX sobre fecha y moneda">
+        <dax-variant label="Moneda · DESPUÉS precalculado" note="Modelo DESPUÉS con dólares y euros ya calculados en el origen y partidos en entero y céntimos: SUMX sin tasas">
+DEFINE
+    -- local, dólares y euros ya calculados y partidos en entero y céntimos
+    MEASURE {{Ventas}}[Local] =
+        SUMX ( {{Ventas}}, 'Internet Sales'[SalesAmountEntero] + 'Internet Sales'[SalesAmountCent] / 100 )
+    MEASURE {{Ventas}}[Dólares] =
+        SUMX ( {{Ventas}}, 'Internet Sales'[DolaresEntero] + 'Internet Sales'[DolaresCent] / 100 )
+    MEASURE {{Ventas}}[Euros] =
+        SUMX ( {{Ventas}}, 'Internet Sales'[EurosEntero] + 'Internet Sales'[EurosCent] / 100 )
+EVALUATE
+SUMMARIZECOLUMNS (
+    {{Fecha.Año}},
+    "Local", [Local], "Dólares", [Dólares], "Euros", [Euros]
+)
+ORDER BY {{Fecha.Año}}
+        </dax-variant>
+      <dax-variant label="Moneda · DESPUÉS con tasa" note="Modelo DESPUÉS, sin columnas de moneda: dólares y euros al vuelo con SUMX sobre fecha y moneda y la tasa buscada con TREATAS">
 DEFINE
     MEASURE {{Ventas}}[Local] =
-        SUM ( 'Internet Sales'[SalesAmountEntero] ) + SUM ( 'Internet Sales'[SalesAmountCent] ) / 100
+        SUMX ( {{Ventas}}, 'Internet Sales'[SalesAmountEntero] + 'Internet Sales'[SalesAmountCent] / 100 )
     -- tasa de la fecha y la moneda de cada fila (a la moneda de los hechos y al euro)
     MEASURE {{Ventas}}[Tasa] =
         CALCULATE ( MAX ( _Currency_Rate[AverageRate] ),
@@ -1130,9 +1146,27 @@ ORDER BY {{Fecha.Año}}
       </dax-lab>
       <div class="lab-side">
         <dax-benchmark compact filter="Moneda ·" title="Moneda · antes y después"></dax-benchmark>
-        <div class="lab-tip"><b>Qué mirar</b><br>· <b>Antes</b>: 3 <code>SUM</code> sobre columnas ya calculadas.<br>· <b>Después</b>: <code>SUMX</code> con la tasa buscada por fecha y moneda.<br>· Pestañas <b>Storage Engine</b> y <b>Formula Engine</b>: nº de consultas SE y reparto del tiempo.</div>
+        <div class="lab-tip"><b>Qué mirar</b><br>· <b>Antes</b>: 3 <code>SUM</code> sobre columnas ya calculadas.<br>· <b>Después</b>: dos variantes. <b>Precalculado</b>: <code>SUMX</code> sobre entero + céntimos. <b>Con tasa</b>: <code>SUMX</code> por fecha y moneda.<br>· Pestañas <b>Storage Engine</b> y <b>Formula Engine</b>: nº de consultas SE y reparto del tiempo.</div>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ═════════════════ 17b · DÓLARES Y EUROS: ESPACIO, CPU Y PROCESADO ═════════════════ -->
+<section class="slide slide-content" data-notes="El mismo importe en local, dólares y euros de cuatro maneras, y siempre se paga algo. A) ANTES: columnas completas por fila con SUM: la consulta más barata (177 ms en frío, una consulta SE) y la que más ocupa (663 MB solo en esos tres importes). B) Los tres importes ya calculados en el origen y partidos en entero y céntimos, con SUM(entero) + SUM(céntimos)/100: 255 MB (el 38 %), el doble de CPU (332 ms). C) Lo mismo con SUMX fila a fila (entero + céntimos / 100): mismo espacio, otra vez el doble (688 ms): SUMX no es gratis, depende de lo que pongas dentro. D) Sin columnas de moneda, calculando dólares y euros al vuelo con la tasa por fecha y moneda: solo 67 MB (los tres importes locales partidos), pero seis consultas SE y 1 127 ms; y en caliente sigue costando unos 170 ms porque el trabajo está en el Formula Engine. Procesado: el refresco completo de la tabla de hechos del modelo DESPUÉS (con B y C) tardó 10 min 45 s; el del ANTES, más de 27 min y la última vez agotó el tiempo de espera de SQL. Ojo: compara modelos enteros (en el antes además hay un pedido-línea de texto y dos combinaciones con el tipo de cambio en Power Query), no solo estas columnas; sin las columnas de B y C (opción D) el refresco sería menor, pero no está medido. Mensaje: el espacio se compra con CPU en cada consulta, y la CPU con espacio y tiempo de procesado. Decide con la carga real: si se consulta mucho y el modelo cabe, columnas; si el modelo es enorme y se consulta poco, al vuelo.">
+  <div class="slide-inner">
+    <div class="tag">Bloque 1 · <b>Cardinalidad</b></div>
+    <h2 class="slide-title">Dólares y euros: espacio, CPU y procesado</h2>
+    <table class="data-table">
+      <thead><tr><th>Cómo se obtienen</th><th class="n">Espacio</th><th class="bar-cell"></th><th class="n">CPU · frío</th><th class="bar-cell"></th><th class="n">Nº SE</th><th class="n">Procesado</th></tr></thead>
+      <tbody>
+        <tr><td><b>A · antes</b>: columnas completas, <code>SUM</code></td><td class="n">663 MB</td><td class="bar-cell"><div class="bar hot" style="width:100%"></div></td><td class="n">177 ms</td><td class="bar-cell"><div class="bar" style="width:16%"></div></td><td class="n">1</td><td class="n">&gt; 27 min</td></tr>
+        <tr><td><b>B</b> · entero + céntimos, <code>SUM + SUM / 100</code></td><td class="n">255 MB</td><td class="bar-cell"><div class="bar warm" style="width:38%"></div></td><td class="n">332 ms</td><td class="bar-cell"><div class="bar" style="width:29%"></div></td><td class="n">1</td><td class="n">10 min 45 s</td></tr>
+        <tr><td><b>C</b> · entero + céntimos, <code>SUMX</code> fila a fila</td><td class="n">255 MB</td><td class="bar-cell"><div class="bar warm" style="width:38%"></div></td><td class="n">688 ms</td><td class="bar-cell"><div class="bar warm" style="width:61%"></div></td><td class="n">1</td><td class="n">10 min 45 s</td></tr>
+        <tr class="best"><td><b>D</b> · al vuelo con la tasa, <code>SUMX</code> por fecha y moneda</td><td class="n">67 MB</td><td class="bar-cell"><div class="bar" style="width:10%"></div></td><td class="n">1 127 ms</td><td class="bar-cell"><div class="bar hot" style="width:100%"></div></td><td class="n">6</td><td class="n">menor (no medido)</td></tr>
+      </tbody>
+    </table>
+    <p class="source-note mt-auto">Local, dólares y euros por año · 50 M de filas · mediana de 3 ejecuciones en frío · espacio = columnas de esos tres importes · procesado = refresco completo de la tabla de hechos del modelo (el del antes, además, con pedido-línea en texto y dos combinaciones en Power Query)</p>
   </div>
 </section>
 

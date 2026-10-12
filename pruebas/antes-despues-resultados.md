@@ -51,18 +51,26 @@ Las copias de la tabla de fechas pesan unos 8,6 MB cada una (`Fecha envío`, `Fe
 Demo C (cardinalidad), solo en el antes: sin tocar la columna 146 ms; `DISTINCTCOUNT` sobre el pedido-línea en texto **7 246 ms**;
 `DISTINCTCOUNT` sobre una clave entera 57 ms.
 
-## Moneda: local, dólares y euros a la vez (diapositiva «Moneda»)
+## Moneda: local, dólares y euros a la vez (diapositivas «Moneda» y «Dólares y euros: espacio, CPU y procesado»)
 
-La misma consulta por año con las tres medidas, definidas a la vista en cada ventana (antes: `SUM` de columnas por fila;
-después: `SUMX` sobre fecha y moneda con la tasa buscada con `TREATAS`). Mediana de 3 ejecuciones.
+La misma consulta por año con las tres medidas, de cuatro maneras. Espacio = columnas de esos tres importes (analizador VertiPaq);
+CPU = mediana de 3 ejecuciones en frío; los datos en bruto están en el script `forms.py`/`moneda_check*.py` de la sesión.
 
-| | Frío | FE | SE | Consultas SE | Caliente |
-|---|---:|---:|---:|---:|---:|
-| Antes | 198 ms | 57 ms | 141 ms | 1 | 10 ms |
-| Después | **872 ms** | 277 ms | 590 ms | 6 | **220 ms** |
+| | Cómo se obtienen | Espacio | Frío | FE | Consultas SE | Caliente |
+|---|---|---:|---:|---:|---:|---:|
+| A · antes | columnas completas por fila, `SUM` | 663 MB (190,2 + 236,8 + 236,0) | 177 ms | ~50 ms | 1 | ~10 ms |
+| B | entero + céntimos ya calculados en el origen, `SUM(entero) + SUM(cent)/100` | 255 MB (66,5 + 93,1 + 95,0) | 332 ms | 60 ms | 1 | 16 ms |
+| C | lo mismo con `SUMX` fila a fila (`entero + cent/100`) | 255 MB | 688 ms | 60 ms | 1 | 10 ms |
+| D | sin columnas de moneda: dólares y euros al vuelo con la tasa (`SUMX` por fecha y moneda, `TREATAS`) | 67 MB (solo el local partido) | 1 127 ms | ~230 ms | 6 | ~165 ms |
 
-En el después el Formula Engine pesa mucho más y ni siquiera la caché lo arregla (326 ms en caliente): el `SUMX` por fecha y moneda se
-evalúa casi entero en el FE (en caliente se queda en 220 ms, frente a 10 ms del antes). La consulta del después usa dos medidas auxiliares de tasa (`Tasa`, `Tasa euro`); una primera versión con la tasa repetida dentro de cada medida tardaba 1 143 ms en frío y 326 ms en caliente. Los totales difieren en unos cientos por el redondeo de los importes a 2 decimales.
+- `SUMX` por fila cuesta el doble que dos `SUM` sobre las mismas columnas (688 frente a 332 ms con tres monedas; 240 frente a 153 ms con una).
+- Con la tasa al vuelo el FE hace casi todo el trabajo y la caché no lo arregla (unos 165 ms en caliente).
+- Los totales difieren en miles sobre 33 000 millones (dólares: 33 361 447 897 precalculado, 33 361 451 148 con tasa, 33 361 448 256 en el antes) por el redondeo a 2 decimales.
+
+**Procesado** (refresco completo de la tabla de hechos del modelo, medido con el MCP): después, con las columnas de B y C, **645 s (10 min 45 s)**; antes,
+**más de 27 min: en la última medición agotó el tiempo de espera de SQL** y se revirtió (un refresco anterior sí terminó). No es una comparación limpia:
+el antes además trae el pedido-línea en texto y dos combinaciones con el tipo de cambio hechas en Power Query, y el después hace las cuentas en la vista SQL.
+El refresco de D (sin las columnas de B y C) no se ha medido; debería ser menor que el de B/C.
 
 ## Qué se puede afirmar
 
