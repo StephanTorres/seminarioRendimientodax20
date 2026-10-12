@@ -688,6 +688,8 @@ body.spotlight-active { cursor: none; }
 }
 .lab-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: 20px; }
 .lab-grid.backstage { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+.lab-grid.dual { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 330px; }
+.lab-grid.dual2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .lab-grid > dax-lab, .lab-grid > dax-vertipaq, .lab-grid > dax-model-check { min-height: 0; height: 100%; }
 .lab-side { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
 .lab-side dax-benchmark { flex: 1; min-height: 0; }
@@ -1055,35 +1057,26 @@ body.spotlight-active { cursor: none; }
 </section>
 
 <!-- ─── Laboratorio · Bloque 1 · Diccionario y encoding en tu modelo ─── -->
-<section class="slide slide-lab" data-lab="Diccionario y encoding en tu modelo" data-notes="Demo A dentro de la presentación. Analizar lee tamaños y cardinalidades del modelo abierto (lo mismo que VertiPaq Analyzer). Las columnas marcadas con estrella son las de la demo: compara las claves enteras (encoding VALUE, sin diccionario: el «diccionario innecesario» de la diapositiva 13) con la columna de texto de alta cardinalidad. Saca también la foto «antes» para la demo siguiente.">
+<section class="slide slide-lab" data-lab="Diccionario y encoding en tu modelo" data-notes="Demo A dentro de la presentación, con los dos modelos abiertos: el ANTES a la izquierda (un puente en el 5199) y el DESPUÉS ya cocinado a la derecha (otro puente en el 5200). Cada pantalla mide su propio modelo; no hace falta foto. Las columnas marcadas con estrella son las de la demo: compara las claves enteras (encoding VALUE, sin diccionario: el «diccionario innecesario» de la diapositiva 13) con la columna de texto pedido-línea (HASH, con un diccionario enorme) que solo existe en el ANTES, y con el importe partido en entero y céntimos del DESPUÉS.">
   <div class="slide-inner">
-    <div class="lab-head"><div class="tag">Bloque 1 · <b>Laboratorio</b></div><h2 class="lab-title">Diccionario y encoding en tu modelo</h2></div>
-    <div class="lab-grid">
-      <dax-vertipaq compact focus="Ventas.ClaveFecha, Ventas.ClaveProducto, Ventas.Pedido, Ventas.Importe" top="9" snapshot="antes"></dax-vertipaq>
+    <div class="lab-head"><div class="tag">Bloque 1 · <b>Laboratorio</b></div><h2 class="lab-title">Diccionario y encoding: antes y después</h2></div>
+    <div class="lab-grid dual">
+      <dax-vertipaq compact no-compare focus="Ventas.ClaveFecha, Ventas.ClaveProducto, Ventas.Pedido, Ventas.Importe" top="9" title="ANTES"></dax-vertipaq>
+      <dax-vertipaq compact no-compare focus="Ventas.ClaveFecha, Ventas.ClaveProducto, Ventas.ImporteEntero, Ventas.ImporteCent" top="9" bridge="http://127.0.0.1:5200" token="workshop" title="DESPUÉS"></dax-vertipaq>
       <div class="lab-side">
-        <div class="lab-tip"><b>Qué mirar</b><br>· <b>VALUE</b> vs <b>HASH</b>: las claves enteras no necesitan diccionario.<br>· Cardinalidad frente a tamaño: la columna de texto de pedidos manda.<br>· ★ = columnas de la demo (configurables).<br><br>Pulsa <b>📷 Foto «antes»</b> antes de tocar el modelo.</div>
+        <div class="lab-tip"><b>Qué mirar</b><br>· <b>VALUE</b> vs <b>HASH</b>: las claves enteras no necesitan diccionario.<br>· Cardinalidad frente a tamaño: el texto de pedido-línea manda en el <b>antes</b> y <b>no existe</b> en el después.<br>· El importe del después va partido en <b>entero</b> y <b>céntimos</b>: poca cardinalidad.<br>· ★ = columnas de la demo (configurables).</div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ─── Laboratorio · Bloque 1 · Antes y después de los 5 pasos ─── -->
-<section class="slide slide-lab" data-lab="Antes y después de los 5 pasos" data-notes="Demo B. Con la foto «antes» guardada, sal un momento a Power BI Desktop, aplica los 5 pasos (Auto date/time, fecha y hora, claves enteras, quitar columnas, cardinalidad), vuelve, pulsa Analizar y luego Comparar: la columna delta enseña cuánto ha ganado cada cambio. Si no hay tiempo, usa una copia del .pbix ya optimizada.">
+<section class="slide slide-lab" data-lab="Antes y después de los 5 pasos" data-notes="Demo B con dos modelos abiertos a la vez, para no perder tiempo: a la izquierda el ANTES (un puente en el puerto 5199) y a la derecha el DESPUÉS con los 5 pasos ya cocinados (otro puente en el 5200). Pulsa Analizar en los dos y luego Comparar en el de la derecha: compara un modelo contra el otro (sin fotos) y la columna delta enseña cuánto ha ganado cada cambio; las columnas eliminadas salen al final. Arranque: PuenteDax.exe --www &lt;carpeta&gt; --server localhost:&lt;puerto del antes&gt;, y otro con --port 5200 --server localhost:&lt;puerto del después&gt; --allow-origin http://127.0.0.1:5199. Los puertos de Desktop cambian en cada apertura: se ven en la consola del puente o en /api/instances.">
   <div class="slide-inner">
     <div class="lab-head"><div class="tag">Bloque 1 · <b>Laboratorio</b></div><h2 class="lab-title">Antes y después de los 5 pasos</h2></div>
-    <div class="lab-grid">
-      <dax-vertipaq compact top="12" snapshot="antes" title="VertiPaq · antes / después"></dax-vertipaq>
-      <div class="lab-side">
-        <div class="lab-tip"><b>Qué vamos a hacer</b><br>
-          <b>1 · Medir el punto de partida.</b> <b>Analizar</b> y <b>📷 Foto «antes»</b>.<br>
-          <b>2 · Aplicar los 5 pasos</b> en Power BI Desktop (único momento fuera de la presentación):<br>
-          &nbsp;① Desactivar Auto date/time<br>
-          &nbsp;② Separar fecha y hora; truncar decimales innecesarios<br>
-          &nbsp;③ Sustituir claves de texto por enteros<br>
-          &nbsp;④ Eliminar las columnas que no se usan<br>
-          &nbsp;⑤ Revisar jerarquías y columnas de alta cardinalidad<br>
-          <b>3 · Comprobar el resultado.</b> <b>Analizar</b> y <b>⇄ Comparar</b>: la columna <b>Δ foto</b> enseña lo que ha ganado cada cambio; las columnas eliminadas salen al final.</div>
-      </div>
+    <div class="lab-grid dual2">
+      <dax-vertipaq id="vp-antes" compact big no-compare top="12" title="ANTES"></dax-vertipaq>
+      <dax-vertipaq id="vp-despues" compact big top="12" bridge="http://127.0.0.1:5200" token="workshop" compare-with="vp-antes" compare-label="ANTES" title="DESPUÉS"></dax-vertipaq>
     </div>
   </div>
 </section>
@@ -3067,6 +3060,8 @@ window.PUENTE_DAX_MODELO = {
   // ── Modelo base ──
   'Ventas':               "'Internet Sales'",
   'Ventas.Importe':       "'Internet Sales'[SalesAmount]",
+  'Ventas.ImporteEntero': "'Internet Sales'[SalesAmountEntero]",  // solo en el modelo «después»: importe = entero + céntimos / 100
+  'Ventas.ImporteCent':   "'Internet Sales'[SalesAmountCent]",
   'Ventas.Coste':         "'Internet Sales'[TotalProductCost]",
   'Ventas.Cantidad':      "'Internet Sales'[OrderQuantity]",
   'Ventas.ClaveFecha':    "'Internet Sales'[OrderDateKey]",

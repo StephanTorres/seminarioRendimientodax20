@@ -384,6 +384,10 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
     .fe-note b { color:var(--dl-fe); }
     .compact .label, .compact .title { font-size:17px; }
     .compact textarea { font-size:14px; }
+    .box.big .kpis { grid-template-columns:repeat(2,1fr); gap:10px; padding:12px 14px 6px; }
+    .box.big .kpi { padding:10px 14px; }
+    .box.big .kpi b { font-size:34px; }
+    .box.big .kpi span { font-size:12px; letter-spacing:.08em; }
     .compact .kpis { grid-template-columns:repeat(8,1fr); gap:6px; }
     .compact .kpi { padding:5px 7px; }
     .compact .kpi b { font-size:16px; }
@@ -797,6 +801,9 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
 
   // ─── <dax-vertipaq> ────────────────────────────────────────────────────────
   // focus="Ventas.Pedido, {{Ventas.Importe}}, 'Date'[CalendarYear]" resalta columnas concretas.
+  // big: indicadores grandes (también en compact). compare-with="id": «Comparar» enfrenta este modelo con el de
+  // otro <dax-vertipaq> de la página (sin foto); compare-label="ANTES" da nombre a la referencia.
+  // no-compare: sin botones de foto ni de comparación (el modelo de referencia).
   function parseColumnRef(ref) {
     const value = has(ref.trim()) ? String(model()[ref.trim()]) : resolve(ref.trim());
     const m = value.match(/^'?(.*?)'?\[(.+)\]$/);
@@ -810,13 +817,15 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
       this._label = this.getAttribute('label') || 'vertipaq';
       this._snapName = this.getAttribute('snapshot') || 'foto';
       this._compare = false;
+      const withOther = this.hasAttribute('compare-with');
+      const noCompare = this.hasAttribute('no-compare');
       const root = this.attachShadow({ mode: 'open' });
       root.innerHTML = `<style>${CSS}</style>
-        <div class="box ${this.hasAttribute('compact') ? 'compact' : ''} fill">
+        <div class="box ${this.hasAttribute('compact') ? 'compact' : ''} ${this.hasAttribute('big') ? 'big' : ''} fill">
           <div class="head"><span class="title">${esc(this.getAttribute('title') || 'VertiPaq · tamaño del modelo')}</span>
             <button data-run title="Lee tamaños y cardinalidades del modelo abierto">⟳ Analizar</button>
-            <button data-snap class="warm" title="Guarda el estado actual como referencia">📷 Foto «${esc(this._snapName)}»</button>
-            <button data-compare class="ghost" title="Compara con la foto guardada">⇄ Comparar</button>
+            ${withOther || noCompare ? '' : `<button data-snap class="warm" title="Guarda el estado actual como referencia">📷 Foto «${esc(this._snapName)}»</button>`}
+            ${noCompare ? '' : `<button data-compare class="ghost" title="${withOther ? 'Compara con el otro modelo' : 'Compara con la foto guardada'}">⇄ Comparar</button>`}
           </div>
           <div class="status"></div>
           <div class="out"></div>
@@ -825,12 +834,24 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
       this._out = root.querySelector('.out');
       this._buttons = [...root.querySelectorAll('.head button')];
       root.querySelector('[data-run]').addEventListener('click', () => this.analyze());
-      root.querySelector('[data-snap]').addEventListener('click', () => this.snapshot());
-      root.querySelector('[data-compare]').addEventListener('click', () => { this._compare = !this._compare; this._render(); });
+      const snapButton = root.querySelector('[data-snap]');
+      if (snapButton) snapButton.addEventListener('click', () => this.snapshot());
+      const compareButton = root.querySelector('[data-compare]');
+      if (compareButton) compareButton.addEventListener('click', () => { this._compare = !this._compare; this._render(); });
       isolateKeyboard(root);
       this._focus = (this.getAttribute('focus') || '').split(',').map((s) => s.trim()).filter(Boolean).map(parseColumnRef).filter(Boolean);
-      const snap = readStore(KEY_SNAP, {})[this._snapName];
-      this._status.innerHTML = `<span>Pulsa «Analizar» para leer el modelo abierto.${snap ? ` Hay una foto «${esc(this._snapName)}» del ${esc(when(snap.takenAt))}.` : ''}</span>`;
+      const snap = withOther || noCompare ? null : readStore(KEY_SNAP, {})[this._snapName];
+      this._status.innerHTML = `<span>Pulsa «Analizar» para leer el modelo abierto.${withOther ? ` Después, «Comparar» lo enfrenta con ${esc(this.getAttribute('compare-label') || 'el otro modelo')}.` : ''}${snap ? ` Hay una foto «${esc(this._snapName)}» del ${esc(when(snap.takenAt))}.` : ''}</span>`;
+    }
+
+    // Referencia de la comparación: el análisis de otro widget (compare-with) o la foto guardada.
+    _baseline() {
+      const id = this.getAttribute('compare-with');
+      if (!id) return { snap: readStore(KEY_SNAP, {})[this._snapName], name: `foto «${this._snapName}»`, short: 'foto' };
+      const other = document.getElementById(id);
+      const label = this.getAttribute('compare-label') || 'otro modelo';
+      const s = other && other._stats;
+      return { snap: s ? { columns: s.columns, totalSize: s.totalSize, takenAt: s.measuredAt } : null, name: label, short: label, other: true };
     }
 
     get bridge() { return (this.getAttribute('bridge') || defaultBridge()).replace(/\/$/, ''); }
@@ -870,7 +891,10 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
     _render() {
       const s = this._stats;
       if (!s) return;
-      const snap = readStore(KEY_SNAP, {})[this._snapName];
+      const base = this._baseline();
+      const snap = base.snap;
+      const missingBase = this._compare && !snap && base.other;
+      if (missingBase) this._compare = false;
       const compare = this._compare && snap;
       const key = (c) => `${c.table}\u0000${c.column}`;
       const before = new Map((snap?.columns || []).map((c) => [key(c), c]));
@@ -890,25 +914,27 @@ No inventes datos: si algo no se puede deducir de lo que te paso, dilo.`;
       const largest = s.columns[0];
 
       this._status.innerHTML = `${sourceBadge(s.source, this._recordedAt)}<span>${esc(s.database)} · ${esc(when(s.measuredAt))}</span>
-        ${snap ? `<span>foto «${esc(this._snapName)}»: ${esc(when(snap.takenAt))}</span>` : ''}`;
+        ${snap && !base.other ? `<span>foto «${esc(this._snapName)}»: ${esc(when(snap.takenAt))}</span>` : ''}
+        ${missingBase ? `<span class="err">Analiza primero ${esc(base.name)} para poder comparar.</span>` : ''}
+        ${compare && base.other ? `<span>comparado con ${esc(base.name)}</span>` : ''}`;
       this._out.innerHTML = `
         <div class="kpis">
           <div class="kpi se"><b>${bytes(s.totalSize)}</b><span>Tamaño del modelo</span></div>
-          <div class="kpi"><b>${compare ? delta(s.totalSize, snap.totalSize) : num(s.tables.length)}</b><span>${compare ? 'Δ vs foto' : 'Tablas'}</span></div>
+          <div class="kpi"><b>${compare ? delta(s.totalSize, snap.totalSize) : num(s.tables.length)}</b><span>${compare ? `Δ vs ${esc(base.short)}` : 'Tablas'}</span></div>
           <div class="kpi"><b>${num(s.columns.length)}</b><span>Columnas</span></div>
           <div class="kpi fe"><b title="${esc(largest ? `${largest.table}[${largest.column}]` : '')}">${esc(largest ? largest.column : '–')}</b><span>Columna más grande</span></div>
         </div>
         <div class="panel">
           <table>
             <thead><tr><th>Columna</th><th class="n">Filas</th><th class="n">Cardinalidad</th><th>Encoding</th><th class="n">Diccionario</th>
-              <th class="n">Datos</th><th class="n">Jerarq.</th><th class="n">Total</th><th class="n">% modelo</th>${compare ? '<th class="n">Δ foto</th>' : ''}<th></th></tr></thead>
+              <th class="n">Datos</th><th class="n">Jerarq.</th><th class="n">Total</th><th class="n">% modelo</th>${compare ? `<th class="n">Δ ${esc(base.short)}</th>` : ''}<th></th></tr></thead>
             <tbody>${shown.map((c) => `<tr class="${isFocus(c) ? 'focus' : ''}">
               <td>${isFocus(c) ? '★ ' : ''}${esc(c.table)}[${esc(c.column)}]</td><td class="n">${num(c.rows)}</td><td class="n">${num(c.cardinality)}</td>
               <td>${esc(c.encoding || '–')}</td><td class="n">${bytes(c.dictionarySize)}</td><td class="n">${bytes(c.dataSize)}</td>
               <td class="n">${bytes(c.hierarchiesSize)}</td><td class="n">${bytes(c.totalSize)}</td><td class="n">${num(Math.round(c.percentDatabase * 1000) / 10)}%</td>
               ${compare ? `<td class="n">${delta(c.totalSize, before.get(key(c))?.totalSize)}</td>` : ''}
               <td class="sizebar"><div class="sb" style="width:${Math.max(2, Math.round((c.totalSize / maxSize) * 100))}%"></div></td></tr>`).join('')}
-              ${removed.map((c) => `<tr class="cache"><td>${esc(c.table)}[${esc(c.column)}]</td><td colspan="7">eliminada desde la foto</td><td></td>
+              ${removed.map((c) => `<tr class="cache"><td>${esc(c.table)}[${esc(c.column)}]</td><td colspan="7">${base.other ? 'eliminada respecto a ' + esc(base.name) : 'eliminada desde la foto'}</td><td></td>
                 <td class="n"><span class="down">−${bytes(c.totalSize)}</span></td><td></td></tr>`).join('')}
             </tbody>
           </table>
