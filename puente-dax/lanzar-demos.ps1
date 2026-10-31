@@ -31,6 +31,12 @@ if (-not $Exe -or -not (Test-Path $Exe)) { throw 'No encuentro PuenteDax.exe. Pa
 function Get-Modelo([string]$pbip) {
     $procs = Get-CimInstance Win32_Process -Filter "Name='PBIDesktop.exe'" |
         Where-Object { $_.CommandLine -like "*$pbip*" }
+    if (-not $procs) {
+        # Respaldo: Desktop abierto sin la ruta en la línea de comandos (Archivo > Abrir); se busca por el título de la ventana
+        $titulo = [IO.Path]::GetFileNameWithoutExtension($pbip)
+        $ids = Get-Process PBIDesktop -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like "$titulo*" } | ForEach-Object Id
+        $procs = Get-CimInstance Win32_Process -Filter "Name='PBIDesktop.exe'" | Where-Object { $ids -contains $_.ProcessId }
+    }
     if (-not $procs) { throw "No hay ningún Power BI Desktop con $pbip abierto." }
     $desktop = $procs | Select-Object -First 1
     $msmd = Get-CimInstance Win32_Process -Filter "Name='msmdsrv.exe'" | Where-Object { $_.ParentProcessId -eq $desktop.ProcessId } | Select-Object -First 1
