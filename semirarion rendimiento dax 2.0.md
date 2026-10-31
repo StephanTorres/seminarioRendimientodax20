@@ -21,7 +21,7 @@
 | 6 | "Regla de oro: + SE − FE" (diap. 44) | **Útil pero incompleta** | Añadir una segunda regla: **menos materialización** (tamaño de los data caches). Muchas consultas lentas son SE rápido más una caché enorme que el FE tiene que procesar. |
 | 7 | Esquema DSE / Data Model Engine (diap. 43–44) | **Revisar** | Mantenerlo como idea, pero verificar el diagrama. Hoy es más útil enseñar el flujo *visual → consulta DAX (normalmente SUMMARIZECOLUMNS, a menudo con TOPN) → plan lógico/físico → xmSQL*. |
 | 8 | AA (v1, v2, v3 y grupo de cálculo) e YTD (v1, v2 con tabla intermedia y relación MxN) (diap. 25–26) | **Re-medir** | Hay alternativas nuevas: inteligencia de tiempo basada en calendarios 🔎 (en *public preview* desde septiembre de 2025; no encontré anuncio de GA), funciones de ventana (OFFSET/WINDOW/INDEX/RANK) y UDF. Todas se miden contra las variantes originales. |
-| 9 | "DAX Fusion" = que 4 columnas de la misma tabla vayan en 1 consulta (diap. 45) | **Correcto pero parcial** | Lo que describe la diapositiva es **vertical fusion** (varias agregaciones con el mismo contexto de filtro en una sola consulta SE). Falta **horizontal fusion**, que Microsoft añadió en Power BI en **septiembre de 2022**, *después* del checklist de marzo 2022: fusiona consultas SE que solo difieren en el filtro sobre una columna (típico de grupos de cálculo y comparativas por periodo o moneda). Volver a ejecutar la demo de ruptura (multi-moneda) con el motor actual. |
+| 9 | DAX Fusion vertical y horizontal (diap. 45) | **Vigente; re-medir** | El original ya trata las dos: **vertical** (varias agregaciones con el mismo contexto de filtro en una sola consulta SE) y **horizontal** (consultas SE que solo difieren en el filtro sobre una columna, típico de comparativas por periodo o moneda). Los grupos de cálculo rompen la horizontal: aunque cada ítem vaya a buscar la misma medida en el mismo contexto, la trae otra vez. Volver a comprobarlo, y la demo de ruptura (multi-moneda), con el motor actual. |
 | 10 | Callback = rendimiento malo, "no hay fórmulas mágicas" (diap. 50) | **Vigente; re-medir** | Sigue siendo correcto detectarlos: en DAX Studio, las consultas SE con `CallbackDataID` aparecen en negrita. No he encontrado documentación concreta de qué casos se han eliminado del motor, así que cada ejemplo se vuelve a medir en vivo con la versión actual. |
 | 11 | Checklist (marzo 2022): "usar siempre DIVIDE" (diap. 54) | **Matizar** | La guía de Microsoft: `DIVIDE` cuando el denominador es una expresión que puede devolver 0 o BLANK; operador `/` cuando el denominador es una constante (evita una comprobación innecesaria). Por tanto, no es "siempre". |
 | 12 | Checklist: "SUMMARIZECOLUMNS o ADDCOLUMNS(SUMMARIZE())" (diap. 54) | **Actualizar** | Mantener y añadir: SUMMARIZE solo para agrupar, no para añadir columnas calculadas. Revisar si SUMMARIZECOLUMNS es ya utilizable dentro de medidas en tu caso 🔎. |
@@ -257,8 +257,8 @@ Cada bloque de contenido (1 a 6) termina con **"Y esto con IA, ¿qué?"** (3–5
 
 **2) DAX Fusion (11 min)**
 - Prueba del original (diap. 45): un visual pide 4 columnas de la misma tabla. ¿1 consulta o 4? Esto es **vertical fusion**: varias agregaciones con el mismo contexto de filtro en una sola consulta SE.
-- Añadir **horizontal fusion** (Power BI, septiembre 2022): consultas SE que solo difieren en el filtro sobre una columna se fusionan en una, añadiendo esa columna al agrupado. Es lo que ocurre en comparativas por periodo, ítems de grupos de cálculo o conversiones por moneda.
-- Patrones que pueden impedir la fusión: lógica que cambia según la medida (`IF`/`SWITCH` con ramas distintas) o filtros sobre columnas diferentes. Comprobarlo siempre en Server Timings, no a ojo.
+- **Horizontal fusion** (ya en el original): consultas SE que solo difieren en el filtro sobre una columna se fusionan en una, añadiendo esa columna al agrupado. Es lo que ocurre en comparativas por periodo o conversiones por moneda. Los grupos de cálculo la rompen: cada ítem vuelve a traer la misma medida en el mismo contexto. Re-medirlo con el motor actual.
+- Patrones que pueden impedir la fusión: lógica que cambia según la medida (`IF`/`SWITCH` con ramas distintas), filtros sobre columnas diferentes o grupos de cálculo. Comprobarlo siempre en Server Timings, no a ojo.
 - Discusión del original: *¿qué hacemos si se rompe?* → medidas con filtros uniformes, `VAR` para evaluar una vez, simplificar condicionales.
 
 **3) Callbacks (11 min)**
@@ -272,7 +272,7 @@ Cada bloque de contenido (1 a 6) termina con **"Y esto con IA, ¿qué?"** (3–5
 - Mostrar "filas y KB" en Server Timings como indicador principal.
 
 ### 8.2 Demos
-- **Demo 1 (existente):** ruptura de DAX Fusion con multi-moneda; después, evitar la ruptura. Volver a grabarla con el motor actual: la horizontal fusion (2022) puede haber cambiado el resultado.
+- **Demo 1 (existente):** ruptura de DAX Fusion con multi-moneda; después, evitar la ruptura. Volver a grabarla con el motor actual por si el resultado ha cambiado.
 - **Demo 2 (existente):** detectar y eliminar un callback.
 - **Demo 3 (nueva):** `FILTER` sobre hechos vs `CALCULATE` con predicado de columna; comparar filas y KB de caché. Si el optimizador las resuelve igual, también es una lección: probar después con un predicado que use una medida.
 

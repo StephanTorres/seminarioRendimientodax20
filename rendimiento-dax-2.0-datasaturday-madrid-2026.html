@@ -767,7 +767,7 @@ body.spotlight-active { cursor: none; }
       <thead><tr><th>Antes (seminario original)</th><th>Hoy</th></tr></thead>
       <tbody>
         <tr><td>«Usar siempre <code>DIVIDE</code>»</td><td>Depende del denominador</td></tr>
-        <tr><td>«4 columnas en 1 consulta = DAX Fusion»</td><td>Eso es <span class="se">vertical</span>; desde 2022 hay también <span class="se">horizontal</span></td></tr>
+        <tr><td>«Los grupos de cálculo rompen la fusión <span class="se">horizontal</span>»</td><td>Re-medir con el motor actual</td></tr>
         <tr><td>«Callbacks: no hay fórmulas mágicas»</td><td>Sigue vigente: re-medir cada ejemplo con el motor actual</td></tr>
         <tr><td>Grupos de cálculo: cómodos</td><td>…y con coste medible en rendimiento</td></tr>
         <tr><td>Cálculos de tiempo uno a uno o con C#</td><td>UDF y calendarios <span class="badge check">🔎 verificar estado</span></td></tr>
@@ -1767,7 +1767,7 @@ ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
 </section>
 
 <!-- ═════════════════ 31 · DEMO BLOQUE 3 ═════════════════ -->
-<section class="slide slide-demo" data-notes="Las demos marcadas AQUÍ se hacen en las diapositivas de laboratorio que siguen, sin salir de la presentación. Demo 1: dimensión tiempo en todos los sabores (DAX, Power Query, SQL), recortada a 7 minutos, comparando tamaño. Demo 2: cálculos de tiempo con grupo de cálculo y formato dinámico. Demo 3: rendimiento de las distintas opciones con la plantilla benchmark. Demo 4 (cinco laboratorios): año anterior por cuatro caminos, el 29 de febrero y la granularidad a la que baja el motor.">
+<section class="slide slide-demo" data-notes="Las demos marcadas AQUÍ se hacen en las diapositivas de laboratorio que siguen, sin salir de la presentación. Demo 1: la dimensión tiempo casi perfecta, por familias de columnas, en todos los sabores (DAX, Power Query, T-SQL, PySpark), recortada a 7 minutos. Demo 2: cálculos de tiempo con grupo de cálculo y formato dinámico. Demo 3: rendimiento de las distintas opciones con la plantilla benchmark. Demo 4 (cinco laboratorios): año anterior por cuatro caminos, el 29 de febrero y la granularidad a la que baja el motor.">
   <div class="slide-inner">
     <div class="demo-animation">
       <div class="ring ring-1"></div><div class="ring ring-2"></div><div class="ring ring-3"></div>
@@ -1785,53 +1785,505 @@ ORDER BY {{Fecha.Año}}, {{Fecha.Mes}}
   </div>
 </section>
 
-<!-- ─── Laboratorio · Bloque 3 · La dimensión tiempo, en vivo ─── -->
-<section class="slide slide-lab" data-lab="La dimensión tiempo, en vivo" data-notes="Demo 1. La misma dimensión en DAX (se ejecuta aquí y se ven sus filas en la pestaña Resultado), Power Query y T-SQL (a la derecha, para comparar). Debate: dónde se crea y qué atributos necesita el negocio.">
+<!-- ─── Laboratorio · Bloque 3 · La dimensión tiempo casi perfecta ─── -->
+<section class="slide slide-lab" data-lab="La dimensión tiempo casi perfecta" data-notes="Demo 1. Dos variantes en DAX que se ejecutan aquí. La habitual: seis columnas que solo responden «¿qué día es este?». La casi perfecta, por familias: atributos para leer, ordinales para ordenar (sortBy), claves que identifican el periodo, offsets que miden la distancia a hoy, estado (Current…) que depende del momento del refresco, calendario fiscal con dos parámetros (mes de arranque y si el año se nombra por el inicio o por el fin), semana y año ISO, y laborables de lunes a viernes, con los festivos en su propia tabla. Los offsets son la familia que casi nadie tiene: «últimos 12 meses» pasa a ser un filtro de una línea, y anclado al MAX del MonthOffset evaluado responde fila a fila de la matriz. Si la relación usa idFecha, hay que marcar la tabla como tabla de fechas. En el modelo de la demo no las implementamos; a la derecha, la misma tabla en Power Query, T-SQL y PySpark. Regla: se diseña eligiendo qué preguntas de negocio quieres convertir en un filtro de una línea, no añadiendo columnas hasta que parezca completa.">
   <div class="slide-inner">
-    <div class="lab-head"><div class="tag">Bloque 3 · <b>Laboratorio</b></div><h2 class="lab-title">La dimensión tiempo, en vivo</h2></div>
-    <div class="lab-grid">
+    <div class="lab-head"><div class="tag">Bloque 3 · <b>Laboratorio</b></div><h2 class="lab-title">La dimensión tiempo casi perfecta</h2></div>
+    <div class="lab-grid dual2">
       <dax-lab compact fill label="Calendario · DAX" editor-height="300px">
+        <dax-variant label="Calendario · habitual">
+-- Lo que se ve en casi todos los clientes: seis columnas
+-- que solo responden a «¿qué día es este?»
 EVALUATE
-VAR _fechas = CALENDAR ( DATE ( 2024, 1, 1 ), DATE ( 2024, 12, 31 ) )
+ADDCOLUMNS (
+    CALENDAR ( DATE ( 2024, 1, 1 ), DATE ( 2026, 12, 31 ) ),
+    "Año", YEAR ( [Date] ),
+    "Trimestre", QUARTER ( [Date] ),
+    "Mes", MONTH ( [Date] ),
+    "Nombre mes", FORMAT ( [Date], "mmmm" ),
+    "Día", DAY ( [Date] ),
+    "Nombre día", FORMAT ( [Date], "dddd" )
+)
+        </dax-variant>
+        <dax-variant label="Calendario · casi perfecta">
+-- La casi perfecta: familias de columnas que responden preguntas distintas
+EVALUATE
+VAR _InicioFiscal = 6        -- mes en que arranca el año fiscal
+VAR _BaseFiscal = "End"      -- ¿junio de 2025 es FY2025 ("Start") o FY2026 ("End")?
+VAR _Hoy = TODAY ()          -- ancla de offsets y estado: el momento del refresco
+VAR _Base =
+    ADDCOLUMNS (
+        CALENDAR ( DATE ( 2024, 1, 1 ), DATE ( 2026, 12, 31 ) ),
+        -- Ordinales: posición dentro del periodo y columna de orden
+        "Year", YEAR ( [Date] ),
+        "Month", MONTH ( [Date] ),
+        "Quarter", QUARTER ( [Date] ),
+        "Day of Week", WEEKDAY ( [Date], 1 ) - 1,        -- 0 = domingo
+        "Day of Year", DATEDIFF ( DATE ( YEAR ( [Date] ), 1, 1 ), [Date], DAY ) + 1
+    )
 RETURN
     ADDCOLUMNS (
-        _fechas,
-        "Año", YEAR ( [Date] ),
-        "Mes", MONTH ( [Date] ),
-        "Nombre mes", FORMAT ( [Date], "mmmm" ),
-        "Trimestre", "T" &amp; QUARTER ( [Date] ),
-        "Semana ISO", WEEKNUM ( [Date], 21 ),
-        "Día semana", WEEKDAY ( [Date], 2 ),
-        "Laborable", WEEKDAY ( [Date], 2 ) &lt;= 5,
-        "Año fiscal", "AF" &amp; YEAR ( EDATE ( [Date], 6 ) )
+        _Base,
+        -- Atributos: para que el usuario lea (sortBy → su ordinal)
+        "Month Name", FORMAT ( [Date], "mmmm" ),
+        "Day Name", FORMAT ( [Date], "dddd" ),
+        -- Claves: identifican el periodo de forma global
+        "idFecha", [Year] * 10000 + [Month] * 100 + DAY ( [Date] ),
+        "MonthKey", [Year] * 100 + [Month],
+        "QuarterCode", [Year] * 100 + [Quarter],
+        -- Offsets: distancia al día de referencia
+        "DayOffset", DATEDIFF ( _Hoy, [Date], DAY ),
+        "MonthOffset", ( [Year] - YEAR ( _Hoy ) ) * 12 + [Month] - MONTH ( _Hoy ),
+        "QuarterOffset", ( [Year] - YEAR ( _Hoy ) ) * 4 + [Quarter] - QUARTER ( _Hoy ),
+        "YearOffset", [Year] - YEAR ( _Hoy ),
+        -- Estado: Current Month/Week/Day… salen igual (offset = 0)
+        "Current Year", SWITCH ( TRUE (), [Year] = YEAR ( _Hoy ), "Current",
+            [Year] &gt; YEAR ( _Hoy ), "Future Year", "Past Year" ),
+        -- Fiscal: mes de arranque y convención de nombre explícitos
+        "FiscalYear", IF ( [Month] &gt;= _InicioFiscal, [Year], [Year] - 1 )
+            + IF ( _BaseFiscal = "End", 1 ),
+        "FiscalQuarter", INT ( MOD ( [Month] - _InicioFiscal, 12 ) / 3 ) + 1,
+        -- ISO 8601: el año ISO no siempre es el natural (fin de diciembre, inicio de enero)
+        "IsoWeek", WEEKNUM ( [Date], 21 ),
+        "IsoYear", YEAR ( [Date] - WEEKDAY ( [Date], 3 ) + 3 ),   -- año del jueves de su semana
+        -- Laborables: de lunes a viernes; WorkingDayNumber = acumulado por año
+        "IsWorkingDay", [Day of Week] IN { 1, 2, 3, 4, 5 }
     )
+        </dax-variant>
       </dax-lab>
       <div class="lab-side">
         <div class="code-tabs lab-tip">
-          <div class="code-tabs-head"><button class="on" data-code="pq">Power Query</button><button data-code="sql">T-SQL</button></div>
-          <pre data-pane="pq">let
-    Inicio = #date(2024, 1, 1),
-    Fin = #date(2024, 12, 31),
-    Dias = Duration.Days(Fin - Inicio) + 1,
-    Fechas = List.Dates(Inicio, Dias, #duration(1, 0, 0, 0)),
-    Tabla = Table.FromList(Fechas, Splitter.SplitByNothing(), {"Fecha"}),
-    Tipada = Table.TransformColumnTypes(Tabla, {{"Fecha", type date}}),
-    ConAnio = Table.AddColumn(Tipada, "Año", each Date.Year([Fecha]), Int64.Type),
-    ConMes = Table.AddColumn(ConAnio, "Mes", each Date.Month([Fecha]), Int64.Type)
+          <div class="code-tabs-head"><button class="on" data-code="fam">Familias</button><button data-code="pq">Power Query</button><button data-code="sql">T-SQL</button><button data-code="py">PySpark</button></div>
+          <pre data-pane="fam">Date
+ ├─ Atributos   Month Name, Day Name…          → para leer
+ ├─ Ordinales   Month, Quarter, Day of Week…   → para ordenar
+ ├─ Claves      idFecha, MonthKey, QuarterCode → el periodo, global
+ ├─ Offsets     DayOffset, MonthOffset…        → distancia a hoy
+ ├─ Estado      Current Year/Month/Week/Day    → depende del refresco
+ ├─ Fiscal      FiscalYear, FiscalQuarter
+ │                _FiscalStartMonth + _FiscalYearBasis
+ ├─ ISO 8601    IsoWeek, IsoYear
+ └─ Laborables  IsWorkingDay, WorkingDayNumber
+                  (los festivos, en su propia tabla)
+
+-- Sin offset: el primer mes entra a medias
+CALCULATE ( [Ventas],
+    'Fecha'[Date] &gt;= EDATE ( TODAY (), -12 ),
+    'Fecha'[Date] &lt;= TODAY () )
+
+-- Con offset, anclado al periodo evaluado
+Ventas 12M =
+VAR _Mes = MAX ( 'Fecha'[MonthOffset] )
+RETURN
+    CALCULATE ( [Ventas], ALL ( 'Fecha' ),
+        'Fecha'[MonthOffset] &gt;= _Mes - 11,
+        'Fecha'[MonthOffset] &lt;= _Mes )
+
+-- Relación por idFecha (entero) → marcar como tabla de fechas</pre>
+          <pre data-pane="pq" hidden>// Tabla de fechas — Power Query M
+// Parámetros: _StartYear, _EndYear, _FiscalStartMonth, _FiscalYearBasis ("Start"/"End")
+
+let
+    Source = List.Dates(#date(_StartYear,1,1), Duration.Days(#date(_EndYear+1,1,1) - #date(_StartYear,1,1)), #duration(1,0,0,0)),
+    #"Converted to Table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+    #"Changed Type" = Table.TransformColumnTypes(#"Converted to Table",{{"Column1", type datetime}}),
+    #"Sorted Rows" = Table.Sort(#"Changed Type",{{"Column1", Order.Ascending}}),
+    #"Renamed Columns" = Table.RenameColumns(#"Sorted Rows",{{"Column1", "Date"}}),
+    #"Inserted Year" = Table.AddColumn(#"Renamed Columns", "Year", each Date.Year([Date]), Int64.Type),
+    #"Inserted Month" = Table.AddColumn(#"Inserted Year", "Month", each Date.Month([Date]), Int64.Type),
+    #"Inserted Month Name" = Table.AddColumn(#"Inserted Month", "Month Name", each Date.MonthName([Date]), type text),
+    #"Inserted Month Name Short" = Table.AddColumn(#"Inserted Month Name", "Month Name Short", each Text.Start([Month Name],3)),
+    #"Inserted Mont Name Complete" = Table.AddColumn(#"Inserted Month Name Short", "Month Name Complete", each [Month Name] &amp; " " &amp; Text.From([Year])),
+    #"Inserted Month Name Short Complete" = Table.AddColumn(#"Inserted Mont Name Complete", "Month Name Short Complete", each [Month Name Short] &amp; " " &amp; Text.End(Text.From([Year]),2)),
+    #"Changed Type6" = Table.TransformColumnTypes(#"Inserted Month Name Short Complete",{{"Month Name Short", type text},{"Month Name Complete", type text},{"Month Name Short Complete", type text}}),
+    #"Inserted Days in Month" = Table.AddColumn(#"Changed Type6", "Days in Month", each Date.DaysInMonth([Date]), Int64.Type),
+    #"Removed Columns" = Table.RemoveColumns(#"Inserted Days in Month",{"Days in Month"}),
+    #"Inserted Quarter" = Table.AddColumn(#"Removed Columns", "Quarter", each Date.QuarterOfYear([Date]), Int64.Type),
+    #"Inserted Week of Year" = Table.AddColumn(#"Inserted Quarter", "Week of Year", each Date.WeekOfYear([Date]), Int64.Type),
+    #"Inserted Day" = Table.AddColumn(#"Inserted Week of Year", "Day", each Date.Day([Date]), Int64.Type),
+    #"Inserted Day of Week" = Table.AddColumn(#"Inserted Day", "Day of Week", each Date.DayOfWeek([Date]), Int64.Type),
+    #"Fecha key" = Table.AddColumn(#"Inserted Day of Week", "idFecha", each [Year]*10000+[Month]*100+[Day]),
+    #"Changed Type3" = Table.TransformColumnTypes(#"Fecha key",{{"idFecha", Int64.Type}}),
+    #"Added Custom4" = Table.AddColumn(#"Changed Type3", "MonthKey", each [Year]*100+[Month]),
+    #"Changed Type4" = Table.TransformColumnTypes(#"Added Custom4",{{"MonthKey", Int64.Type}}),
+    #"Added Custom5" = Table.AddColumn(#"Changed Type4", "QuarterCode", each [Year]*100 + (if [Month] &lt;=3 then 1 else if [Month]&lt;=6 then 2 else if [Month]&lt;=9 then 3 else 4)),
+    #"Changed Type5" = Table.TransformColumnTypes(#"Added Custom5",{{"QuarterCode", Int64.Type}}),
+    #"Inserted Day of Year" = Table.AddColumn(#"Changed Type5", "Day of Year", each Date.DayOfYear([Date]), Int64.Type),
+    #"Inserted Day Name" = Table.AddColumn(#"Inserted Day of Year", "Day Name", each Date.DayOfWeekName([Date]), type text),
+    #"Added Custom" = Table.AddColumn(#"Inserted Day Name", "FiscalDate", each Date.AddMonths([Date],-1*_FiscalStartMonth)),
+    #"Changed Type1" = Table.TransformColumnTypes(#"Added Custom",{{"FiscalDate", type datetime}}),
+    #"Fiscal week of Year" = Table.AddColumn(#"Changed Type1", "Fiscal Week of Year", each Date.WeekOfYear([FiscalDate]), Int64.Type),
+
+    // --- Año/trimestre fiscal: explícitos y parametrizables (ver cambio 5 y 6) ---
+    #"FiscalYearStart" = Table.AddColumn(#"Fiscal week of Year", "FiscalYearStart", each if [Month] &gt;= _FiscalStartMonth then [Year] else [Year] - 1, Int64.Type),
+    #"FiscalYear" = Table.AddColumn(#"FiscalYearStart", "FiscalYear", each if _FiscalYearBasis = "End" then [FiscalYearStart] + 1 else [FiscalYearStart], Int64.Type),
+    #"FiscalQuarter" = Table.AddColumn(#"FiscalYear", "FiscalQuarter", each Number.IntegerDivide(Number.Mod([Month] - _FiscalStartMonth, 12), 3) + 1, Int64.Type),
+    #"FiscalQuarterCode" = Table.AddColumn(#"FiscalQuarter", "FiscalQuarterCode", each [FiscalYear]*100 + [FiscalQuarter], Int64.Type),
+    #"RemovedFiscalYearStart" = Table.RemoveColumns(#"FiscalQuarterCode", {"FiscalYearStart"}),
+
+    #"CurrentYear" = Table.AddColumn(#"RemovedFiscalYearStart", "Current Year", each if [Year]=Date.Year(DateTime.LocalNow()) then "Current" else if [Year]&gt;Date.Year(DateTime.LocalNow()) then "Future Year" else "Past Year"),
+    #"CurrentMonth" = Table.AddColumn(CurrentYear, "Current Month", each if [Year]*100+[Month] = Date.Year(DateTime.LocalNow()) *100+ Date.Month(DateTime.LocalNow())   then "Current" else if  [Year]*100+[Month] &gt; Date.Year(DateTime.LocalNow()) *100+ Date.Month(DateTime.LocalNow())  then "Future Month" else "Past Month"),
+    #"CurrentWeek" = Table.AddColumn(CurrentMonth, "Current Week", each if [Year]*100+[Week of Year] = Date.Year(DateTime.LocalNow()) *100+ Date.WeekOfYear(DateTime.LocalNow())   then "Current" else if  [Year]*100+[Week of Year] &gt; Date.Year(DateTime.LocalNow()) *100+ Date.WeekOfYear(DateTime.LocalNow())  then "Future Week" else "Past Week"),
+    #"CurrentDay" = Table.AddColumn(CurrentWeek, "Current Day", each if Date.From([Date])=Date.From(DateTime.LocalNow()) then "Current" else if Date.From([Date])&gt;=Date.From(DateTime.LocalNow()) then "Future Day" else "Past Day"),
+
+    // "hoy" recalculado con la misma fórmula que FiscalYear, para que la
+    // comparación sea consistente con el cambio 5 (antes usaba el truco de
+    // Date.AddMonths, que ya no es la fuente de verdad de FiscalYear).
+    #"CurrentFiscalYear" = Table.AddColumn(CurrentDay, "Current Fiscal Year", each
+        let
+            todayMonth = Date.Month(DateTime.LocalNow()),
+            todayYear = Date.Year(DateTime.LocalNow()),
+            todayFiscalYearStart = if todayMonth &gt;= _FiscalStartMonth then todayYear else todayYear - 1,
+            todayFiscalYear = if _FiscalYearBasis = "End" then todayFiscalYearStart + 1 else todayFiscalYearStart
+        in
+            if [FiscalYear] = todayFiscalYear then "Current"
+            else if [FiscalYear] &gt; todayFiscalYear then "Future Year"
+            else "Past Year"
+    ),
+    #"CurrentFiscalMonth" = Table.AddColumn(CurrentFiscalYear, "Current Fiscal Month", each [Current Month]),
+    #"CurrentFiscalWeek" = Table.AddColumn(CurrentFiscalMonth, "Current Fiscal Week", each [Current Week]),
+       ObtenIsoWeek= (Fecha as date) =&gt; let
+                    #"Removed Other Columns" = Table.FromRows({{Fecha}},{"FullDateAlternateKey"}),
+                    #"Added Custom" = Table.AddColumn(#"Removed Other Columns", "PrimerDiaAño", each Date.AddDays( #date(Date.Year([FullDateAlternateKey]),1,4) ,-1* Date.DayOfWeek(  #date(Date.Year([FullDateAlternateKey]),1,4),Day.Monday))),
+                    #"Added Custom1" = Table.AddColumn(#"Added Custom", "PrimerDiaAnioAA", each Date.AddDays( #date(Date.Year([FullDateAlternateKey])-1,1,4) ,-1* Date.DayOfWeek(  #date(Date.Year([FullDateAlternateKey])-1,1,4),Day.Monday))),
+                    #"Added Custom2" = Table.AddColumn(#"Added Custom1", "PrimerDiaAnioSig", each Date.AddDays( #date(1+Date.Year([FullDateAlternateKey]),1,4) ,-1* Date.DayOfWeek(  #date(1+Date.Year([FullDateAlternateKey]),1,4),Day.Monday))),
+                    #"Changed Type" = Table.TransformColumnTypes(#"Added Custom2",{{"PrimerDiaAño", type date}, {"PrimerDiaAnioAA", type date}, {"PrimerDiaAnioSig", type date}}),
+                    #"Added Custom3" = Table.AddColumn(#"Changed Type", "AnioNatural", each Date.Year([FullDateAlternateKey])),
+                    #"Added Conditional Column" = Table.AddColumn(#"Added Custom3", "Custom", each if [FullDateAlternateKey] &gt;= [PrimerDiaAnioSig] then [AnioNatural] +1 else if [FullDateAlternateKey] &gt;= [PrimerDiaAño] then [AnioNatural]  else [AnioNatural] -1 ),
+                    #"Sorted Rows" = Table.Sort(#"Added Conditional Column",{{"FullDateAlternateKey", Order.Descending}}),
+                    #"Renamed Columns" = Table.RenameColumns(#"Sorted Rows",{{"Custom", "IsoYear"}}),
+                    #"Changed Type1" = Table.TransformColumnTypes(#"Renamed Columns",{{"IsoYear", Int64.Type}}),
+                    #"Added Custom4" = Table.AddColumn(#"Changed Type1", "IsoWeek", each if [FullDateAlternateKey] &gt;= [PrimerDiaAnioSig] then 1 else if [FullDateAlternateKey] &gt;= [PrimerDiaAño] then 1+Number.RoundDown ( Duration.Days ([FullDateAlternateKey]-[PrimerDiaAño])/7 )  else 1+ Number.RoundDown ( Duration.Days ([FullDateAlternateKey]-Date.AddDays( #date(Date.Year([FullDateAlternateKey])-1,1,4) ,-1* Date.DayOfWeek(  #date(Date.Year([FullDateAlternateKey])-1,1,4),Day.Monday)))/7 )),
+                        #"Removed Other Columns1" = Table.SelectColumns(#"Added Custom4",{"FullDateAlternateKey", "IsoYear", "IsoWeek"})
+
+                    in
+                        #"Removed Other Columns1" ,
+    #"AniadirIsoWeek"=Table.AddColumn( #"CurrentFiscalWeek","DatosIso",each ObtenIsoWeek( Date.From( [Date]))),
+    #"Expanded DatosIso" = Table.ExpandTableColumn(AniadirIsoWeek, "DatosIso", {"IsoYear", "IsoWeek"}, {"IsoYear", "IsoWeek"}),
+   #"Added Custom1" = Table.AddColumn(#"Expanded DatosIso", "DayOffset", each Duration.Days(Date.From([Date])-Date.From(DateTime.LocalNow()))),
+    #"Added Custom2" = Table.AddColumn(#"Added Custom1", "YearOffset", each [Year]- Date.Year(DateTime.LocalNow())),
+    #"Added Custom3" = Table.AddColumn(#"Added Custom2", "MonthOffset", each -1* (  (12 - [Month]) + (-[YearOffset]-1)*12 + Date.Month(DateTime.LocalNow()) )),
+    #"Added Custom6" = Table.AddColumn(#"Added Custom3", "QuarterOffset", each -1* (  (4 - [Quarter]) + (-[YearOffset]-1)*4 + Date.QuarterOfYear(DateTime.LocalNow()) )),
+
+    // --- Día laborable (cambio 7): de lunes a viernes; festivos se resuelven aparte ---
+    #"Added IsWorkingDay" = Table.AddColumn(#"Added Custom6", "IsWorkingDay", each
+        [Day of Week] &lt;&gt; 0 and [Day of Week] &lt;&gt; 6
+    ),
+
+    // Contador de días laborables dentro de cada año natural (acumulado "a
+    // fecha de"): agrupa por Year, ordena por Date y suma 1/0 corriendo con
+    // List.Generate (Power Query no tiene una primitiva nativa de "running
+    // total"; este es el patrón estándar para simularla en O(n) por grupo).
+    #"Added WorkingDayNumber" =
+        let
+            grouped = Table.Group(#"Added IsWorkingDay", {"Year"}, {{"Rows", each
+                let
+                    sorted = Table.Sort(_, {{"Date", Order.Ascending}}),
+                    n = Table.RowCount(sorted),
+                    flags = Table.Column(sorted, "IsWorkingDay"),
+                    running = List.Generate(
+                        () =&gt; [i = 0, acc = 0],
+                        each [i] &lt; n,
+                        each [i = [i] + 1, acc = [acc] + (if flags{[i]} then 1 else 0)],
+                        each [acc] + (if flags{[i]} then 1 else 0)
+                    )
+                in
+                    Table.FromColumns(Table.ToColumns(sorted) &amp; {running}, Table.ColumnNames(sorted) &amp; {"WorkingDayNumber"})
+            , type table}}),
+            combined = Table.Sort(Table.Combine(grouped[Rows]), {{"Date", Order.Ascending}})
+        in
+            combined,
+
+    #"Changed Type2" = Table.TransformColumnTypes(#"Added WorkingDayNumber",{{"DayOffset", Int64.Type}, {"IsoWeek", Int64.Type}, {"IsoYear", Int64.Type}, {"YearOffset", Int64.Type},{"QuarterOffset", Int64.Type},  {"MonthOffset", Int64.Type}, {"Current Year", type text}, {"Current Month", type text}, {"Current Week", type text}, {"Current Day", type text}, {"Current Fiscal Year", type text}, {"Current Fiscal Month", type text}, {"Current Fiscal Week", type text}, {"IsWorkingDay", type logical}, {"WorkingDayNumber", Int64.Type}})
+
 in
-    ConMes</pre>
-          <pre data-pane="sql" hidden>WITH fechas AS (
-    SELECT CAST('2024-01-01' AS date) AS Fecha
-    UNION ALL
-    SELECT DATEADD(DAY, 1, Fecha)
-    FROM fechas WHERE Fecha &lt; '2024-12-31'
+   #"Changed Type2"</pre>
+          <pre data-pane="sql" hidden>/* Tabla de fechas — T-SQL para Fabric Warehouse (CTAS)
+   DATE puro, offsets con DATEDIFF, ISO_WEEK nativo, laborables con ventana */
+
+SET DATEFIRST 7; -- domingo = 1er día de la semana, para alinear DayOfWeek con
+                  -- el "0 = domingo" por defecto de Power Query (Date.DayOfWeek)
+
+DECLARE @StartYear         INT          = 2019;
+DECLARE @EndYear           INT          = 2025;
+DECLARE @FiscalStartMonth  INT          = 6;       -- 6 = el año fiscal arranca en junio
+DECLARE @FiscalYearBasis   VARCHAR(5)   = 'End';   -- 'Start' o 'End' — ver cabecera
+
+DECLARE @StartDate DATE = DATEFROMPARTS(@StartYear, 1, 1);
+DECLARE @EndDateEx DATE = DATEFROMPARTS(@EndYear + 1, 1, 1); -- exclusivo
+
+DECLARE @TodayFiscalYearStart INT = CASE WHEN MONTH(GETDATE()) &gt;= @FiscalStartMonth THEN YEAR(GETDATE()) ELSE YEAR(GETDATE()) - 1 END;
+DECLARE @TodayFiscalYear      INT = CASE WHEN @FiscalYearBasis = 'End' THEN @TodayFiscalYearStart + 1 ELSE @TodayFiscalYearStart END;
+
+IF OBJECT_ID('dbo.DimFecha') IS NOT NULL
+    DROP TABLE dbo.DimFecha;
+
+WITH E1(N) AS ( -- 10 filas
+    SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1
+    UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1
+),
+E2(N) AS (SELECT 1 FROM E1 a CROSS JOIN E1 b),        -- 100 filas
+E4(N) AS (SELECT 1 FROM E2 a CROSS JOIN E2 b),        -- 10.000 filas
+Tally(N) AS (
+    SELECT ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) - 1 FROM E4
+),
+Dates AS (
+    SELECT DATEADD(DAY, N, @StartDate) AS [Date]
+    FROM Tally
+    WHERE N &lt; DATEDIFF(DAY, @StartDate, @EndDateEx)
+),
+Base AS (
+    SELECT
+        d.[Date],
+        DATEADD(MONTH, -@FiscalStartMonth, d.[Date])                          AS FiscalDate,
+        YEAR(d.[Date])                                                        AS [Year],
+        MONTH(d.[Date])                                                       AS [Month],
+        DATENAME(MONTH, d.[Date])                                             AS [Month Name],
+        DATEPART(QUARTER, d.[Date])                                           AS Quarter,
+        DATEPART(WEEK, d.[Date])                                              AS [Week of Year],
+        DAY(d.[Date])                                                         AS [Day],
+        DATEPART(WEEKDAY, d.[Date]) - 1                                       AS [Day of Week], -- 0 = domingo
+        DATEPART(DAYOFYEAR, d.[Date])                                         AS [Day of Year],
+        DATENAME(WEEKDAY, d.[Date])                                           AS [Day Name],
+        DATEPART(ISO_WEEK, d.[Date])                                          AS IsoWeek,
+        CASE
+            WHEN DATEPART(ISO_WEEK, d.[Date]) &gt;= 52 AND MONTH(d.[Date]) = 1  THEN YEAR(d.[Date]) - 1
+            WHEN DATEPART(ISO_WEEK, d.[Date]) = 1  AND MONTH(d.[Date]) = 12 THEN YEAR(d.[Date]) + 1
+            ELSE YEAR(d.[Date])
+        END                                                                   AS IsoYear
+    FROM Dates d
+),
+Fiscal AS (
+    SELECT
+        b.*,
+        CASE WHEN @FiscalYearBasis = 'End'
+             THEN (CASE WHEN b.[Month] &gt;= @FiscalStartMonth THEN b.[Year] ELSE b.[Year] - 1 END) + 1
+             ELSE (CASE WHEN b.[Month] &gt;= @FiscalStartMonth THEN b.[Year] ELSE b.[Year] - 1 END)
+        END                                                                   AS FiscalYear,
+        ((((b.[Month] - @FiscalStartMonth) % 12) + 12) % 12) / 3 + 1          AS FiscalQuarter
+    FROM Base b
+),
+Enriched AS (
+    SELECT
+        f.*,
+        LEFT(f.[Month Name], 3)                                               AS [Month Name Short],
+        f.[Month Name] + ' ' + CAST(f.[Year] AS VARCHAR(4))                   AS [Month Name Complete],
+        LEFT(f.[Month Name], 3) + ' ' + RIGHT(CAST(f.[Year] AS VARCHAR(4)), 2) AS [Month Name Short Complete],
+        f.[Year] * 10000 + f.[Month] * 100 + f.[Day]                          AS idFecha,
+        f.[Year] * 100 + f.[Month]                                            AS MonthKey,
+        f.[Year] * 100 + f.Quarter                                            AS QuarterCode,
+        f.FiscalYear * 100 + f.FiscalQuarter                                  AS FiscalQuarterCode,
+        DATEPART(WEEK, f.FiscalDate)                                          AS [Fiscal Week of Year],
+        DATEDIFF(DAY,   CAST(GETDATE() AS DATE), f.[Date])                    AS DayOffset,
+        f.[Year] - YEAR(GETDATE())                                            AS YearOffset,
+        DATEDIFF(MONTH,   GETDATE(), f.[Date])                                AS MonthOffset,
+        DATEDIFF(QUARTER, GETDATE(), f.[Date])                                AS QuarterOffset
+    FROM Fiscal f
+),
+WithCurrent AS (
+    SELECT
+        e.*,
+        CASE WHEN e.[Year] = YEAR(GETDATE()) THEN 'Current'
+             WHEN e.[Year] &gt; YEAR(GETDATE()) THEN 'Future Year' ELSE 'Past Year' END AS [Current Year],
+        CASE WHEN e.MonthKey = YEAR(GETDATE())*100 + MONTH(GETDATE()) THEN 'Current'
+             WHEN e.MonthKey &gt; YEAR(GETDATE())*100 + MONTH(GETDATE()) THEN 'Future Month' ELSE 'Past Month' END AS [Current Month],
+        CASE WHEN e.[Year]*100 + e.[Week of Year] = YEAR(GETDATE())*100 + DATEPART(WEEK, GETDATE()) THEN 'Current'
+             WHEN e.[Year]*100 + e.[Week of Year] &gt; YEAR(GETDATE())*100 + DATEPART(WEEK, GETDATE()) THEN 'Future Week' ELSE 'Past Week' END AS [Current Week],
+        CASE WHEN e.[Date] = CAST(GETDATE() AS DATE) THEN 'Current'
+             WHEN e.[Date] &gt;  CAST(GETDATE() AS DATE) THEN 'Future Day' ELSE 'Past Day' END AS [Current Day],
+        CASE WHEN e.FiscalYear = @TodayFiscalYear THEN 'Current'
+             WHEN e.FiscalYear &gt; @TodayFiscalYear THEN 'Future Year' ELSE 'Past Year' END AS [Current Fiscal Year]
+    FROM Enriched e
+),
+WithWorking AS (
+    SELECT
+        w.*,
+        CASE WHEN w.[Day of Week] NOT IN (0, 6)
+             THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END                      AS IsWorkingDay
+    FROM WithCurrent w
+),
+WithWorkingNumber AS (
+    SELECT
+        ww.*,
+        SUM(CASE WHEN ww.IsWorkingDay = 1 THEN 1 ELSE 0 END)
+            OVER (PARTITION BY ww.[Year] ORDER BY ww.[Date] ROWS UNBOUNDED PRECEDING) AS WorkingDayNumber
+    FROM WithWorking ww
 )
-SELECT Fecha,
-       YEAR(Fecha)               AS Anio,
-       MONTH(Fecha)              AS Mes,
-       DATEPART(ISO_WEEK, Fecha) AS SemanaISO
-FROM fechas
-OPTION (MAXRECURSION 400);</pre>
+-- CTAS (CREATE TABLE AS SELECT): es el patrón soportado por Fabric Warehouse
+-- para materializar una consulta como tabla; Fabric gestiona la distribución y
+-- el almacenamiento por ti, no hace falta WITH DISTRIBUTION/INDEX como en
+-- Synapse dedicado. (SELECT ... INTO no está soportado en Fabric Warehouse.)
+CREATE TABLE dbo.DimFecha
+AS
+SELECT
+    n.*,
+    n.[Current Month] AS [Current Fiscal Month],   -- mismo alias que la versión M
+    n.[Current Week]  AS [Current Fiscal Week]     -- mismo alias que la versión M
+FROM WithWorkingNumber n;
+
+-- Sanity checks rápidos
+-- SELECT COUNT(*) AS Filas, MIN([Date]) AS Min_Fecha, MAX([Date]) AS Max_Fecha FROM dbo.DimFecha;
+-- SELECT [Date],[Current Day],[Current Week] FROM dbo.DimFecha WHERE [Date] = CAST(GETDATE() AS DATE);
+-- SELECT [Date],[IsWorkingDay],[WorkingDayNumber] FROM dbo.DimFecha WHERE [Year] = YEAR(GETDATE()) ORDER BY [Date];</pre>
+          <pre data-pane="py" hidden># Tabla de fechas — PySpark para notebook Fabric (Lakehouse, tabla Delta)
+# Cada bloque "# CELL" es una celda del notebook
+
+# CELL 1 — parámetros
+start_year = 2019
+end_year = 2025
+fiscal_start_month = 6      # el año fiscal arranca en junio
+fiscal_year_basis = "End"   # "Start" o "End" — ver cabecera
+
+# CELL 2 — imports y generación del rango de fechas
+from datetime import date
+from pyspark.sql import functions as F
+from pyspark.sql.window import Window
+
+df = spark.sql(f"""
+    SELECT explode(sequence(
+        to_date('{start_year}-01-01'),
+        to_date('{end_year}-12-31'),
+        interval 1 day
+    )) AS Date
+""")
+
+# CELL 3 — columnas de calendario base
+df = (
+    df
+    .withColumn("FiscalDate", F.add_months(F.col("Date"), -fiscal_start_month))
+    .withColumn("Year", F.year("Date"))
+    .withColumn("Month", F.month("Date"))
+    .withColumn("Month Name", F.date_format("Date", "MMMM"))
+    .withColumn("Month Name Short", F.substring(F.col("Month Name"), 1, 3))
+    .withColumn("Month Name Complete", F.concat_ws(" ", F.col("Month Name"), F.col("Year")))
+    .withColumn(
+        "Month Name Short Complete",
+        F.concat_ws(" ", F.col("Month Name Short"), F.lpad((F.col("Year") % 100).cast("string"), 2, "0")),
+    )
+    .withColumn("Quarter", F.quarter("Date"))
+    .withColumn("Week of Year", F.date_format("Date", "w").cast("int"))
+    .withColumn("Day", F.dayofmonth("Date"))
+    .withColumn("Day of Week", F.dayofweek("Date") - 1)  # 0 = domingo, como Date.DayOfWeek en M
+    .withColumn("Day of Year", F.dayofyear("Date"))
+    .withColumn("Day Name", F.date_format("Date", "EEEE"))
+    .withColumn("IsoWeek", F.weekofyear("Date"))
+    .withColumn(
+        "IsoYear",
+        F.when((F.col("IsoWeek") &gt;= 52) &amp; (F.col("Month") == 1), F.col("Year") - 1)
+         .when((F.col("IsoWeek") == 1) &amp; (F.col("Month") == 12), F.col("Year") + 1)
+         .otherwise(F.col("Year")),
+    )
+)
+
+# CELL 4 — año/trimestre fiscal explícitos (ver cabecera)
+df = (
+    df
+    .withColumn(
+        "FiscalYearStart",
+        F.when(F.col("Month") &gt;= fiscal_start_month, F.col("Year")).otherwise(F.col("Year") - 1),
+    )
+    .withColumn(
+        "FiscalYear",
+        F.col("FiscalYearStart") + 1 if fiscal_year_basis == "End" else F.col("FiscalYearStart"),
+    )
+    .withColumn(
+        "FiscalQuarter",
+        F.floor(F.pmod(F.col("Month") - fiscal_start_month, F.lit(12)) / 3).cast("int") + 1,
+    )
+    .withColumn("FiscalQuarterCode", F.col("FiscalYear") * 100 + F.col("FiscalQuarter"))
+    .drop("FiscalYearStart")
+)
+
+# CELL 5 — claves y offsets
+df = (
+    df
+    .withColumn("idFecha", F.col("Year") * 10000 + F.col("Month") * 100 + F.col("Day"))
+    .withColumn("MonthKey", F.col("Year") * 100 + F.col("Month"))
+    .withColumn("QuarterCode", F.col("Year") * 100 + F.col("Quarter"))
+    .withColumn("Fiscal Week of Year", F.date_format("FiscalDate", "w").cast("int"))
+    .withColumn("DayOffset", F.datediff(F.col("Date"), F.current_date()))
+    .withColumn("YearOffset", F.col("Year") - F.year(F.current_date()))
+    .withColumn(
+        "MonthOffset",
+        (F.col("Year") - F.year(F.current_date())) * 12 + (F.col("Month") - F.month(F.current_date())),
+    )
+    .withColumn(
+        "QuarterOffset",
+        (F.col("Year") - F.year(F.current_date())) * 4 + (F.col("Quarter") - F.quarter(F.current_date())),
+    )
+)
+
+# CELL 6 — banderas "Current …" (comparación siempre date-vs-date, sin horas)
+today = F.current_date()
+
+_today = date.today()
+_today_fiscal_year_start = _today.year if _today.month &gt;= fiscal_start_month else _today.year - 1
+today_fiscal_year = _today_fiscal_year_start + 1 if fiscal_year_basis == "End" else _today_fiscal_year_start
+
+df = (
+    df
+    .withColumn(
+        "Current Year",
+        F.when(F.col("Year") == F.year(today), "Current")
+         .when(F.col("Year") &gt; F.year(today), "Future Year")
+         .otherwise("Past Year"),
+    )
+    .withColumn(
+        "Current Month",
+        F.when(F.col("MonthKey") == F.year(today) * 100 + F.month(today), "Current")
+         .when(F.col("MonthKey") &gt; F.year(today) * 100 + F.month(today), "Future Month")
+         .otherwise("Past Month"),
+    )
+    .withColumn(
+        "Current Week",
+        F.when(
+            F.col("Year") * 100 + F.col("Week of Year") == F.year(today) * 100 + F.date_format(today, "w").cast("int"),
+            "Current",
+        )
+        .when(
+            F.col("Year") * 100 + F.col("Week of Year") &gt; F.year(today) * 100 + F.date_format(today, "w").cast("int"),
+            "Future Week",
+        )
+        .otherwise("Past Week"),
+    )
+    .withColumn(
+        "Current Day",
+        F.when(F.col("Date") == today, "Current")
+         .when(F.col("Date") &gt; today, "Future Day")
+         .otherwise("Past Day"),
+    )
+    .withColumn(
+        "Current Fiscal Year",
+        F.when(F.col("FiscalYear") == F.lit(today_fiscal_year), "Current")
+         .when(F.col("FiscalYear") &gt; F.lit(today_fiscal_year), "Future Year")
+         .otherwise("Past Year"),
+    )
+    .withColumn("Current Fiscal Month", F.col("Current Month"))   # mismo alias que la versión M
+    .withColumn("Current Fiscal Week", F.col("Current Week"))     # mismo alias que la versión M
+)
+
+# CELL 7 — días laborables: IsWorkingDay + WorkingDayNumber (contador por año)
+df = df.withColumn("IsWorkingDay", ~F.col("Day of Week").isin(0, 6))
+
+_yearWindow = Window.partitionBy("Year").orderBy("Date").rowsBetween(Window.unboundedPreceding, 0)
+df = df.withColumn(
+    "WorkingDayNumber",
+    F.sum(F.when(F.col("IsWorkingDay"), 1).otherwise(0)).over(_yearWindow),
+)
+
+# CELL 8 — escritura como tabla Delta en el Lakehouse
+(
+    df.write
+      .format("delta")
+      .mode("overwrite")
+      .option("overwriteSchema", "true")
+      .saveAsTable("DimFecha")
+)
+
+# CELL 9 — sanity checks rápidos
+# display(df.filter(F.col("Date") == F.current_date()).select("Date", "Current Day", "Current Week"))
+# print(df.count(), df.select(F.min("Date"), F.max("Date")).first())
+# display(df.filter(F.col("Year") == date.today().year).select("Date", "IsWorkingDay", "WorkingDayNumber").orderBy("Date"))</pre>
         </div>
       </div>
     </div>
@@ -2698,10 +3150,10 @@ EVALUATE ROW ( "Pendiente", "pega tu consulta" )
 </section>
 
 <!-- ═════════════════ 45 · HORIZONTAL FUSION (SVG) ═════════════════ -->
-<section class="slide slide-svg-visual" data-notes="Horizontal fusion, añadida en Power BI en septiembre de 2022, después del checklist de marzo de 2022: consultas SE que solo difieren en el filtro sobre una columna se fusionan en una, añadiendo esa columna al agrupado. Es lo que ocurre en comparativas por periodo, ítems de grupos de cálculo o conversiones por moneda. Por eso hay que volver a grabar la demo de ruptura con multi-moneda: el resultado puede haber cambiado.">
+<section class="slide slide-svg-visual" data-notes="Horizontal fusion: consultas SE que solo difieren en el filtro sobre una columna se fusionan en una, añadiendo esa columna al agrupado. Es lo que ocurre en comparativas por periodo o conversiones por moneda. Los grupos de cálculo la rompen: aunque cada ítem vaya a buscar la misma medida en el mismo contexto, la trae otra vez. Lo comprobamos en el laboratorio con el motor actual.">
   <div class="slide-inner">
     <div class="tag">Bloque 6 · <b>DAX Fusion</b></div>
-    <h2 class="slide-title">Horizontal fusion <span class="badge check">Power BI · sept. 2022</span></h2>
+    <h2 class="slide-title">Horizontal fusion</h2>
     <div class="svg-wrap">
       <svg class="svg-anim" viewBox="0 0 1300 440" xmlns="http://www.w3.org/2000/svg">
         <path class="sv-line sv-dash" d="M360,98 C450,98 450,215 520,215"/>
@@ -2731,7 +3183,7 @@ EVALUATE ROW ( "Pendiente", "pega tu consulta" )
 </section>
 
 <!-- ═════════════════ 46 · QUÉ ROMPE LA FUSIÓN ═════════════════ -->
-<section class="slide slide-content" data-notes="Patrones que pueden impedir la fusión: lógica que cambia según la medida, IF o SWITCH con ramas distintas, o filtros sobre columnas diferentes. Comprobarlo siempre en Server Timings, no a ojo. Discusión del original, diapositiva 47: ¿qué hacemos si se rompe? Filtros uniformes, VAR para evaluar una vez, simplificar condicionales. Y modelado más DAX igual a éxito.">
+<section class="slide slide-content" data-notes="Patrones que pueden impedir la fusión: lógica que cambia según la medida, IF o SWITCH con ramas distintas, filtros sobre columnas diferentes o grupos de cálculo. Comprobarlo siempre en Server Timings, no a ojo. Discusión del original, diapositiva 47: ¿qué hacemos si se rompe? Filtros uniformes, VAR para evaluar una vez, simplificar condicionales. Y modelado más DAX igual a éxito.">
   <div class="slide-inner">
     <div class="tag">Bloque 6 · <b>DAX Fusion</b></div>
     <h2 class="slide-title">¿Qué la rompe? ¿Qué hacemos?</h2>
@@ -2741,6 +3193,7 @@ EVALUATE ROW ( "Pendiente", "pega tu consulta" )
         <ul>
           <li>Lógica que cambia según la medida: <code>IF</code> / <code>SWITCH</code> con ramas distintas</li>
           <li>Filtros sobre columnas diferentes</li>
+          <li>Grupos de cálculo: cada ítem vuelve a traer la misma medida</li>
         </ul>
       </div>
       <div class="card se-card">
@@ -2860,7 +3313,7 @@ EVALUATE ROW ( "Pendiente", "pega tu consulta" )
 </section>
 
 <!-- ═════════════════ 51 · DEMO BLOQUE 5 ═════════════════ -->
-<section class="slide slide-demo" data-notes="Las demos marcadas AQUÍ se hacen en las diapositivas de laboratorio que siguen, sin salir de la presentación. Demo 1: ruptura de DAX Fusion con multi-moneda y cómo evitarla; volver a grabarla con el motor actual porque la horizontal fusion puede haber cambiado el resultado. Demo 2: detectar y eliminar un callback. Demo 3: FILTER sobre hechos frente a CALCULATE con predicado de columna, comparando filas y KB; si el optimizador las resuelve igual, también es una lección: probar después con un predicado que use una medida.">
+<section class="slide slide-demo" data-notes="Las demos marcadas AQUÍ se hacen en las diapositivas de laboratorio que siguen, sin salir de la presentación. Demo 1: ruptura de DAX Fusion con multi-moneda y cómo evitarla; volver a grabarla con el motor actual por si el resultado ha cambiado. Demo 2: detectar y eliminar un callback. Demo 3: FILTER sobre hechos frente a CALCULATE con predicado de columna, comparando filas y KB; si el optimizador las resuelve igual, también es una lección: probar después con un predicado que use una medida.">
   <div class="slide-inner">
     <div class="demo-animation">
       <div class="ring ring-1"></div><div class="ring ring-2"></div><div class="ring ring-3"></div>
@@ -3389,7 +3842,7 @@ window.PUENTE_DAX_MODELO = {
   'FechaEntrega.Año':     "'Fecha entrega'[Year]",
   'FechaEntrega.Mes':     "'Fecha entrega'[Month]",
   'Ventas.ClaveEntrega':  "'Internet Sales'[DueDateKey]",
-  'Producto.Categoria':   "'Product Category'[EnglishProductCategoryName]",
+  'Producto.Categoria':   "'Product'[Spanish Product Category Name]",   // modelo en estrella: la categoría está desnormalizada en Product
   'Producto.NombreES':    "'Product'[SpanishProductName]",
   'Demo.AñoA': 2011, 'Demo.AñoB': 2012, 'Demo.AñoC': 2013,
   'Demo.AñoBisiesto': 2020,   // año bisiesto con datos de ventas (en el modelo sintético: 2012, 2016, 2020 y 2024)
@@ -3658,7 +4111,7 @@ document.addEventListener('click', function (e) {
     updateSpotlight();
   }
 
-  // ─── MODO IR A SLIDE (Ctrl+S) ─────────────────────────────────────
+  // ─── MODO IR A SLIDE (I o Ctrl+S) ─────────────────────────────────
   function showGotoOverlay() {
     gotoMode = true;
     gotoBuffer = '';
@@ -3750,6 +4203,10 @@ document.addEventListener('click', function (e) {
         break;
       case e.key === 'n' || e.key === 'N':
         toggleNotes();
+        break;
+      case e.key === 'i' || e.key === 'I':
+        e.preventDefault();   // que la «i» no acabe escrita en el cuadro de número
+        showGotoOverlay();
         break;
       case e.key === 'b' || e.key === 'B':
         toggleBlackout();

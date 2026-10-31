@@ -235,7 +235,13 @@ internal sealed class QueryCapture
         _expectMetrics = expectMetrics;
     }
 
-    private static string Collapse(string text) => System.Text.RegularExpressions.Regex.Replace(text ?? string.Empty, @"\s+", " ").Trim();
+    // Power BI Desktop quita TODOS los comentarios iniciales (/* */ y --) del texto del evento, no solo el marcador:
+    // se quitan también del texto enviado para que una consulta que empieza por "-- …" se siga reconociendo.
+    private static readonly System.Text.RegularExpressions.Regex LeadingComments =
+        new(@"^(?:\s+|--[^\r\n]*|/\*.*?\*/)*", System.Text.RegularExpressions.RegexOptions.Singleline);
+
+    private static string Collapse(string text) =>
+        System.Text.RegularExpressions.Regex.Replace(LeadingComments.Replace(text ?? string.Empty, string.Empty, 1), @"\s+", " ").Trim();
 
     public void Add(TraceRecord record)
     {
