@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "275c22d6d398e90f194f",
   "position": {
     "x": 32,
@@ -13,24 +13,6 @@
     "visualType": "pivotTable",
     "query": {
       "queryState": {
-        "Rows": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "Fecha"
-                    }
-                  },
-                  "Property": "Month Name Short"
-                }
-              },
-              "queryRef": "Fecha.Month Name Short",
-              "nativeQueryRef": "Month Name Short"
-            }
-          ]
-        },
         "Columns": {
           "projections": [
             {
@@ -45,7 +27,27 @@
                 }
               },
               "queryRef": "Fecha entrega.Month Name Short Complete",
-              "nativeQueryRef": "Month Name Short Complete"
+              "nativeQueryRef": "Month Name Short Complete",
+              "active": true
+            }
+          ]
+        },
+        "Rows": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Fecha"
+                    }
+                  },
+                  "Property": "Month Name Short"
+                }
+              },
+              "queryRef": "Fecha.Month Name Short",
+              "nativeQueryRef": "Month Name Short",
+              "active": true
             }
           ]
         },

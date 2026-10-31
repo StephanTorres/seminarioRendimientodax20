@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
   "name": "40634f27b02d1b3cce7b",
   "position": {
     "x": 1600,
@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "Product.English Product Category Name",
-              "nativeQueryRef": "English Product Category Name"
+              "nativeQueryRef": "English Product Category Name",
+              "active": true
             }
           ]
         }

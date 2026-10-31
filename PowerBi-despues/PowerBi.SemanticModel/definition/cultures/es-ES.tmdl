@@ -2,29 +2,339 @@ cultureInfo es-ES
 
 	linguisticMetadata =
 			{
-			  "Version": "1.0.0",
+			  "Version": "2.0.0",
 			  "Language": "en-US",
 			  "Entities": {
 			    "product.spanish_product_category_name": {
-			      "Binding": {
-			        "ConceptualEntity": "Product",
-			        "ConceptualProperty": "Spanish Product Category Name"
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Product",
+			          "ConceptualProperty": "Spanish Product Category Name"
+			        }
 			      },
 			      "State": "Generated"
 			    },
 			    "promotion.spanishpromotionname": {
-			      "Binding": {
-			        "ConceptualEntity": "Promotion",
-			        "ConceptualProperty": "SpanishPromotionName"
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Promotion",
+			          "ConceptualProperty": "SpanishPromotionName"
+			        }
 			      },
 			      "State": "Generated"
 			    },
 			    "date.spanishmonthname": {
-			      "Binding": {
-			        "ConceptualEntity": "Date",
-			        "ConceptualProperty": "SpanishMonthName"
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Date",
+			          "ConceptualProperty": "SpanishMonthName"
+			        }
 			      },
 			      "State": "Generated"
+			    },
+			    "sales_territory.salesterritorycountry": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Sales Territory",
+			          "ConceptualProperty": "SalesTerritoryCountry"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "País": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "internet_sales.sales_amount": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Internet Sales",
+			          "ConceptualProperty": "Sales Amount"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Local": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Ventas": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "internet_sales.total_sales_currency_dolar": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Internet Sales",
+			          "ConceptualProperty": "Total Sales Currency Dolar"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Dólares": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "internet_sales.total_sales_currency_euro": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Internet Sales",
+			          "ConceptualProperty": "Total Sales Currency Euro"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Euros": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "internet_sales.ventas": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Internet Sales",
+			          "ConceptualProperty": "Ventas"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Ventas": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "internet_sales.ventas_aa__sply": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Internet Sales",
+			          "ConceptualProperty": "Ventas AA · SPLY"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "AA · SPLY": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "internet_sales.ventas_aa__offset_día": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Internet Sales",
+			          "ConceptualProperty": "Ventas AA · Offset día"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "AA · Offset día": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "internet_sales.ventas_aa__calendario": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Internet Sales",
+			          "ConceptualProperty": "Ventas AA · Calendario"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "AA · Calendario": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "internet_sales.ventas_aa__columna": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Internet Sales",
+			          "ConceptualProperty": "Ventas AA · Columna"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "AA · Columna": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "internet_sales.total_sales_currency_v4": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Internet Sales",
+			          "ConceptualProperty": "Total Sales Currency v4"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Moneda elegida": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "internet_sales.producto_traducido": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Internet Sales",
+			          "ConceptualProperty": "Producto traducido"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Nombre": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fecha.date": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Fecha",
+			          "ConceptualProperty": "Date"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Día": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "product.english_product_category_name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Product",
+			          "ConceptualProperty": "English Product Category Name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Categoría": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "product.productkey": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Product",
+			          "ConceptualProperty": "ProductKey"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Clave": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    }
 			  }
 			}
