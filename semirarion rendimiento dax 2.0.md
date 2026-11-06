@@ -327,7 +327,23 @@ Cada bloque de contenido (1 a 6) termina con **"Y esto con IA, ¿qué?"** (3–5
 
 ---
 
-## 10. Bloque 7 — Cierre (10 min)
+## 10. Bloque 7 — La traza en el PR y cierre (20 min)
+
+### 10.1 La traza decide… también en el PR (10 min)
+
+Broche final: el rendimiento como test de un pull request. Montaje y runbook en [`ci/README.md`](ci/README.md).
+
+1. **La idea** (2 min): cada PR que cambia el TMDL se despliega en el modelo `[PR]` del workspace y se mide con
+   la misma traza del día frente a `[PROD]`. Reglas en `ci/rendimiento/reglas.yml`; si una falla, la regla de rama
+   de `main` bloquea el merge.
+2. **Arquitectura** (2 min): GitHub Actions con service principal → `fabric-cicd` (solo metadatos; los modelos se
+   publicaron una vez con datos desde Desktop) → `PuenteDax.exe ci` por XMLA, PROD y PR intercalados.
+3. **Qué medimos** (1 min): duración con factor y margen (ruido) + consultas SE y callbacks (deterministas) +
+   techo por visual + huella del resultado.
+4. **Demo** (4 min): PR con regresión → ❌ y comentario con la tabla; commit con el arreglo → ✅; merge → `[PROD]`.
+5. **Letra pequeña** (1 min): capacidad compartida, un único `[PR]`, sin refresco de origen, forks y secretos (OIDC).
+
+### 10.2 Cierre (10 min)
 
 1. Repaso del checklist 2.0 (3 min).
 2. **Tabla `benchmark` final** de la sala: qué patrón ganó en qué escenario (3 min).

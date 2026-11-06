@@ -1,0 +1,21 @@
+// visual: Importe por categoría de producto
+// pagina: B1 · Moneda
+// tipo: clusteredBarChart
+// visualId: a4bdaa07ace0c0f39d7d
+DEFINE
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS(
+			'Product'[English Product Category Name],
+			"Sales_Amount", 'Internet Sales'[Sales Amount],
+			"Total_Sales_Currency_Dolar", 'Internet Sales'[Total Sales Currency Dolar],
+			"Total_Sales_Currency_Euro", 'Internet Sales'[Total Sales Currency Euro]
+		)
+
+	VAR __DS0PrimaryWindowed = 
+		TOPN(1001, __DS0Core, [Sales_Amount], 0, 'Product'[English Product Category Name], 1)
+
+EVALUATE
+	__DS0PrimaryWindowed
+
+ORDER BY
+	[Sales_Amount] DESC, 'Product'[English Product Category Name]

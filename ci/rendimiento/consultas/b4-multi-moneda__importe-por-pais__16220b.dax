@@ -1,0 +1,26 @@
+// visual: Importe por país
+// pagina: B4 · Multi-moneda
+// tipo: barChart
+// visualId: 16220bd7d5e3af346d2e
+DEFINE
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS(
+			'Sales Territory'[SalesTerritoryCountry],
+			"Total_Sales_Currency_v4", 'Internet Sales'[Total Sales Currency v4]
+		)
+
+	VAR __DS0PrimaryWindowed = 
+		TOPN(
+			1001,
+			__DS0Core,
+			[Total_Sales_Currency_v4],
+			0,
+			'Sales Territory'[SalesTerritoryCountry],
+			1
+		)
+
+EVALUATE
+	__DS0PrimaryWindowed
+
+ORDER BY
+	[Total_Sales_Currency_v4] DESC, 'Sales Territory'[SalesTerritoryCountry]

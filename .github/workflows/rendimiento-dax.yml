@@ -1,0 +1,134 @@
+name: Rendimiento DAX
+
+# PR → despliega el modelo de la rama en «[PR]» y lo mide contra «[PROD]» con traza (Puente DAX).
+# Si hay regresión o algún visual pasa de su máximo, el check falla y la regla de rama bloquea el merge.
+# Push a main → despliega en «[PROD]», que pasa a ser la nueva línea base.
+#
+# Secretos: FABRIC_TENANT_ID, FABRIC_CLIENT_ID, FABRIC_CLIENT_SECRET (service principal, miembro del workspace).
+# Variables: FABRIC_WORKSPACE_ID, FABRIC_WORKSPACE_NAME, MODELO_PROD, MODELO_PR.
+
+on:
+  # Sin filtro de rutas: un check obligatorio que no se lanza deja el PR esperando para siempre.
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - 'PowerBi-despues/PowerBi.SemanticModel/**'
+  workflow_dispatch:
+
+# En el workspace solo hay un modelo «[PR]»: las ejecuciones van de una en una.
+concurrency:
+  group: rendimiento-dax
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  rendimiento:
+    name: Rendimiento DAX
+    # Repo público: los PR desde forks no reciben secretos (y nunca se usa pull_request_target).
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: windows-latest
+    env:
+      FABRIC_TENANT_ID: ${{ secrets.FABRIC_TENANT_ID }}
+      FABRIC_CLIENT_ID: ${{ secrets.FABRIC_CLIENT_ID }}
+      FABRIC_CLIENT_SECRET: ${{ secrets.FABRIC_CLIENT_SECRET }}
+      FABRIC_WORKSPACE_ID: ${{ vars.FABRIC_WORKSPACE_ID }}
+      XMLA: powerbi://api.powerbi.com/v1.0/myorg/${{ vars.FABRIC_WORKSPACE_NAME }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ¿Cambia el modelo o el check?
+        id: cambios
+        if: github.event_name == 'pull_request'
+        shell: pwsh
+        run: |
+          $rutas = git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- PowerBi-despues/PowerBi.SemanticModel ci puente-dax/src .github/workflows/rendimiento-dax.yml
+          $hay = [bool]$rutas
+          "medir=$($hay.ToString().ToLower())" >> $env:GITHUB_OUTPUT
+          if (-not $hay) { "Sin cambios en el modelo ni en el check: nada que medir. ✅" >> $env:GITHUB_STEP_SUMMARY }
+
+      - uses: actions/setup-dotnet@v4
+        if: github.event_name != 'pull_request' || steps.cambios.outputs.medir == 'true'
+        with:
+          dotnet-version: '8.0.x'
+
+      - uses: actions/setup-python@v5
+        if: github.event_name != 'pull_request' || steps.cambios.outputs.medir == 'true'
+        with:
+          python-version: '3.12'
+
+      - name: Instalar fabric-cicd
+        if: github.event_name != 'pull_request' || steps.cambios.outputs.medir == 'true'
+        run: pip install -r ci/requirements.txt
+
+      # ── Pull request ──────────────────────────────────────────────────────────
+      - name: Compilar Puente DAX
+        if: steps.cambios.outputs.medir == 'true'
+        run: dotnet build puente-dax/src/PuenteDax.Bridge -c Release -o puente-bin
+
+      - name: Desplegar la rama en ${{ vars.MODELO_PR }}
+        if: steps.cambios.outputs.medir == 'true'
+        run: python -u ci/desplegar.py --modelo "${{ vars.MODELO_PR }}"
+
+      - name: ¿Cambios que necesitan el origen?
+        if: steps.cambios.outputs.medir == 'true'
+        shell: pwsh
+        run: |
+          python -I ci/cambios-de-origen.py "origin/${{ github.base_ref }}" | Out-File origen.md -Encoding utf8
+          Get-Content origen.md | Add-Content $env:GITHUB_STEP_SUMMARY
+
+      - name: Medir producción frente al PR (la traza decide)
+        id: medir
+        if: steps.cambios.outputs.medir == 'true'
+        shell: pwsh
+        run: |
+          ./puente-bin/PuenteDax.exe ci --reglas ci/rendimiento/reglas.yml --servidor "$env:XMLA" `
+            --base "${{ vars.MODELO_PROD }}" --pr "${{ vars.MODELO_PR }}" `
+            --salida resultado.json --resumen resumen.md
+          "codigo=$LASTEXITCODE" >> $env:GITHUB_OUTPUT
+          exit 0
+
+      - name: Comentar en el PR
+        if: always() && steps.cambios.outputs.medir == 'true' && hashFiles('resumen.md') != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const marca = '<!-- rendimiento-dax -->';
+            const origen = fs.existsSync('origen.md') ? fs.readFileSync('origen.md', 'utf8').replace(/^﻿/, '') : '';
+            const body = [marca, fs.readFileSync('resumen.md', 'utf8'), origen,
+              `<sub>Ejecución: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}</sub>`].join('\n\n');
+            const { data: comentarios } = await github.rest.issues.listComments({ ...context.repo, issue_number: context.issue.number });
+            const previo = comentarios.find(c => c.body && c.body.startsWith(marca));
+            if (previo) await github.rest.issues.updateComment({ ...context.repo, comment_id: previo.id, body });
+            else await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body });
+
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.cambios.outputs.medir == 'true'
+        with:
+          name: rendimiento-dax
+          path: |
+            resultado.json
+            resumen.md
+          if-no-files-found: ignore
+
+      - name: Veredicto
+        if: steps.cambios.outputs.medir == 'true'
+        shell: pwsh
+        run: |
+          switch ('${{ steps.medir.outputs.codigo }}') {
+            '0' { 'Sin regresiones: se puede hacer merge.' }
+            '1' { Write-Error 'Regresión de rendimiento: revisa el comentario del PR.'; exit 1 }
+            default { Write-Error 'El check no pudo medir (conexión o configuración).'; exit 1 }
+          }
+
+      # ── main ──────────────────────────────────────────────────────────────────
+      - name: Desplegar en ${{ vars.MODELO_PROD }}
+        if: github.event_name != 'pull_request'
+        run: python -u ci/desplegar.py --modelo "${{ vars.MODELO_PROD }}"

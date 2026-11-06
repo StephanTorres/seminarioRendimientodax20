@@ -1,0 +1,16 @@
+// visual: Ventas por mes de entrega
+// pagina: B3 · Tres fechas
+// tipo: columnChart
+// visualId: ac3394455c13c5ebe34d
+DEFINE
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS('Fecha entrega'[Month Name Short Complete], "Ventas", 'Internet Sales'[Ventas])
+
+	VAR __DS0PrimaryWindowed = 
+		TOPN(1001, __DS0Core, 'Fecha entrega'[Month Name Short Complete], 1)
+
+EVALUATE
+	__DS0PrimaryWindowed
+
+ORDER BY
+	'Fecha entrega'[Month Name Short Complete]

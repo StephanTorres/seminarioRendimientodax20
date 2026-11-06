@@ -43,12 +43,12 @@ internal sealed class TraceSession : IDisposable
     }
 
     public static TraceSession Start(
-        string dataSource, string database, string sessionId,
+        string connectionString, string sessionId,
         IReadOnlyDictionary<int, HashSet<int>> supported, bool includePlan,
         Action ping, ILogger log, TimeSpan timeout)
     {
         var server = new Amo.Server();
-        server.Connect($"Data Source={dataSource};Initial Catalog={database};SessionId={sessionId}");
+        server.Connect($"{connectionString}SessionId={sessionId};");
 
         var trace = server.Traces.Add($"PuenteDax_{Guid.NewGuid():N}");
         var classes = new List<Amo.TraceEventClass>
@@ -235,10 +235,10 @@ internal sealed class QueryCapture
         _expectMetrics = expectMetrics;
     }
 
-    // Power BI Desktop quita TODOS los comentarios iniciales (/* */ y --) del texto del evento, no solo el marcador:
+    // Power BI Desktop quita TODOS los comentarios iniciales (/* */, -- y //) del texto del evento, no solo el marcador:
     // se quitan también del texto enviado para que una consulta que empieza por "-- …" se siga reconociendo.
     private static readonly System.Text.RegularExpressions.Regex LeadingComments =
-        new(@"^(?:\s+|--[^\r\n]*|/\*.*?\*/)*", System.Text.RegularExpressions.RegexOptions.Singleline);
+        new(@"^(?:\s+|--[^\r\n]*|//[^\r\n]*|/\*.*?\*/)*", System.Text.RegularExpressions.RegexOptions.Singleline);
 
     private static string Collapse(string text) =>
         System.Text.RegularExpressions.Regex.Replace(LeadingComments.Replace(text ?? string.Empty, string.Empty, 1), @"\s+", " ").Trim();

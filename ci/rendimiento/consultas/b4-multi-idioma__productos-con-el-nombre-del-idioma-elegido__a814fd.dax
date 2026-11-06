@@ -1,0 +1,35 @@
+// visual: Productos con el nombre del idioma elegido
+// pagina: B4 · Multi-idioma
+// tipo: barChart
+// visualId: a814fd10c1462d27efda
+DEFINE
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS(
+			'Multi Idioma product'[Product Category],
+			'Multi Idioma product'[Product translation Orden],
+			'Multi Idioma product'[Product translation],
+			"Sales_Amount", 'Internet Sales'[Sales Amount]
+		)
+
+	VAR __DS0PrimaryWindowed = 
+		TOPN(
+			1001,
+			__DS0Core,
+			[Sales_Amount],
+			0,
+			'Multi Idioma product'[Product translation Orden],
+			1,
+			'Multi Idioma product'[Product translation],
+			1,
+			'Multi Idioma product'[Product Category],
+			1
+		)
+
+EVALUATE
+	__DS0PrimaryWindowed
+
+ORDER BY
+	[Sales_Amount] DESC,
+	'Multi Idioma product'[Product translation Orden],
+	'Multi Idioma product'[Product translation],
+	'Multi Idioma product'[Product Category]

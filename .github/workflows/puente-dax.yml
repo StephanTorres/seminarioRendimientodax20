@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'puente-dax/**'
+      - 'ci/rendimiento/**'
       - '.github/workflows/puente-dax.yml'
   workflow_dispatch:
 
@@ -62,6 +63,11 @@ jobs:
           Write-Host "Error esperado: $fallo"
           if ($fallo -match 'Could not load|FileNotFound|TypeLoad') { throw "Fallo cargando ensamblados: $fallo" }
           if ($fallo -match 'No encuentro') { throw "No se intentó la conexión ADOMD a --server: $fallo" }
+
+          # Modo CI simulado: lee reglas.yml y las consultas de los visuales, mide y aprueba
+          & $exe ci --reglas ../ci/rendimiento/reglas.yml --mock --resumen ci-mock.md
+          if ($LASTEXITCODE -ne 0) { throw "ci --mock devolvió $LASTEXITCODE" }
+          if (-not (Select-String -Path ci-mock.md -Pattern 'sin regresiones' -Quiet)) { throw 'ci --mock: resumen inesperado' }
 
       - uses: actions/upload-artifact@v4
         with:

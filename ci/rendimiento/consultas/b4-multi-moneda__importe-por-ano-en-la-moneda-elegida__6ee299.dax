@@ -1,0 +1,19 @@
+// visual: Importe por año en la moneda elegida
+// pagina: B4 · Multi-moneda
+// tipo: columnChart
+// visualId: 6ee2990ddbf2b8e32ea5
+DEFINE
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS(
+			'Fecha'[Year],
+			"Total_Sales_Currency_v4", 'Internet Sales'[Total Sales Currency v4]
+		)
+
+	VAR __DS0BodyLimited = 
+		SAMPLE(3502, __DS0Core, 'Fecha'[Year], 1)
+
+EVALUATE
+	__DS0BodyLimited
+
+ORDER BY
+	'Fecha'[Year]

@@ -1,5 +1,8 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Security;
+using System.Security.Cryptography;
+using System.Text;
 using Dax.Model.Extractor;
 using Dax.ViewModel;
 using Microsoft.AnalysisServices.AdomdClient;
@@ -8,7 +11,8 @@ using PuenteDax.Core;
 namespace PuenteDax.Bridge;
 
 /// <summary>
-/// Mediciones reales contra el Analysis Services local de Power BI Desktop.
+/// Mediciones reales contra el Analysis Services local de Power BI Desktop o, con credenciales,
+/// contra un modelo del servicio por XMLA (powerbi://…), que es lo que usa el check de CI.
 /// Solo funciona en Windows: ADOMD.NET no conecta por TCP a un Analysis Services local desde Linux/macOS.
 /// </summary>
 public sealed class PowerBiBackend : IDaxBackend
@@ -21,6 +25,10 @@ public sealed class PowerBiBackend : IDaxBackend
     private IReadOnlyDictionary<int, HashSet<int>> _supported = new Dictionary<int, HashSet<int>>();
     private string _server = string.Empty;
     private string _database = string.Empty;
+
+    // En Desktop el ID del modelo coincide con su nombre; en el servicio es un GUID y ClearCache lo necesita.
+    private string _databaseId = string.Empty;
+    private readonly string? _credentials;
 
     // Sesión de administrador y, aparte, una por rol/usuario para las demos de RLS.
     private DaxSession? _admin;
@@ -35,6 +43,7 @@ public sealed class PowerBiBackend : IDaxBackend
         _log = log;
         _wantedServer = options.Server;
         _wantedDatabase = options.Database;
+        _credentials = options.Credentials;
     }
 
     public string Mode => "live";
@@ -64,12 +73,13 @@ public sealed class PowerBiBackend : IDaxBackend
 
             await Task.Run(() =>
             {
-                var connection = new AdomdConnection($"Data Source={server};");
+                var connection = new AdomdConnection(ConnectionString(server));
                 connection.Open();
                 var database = _wantedDatabase ?? FirstCatalog(connection);
                 connection.ChangeDatabase(database);
                 _server = server;
                 _database = database;
+                _databaseId = DatabaseId(connection, database);
                 _admin = new DaxSession("admin", connection);
                 _supported = SupportedTraceColumns.Read(connection);
                 _admin.Trace = StartTrace(_admin, includePlan: false);
@@ -162,7 +172,7 @@ public sealed class PowerBiBackend : IDaxBackend
         await _gate.WaitAsync(ct);
         try
         {
-            var connectionString = $"Data Source={_server};Initial Catalog={_database};";
+            var connectionString = ConnectionString(_server, _database);
             var version = typeof(PowerBiBackend).Assembly.GetName().Version?.ToString(3) ?? "0.1.0";
             var model = await Task.Run(() =>
             {
@@ -212,7 +222,7 @@ public sealed class PowerBiBackend : IDaxBackend
 
         // Igual que "Ver como" de Desktop: la conexión lleva Roles / EffectiveUserName.
         // La traza (AMO) se abre como administrador sobre esta sesión.
-        var builder = $"Data Source={_server};Initial Catalog={_database};";
+        var builder = ConnectionString(_server, _database);
         if (!string.IsNullOrWhiteSpace(role)) builder += $"Roles={Quote(role)};";
         if (!string.IsNullOrWhiteSpace(effectiveUser)) builder += $"EffectiveUserName={Quote(effectiveUser)};";
         var connection = new AdomdConnection(builder);
@@ -229,9 +239,30 @@ public sealed class PowerBiBackend : IDaxBackend
     private TraceSession StartTrace(DaxSession session, bool includePlan)
     {
         var connection = session.Connection;
-        return TraceSession.Start(_server, _database, connection.SessionID, _supported, includePlan,
+        return TraceSession.Start(ConnectionString(_server, _database), connection.SessionID, _supported, includePlan,
             ping: () => connection.GetSchemaDataSet("MDSCHEMA_CUBES", new AdomdRestrictionCollection()),
             _log, TraceStartTimeout);
+    }
+
+    private string ConnectionString(string server, string? database = null) =>
+        $"Data Source={server};" + (database is null ? string.Empty : $"Initial Catalog={database};") + _credentials;
+
+    private static string DatabaseId(AdomdConnection connection, string database)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT [CATALOG_NAME], [DATABASE_ID] FROM $SYSTEM.DBSCHEMA_CATALOGS";
+        try
+        {
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+                if (string.Equals(reader.GetString(0), database, StringComparison.OrdinalIgnoreCase) && !reader.IsDBNull(1))
+                    return reader.GetString(1);
+        }
+        catch (AdomdException)
+        {
+            // Motores sin DATABASE_ID en el DMV: el nombre sirve como ID.
+        }
+        return database;
     }
 
     private static string FirstCatalog(AdomdConnection connection)
@@ -249,12 +280,15 @@ public sealed class PowerBiBackend : IDaxBackend
         using var command = connection.CreateCommand();
         command.CommandText =
             "<Batch xmlns=\"http://schemas.microsoft.com/analysisservices/2003/engine\"><ClearCache><Object>" +
-            $"<DatabaseID>{SecurityElement.Escape(_database)}</DatabaseID>" +
+            $"<DatabaseID>{SecurityElement.Escape(_databaseId)}</DatabaseID>" +
             "</Object></ClearCache></Batch>";
         command.ExecuteNonQuery();
     }
 
-    /// <summary>Lee TODAS las filas (si no, la duración no incluiría la serialización) y devuelve las primeras.</summary>
+    /// <summary>
+    /// Lee TODAS las filas (si no, la duración no incluiría la serialización) y devuelve las primeras,
+    /// más una huella del resultado completo para comparar modelos (CI: ¿más rápido pero distinto?).
+    /// </summary>
     private static ResultSet Execute(AdomdConnection connection, string dax, int maxRows)
     {
         using var command = connection.CreateCommand();
@@ -262,21 +296,36 @@ public sealed class PowerBiBackend : IDaxBackend
         using var reader = command.ExecuteReader();
         var columns = Enumerable.Range(0, reader.FieldCount).Select(reader.GetName).ToList();
         var rows = new List<object?[]>();
+        var fingerprint = new List<string>();
         var count = 0;
         while (reader.Read())
         {
             count++;
-            if (rows.Count >= maxRows) continue;
             var row = new object?[reader.FieldCount];
             for (var i = 0; i < reader.FieldCount; i++)
             {
                 var value = reader.GetValue(i);
                 row[i] = value is DBNull ? null : value;
             }
-            rows.Add(row);
+            fingerprint.Add(string.Join('\u001f', row.Select(Canonical)));
+            if (rows.Count < maxRows) rows.Add(row);
         }
-        return new ResultSet(columns, rows, count, count > rows.Count);
+        // Sin ORDER BY el orden de las filas no está garantizado: se ordena antes de calcular la huella.
+        fingerprint.Sort(StringComparer.Ordinal);
+        var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(string.Join('\n', fingerprint))))[..16];
+        return new ResultSet(columns, rows, count, count > rows.Count, hash);
     }
+
+    /// <summary>Los double varían en los últimos dígitos según el orden de agregación en paralelo: se redondean.</summary>
+    private static string Canonical(object? value) => value switch
+    {
+        null => "∅",
+        double d => d.ToString("G12", CultureInfo.InvariantCulture),
+        float f => ((double)f).ToString("G12", CultureInfo.InvariantCulture),
+        DateTime t => t.ToString("O", CultureInfo.InvariantCulture),
+        IFormattable x => x.ToString(null, CultureInfo.InvariantCulture),
+        _ => value.ToString() ?? string.Empty,
+    };
 
     private void Close()
     {

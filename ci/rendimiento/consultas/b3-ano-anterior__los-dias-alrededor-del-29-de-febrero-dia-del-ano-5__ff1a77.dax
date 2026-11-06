@@ -1,0 +1,30 @@
+// visual: Los días alrededor del 29 de febrero (día del año 57 a 62)
+// pagina: B3 · Año anterior
+// tipo: tableEx
+// visualId: ff1a77ad3d6036a182e5
+DEFINE
+	VAR __DS0FilterTable = 
+		FILTER(
+			KEEPFILTERS(VALUES('Fecha'[Day of Year])),
+			AND('Fecha'[Day of Year] >= 57, 'Fecha'[Day of Year] <= 62)
+		)
+
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS(
+			ROLLUPADDISSUBTOTAL('Fecha'[Date], "IsGrandTotalRowTotal"),
+			__DS0FilterTable,
+			"Ventas", 'Internet Sales'[Ventas],
+			"Ventas_AA___SPLY", 'Internet Sales'[Ventas AA · SPLY],
+			"Ventas_AA___Offset_día", 'Internet Sales'[Ventas AA · Offset día],
+			"Ventas_AA___Calendario", 'Internet Sales'[Ventas AA · Calendario],
+			"Ventas_AA___Columna", 'Internet Sales'[Ventas AA · Columna]
+		)
+
+	VAR __DS0PrimaryWindowed = 
+		TOPN(502, __DS0Core, [IsGrandTotalRowTotal], 0, 'Fecha'[Date], 1)
+
+EVALUATE
+	__DS0PrimaryWindowed
+
+ORDER BY
+	[IsGrandTotalRowTotal] DESC, 'Fecha'[Date]

@@ -1,0 +1,31 @@
+/// Mismo cálculo, distinta escala: ejemplo de SQLBI en el que los grupos de cálculo impiden la fusión vertical
+table Escala
+	lineageTag: ce486bbd-9be3-406f-b025-476295a46126
+
+	calculationGroup
+		precedence: 1
+
+		calculationItem Original = SELECTEDMEASURE ()
+
+		calculationItem Miles = SELECTEDMEASURE () / 1000
+
+		calculationItem Millones = SELECTEDMEASURE () / 1000000
+
+	column Escala
+		dataType: string
+		lineageTag: 2b18e8c9-6f9b-4fd8-abdb-c5a71739b20e
+		summarizeBy: none
+		sourceColumn: Name
+		sortByColumn: Ordinal
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordinal
+		dataType: int64
+		isHidden
+		lineageTag: 85715090-6f35-4098-8323-17a9dac573c3
+		summarizeBy: sum
+		sourceColumn: Ordinal
+
+		annotation SummarizationSetBy = Automatic
+

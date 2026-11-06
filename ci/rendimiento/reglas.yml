@@ -1,0 +1,42 @@
+# Reglas del check «Rendimiento DAX» de los pull requests.
+# Las lee «PuenteDax.exe ci»: producción es la línea base y el modelo desplegado desde el PR, el candidato.
+# Gravedades: fallo (bloquea el merge) · aviso (sale en el resumen) · ignorar.
+
+ejecuciones:
+  frio: 3          # con la caché limpia (ClearCache) antes de cada una
+  caliente: 2
+
+# Duración: es regresión si el PR tarda más de factor_max × producción Y al menos margen_ms más.
+# Los dos umbrales a la vez evitan fallar por ruido (60 ms frente a 30 ms) en una capacidad compartida.
+# Calibrado con el mismo modelo contra sí mismo: el ruido llega a ×2 en consultas de decenas de ms.
+regresion:
+  factor_max: 2
+  margen_ms: 250
+  metrica: frio    # frio | caliente
+  gravedad: fallo
+
+# Lo que no depende del ruido: el plan es el que es.
+deterministas:
+  consultas_se_aumento_max: 0   # consultas al Storage Engine que el PR puede añadir
+  consultas_se: fallo
+  callbacks_nuevos: fallo       # CallbackDataID que no estaban: el SE vuelve a preguntar al FE fila a fila
+
+# Mismo resultado que producción (huella de todas las filas). ¿Más rápido pero distinto?
+resultados_distintos: aviso
+
+# Consultas de los visuales del informe (extraer-consultas.py, desde el Analizador de rendimiento).
+visuales:
+  carpeta: consultas
+  max_ms_frio: 2000              # ningún visual por encima de 2 s en frío
+  excepciones:                   # por id de consulta (nombre del .dax) o por «página / título»
+    "B3 · Tres fechas / Mes del pedido (filas) por mes de entrega (columnas)": 4000
+
+# Una consulta por medida: las cambiadas en el PR, las que dependen de ellas y las nuevas.
+medidas:
+  modo: afectadas                # afectadas | todas | ninguna
+  plantilla: |
+    EVALUATE SUMMARIZECOLUMNS('Fecha'[Year], 'Fecha'[Month], "Valor", [{medida}])
+  excluir:
+    - Fecha y hora medida
+    - Fecha_selection
+  max_ms_frio: 3000

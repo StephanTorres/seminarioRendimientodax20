@@ -17,10 +17,18 @@ public sealed class BridgeOptions
     public bool OpenBrowser { get; private set; }
     public bool ShowHelp { get; private set; }
 
+    /// <summary>Fragmento de cadena de conexión con credenciales (User ID/Password) para el servicio por XMLA.</summary>
+    public string? Credentials { get; private set; }
+
+    /// <summary>Opciones para medir un modelo concreto sin servidor HTTP (modo CI).</summary>
+    public static BridgeOptions ForModel(string server, string? database, string? credentials) =>
+        new() { Server = server, Database = database, Credentials = credentials };
+
     public const string Help = """
         Puente DAX · mide consultas DAX contra Power BI Desktop (FE, SE, callbacks, planes)
 
         Uso: PuenteDax.exe [opciones]
+             PuenteDax.exe ci --help      (check de rendimiento para CI: producción frente a PR)
 
           --server <host:puerto>   Instancia de Analysis Services de Power BI Desktop.
                                    Como External Tool, Desktop lo pasa solo (%server%).

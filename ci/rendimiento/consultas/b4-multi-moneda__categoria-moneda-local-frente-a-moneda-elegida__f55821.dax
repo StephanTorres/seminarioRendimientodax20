@@ -1,0 +1,31 @@
+// visual: Categoría: moneda local frente a moneda elegida
+// pagina: B4 · Multi-moneda
+// tipo: tableEx
+// visualId: f55821edca59c2b8181f
+DEFINE
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS(
+			ROLLUPADDISSUBTOTAL('Product'[English Product Category Name], "IsGrandTotalRowTotal"),
+			"Sales_Amount", 'Internet Sales'[Sales Amount],
+			"Total_Sales_Currency_v4", 'Internet Sales'[Total Sales Currency v4]
+		)
+
+	VAR __DS0PrimaryWindowed = 
+		TOPN(
+			502,
+			__DS0Core,
+			[IsGrandTotalRowTotal],
+			0,
+			[Sales_Amount],
+			0,
+			'Product'[English Product Category Name],
+			1
+		)
+
+EVALUATE
+	__DS0PrimaryWindowed
+
+ORDER BY
+	[IsGrandTotalRowTotal] DESC,
+	[Sales_Amount] DESC,
+	'Product'[English Product Category Name]

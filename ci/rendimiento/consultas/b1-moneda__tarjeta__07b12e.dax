@@ -1,0 +1,8 @@
+// visual: Tarjeta
+// pagina: B1 · Moneda
+// tipo: cardVisual
+// visualId: 07b12e5be3c12d3fe63e
+EVALUATE
+	ROW(
+		"Total_Sales_Currency_Euro", 'Internet Sales'[Total Sales Currency Euro]
+	)

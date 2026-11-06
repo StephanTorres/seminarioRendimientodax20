@@ -25,6 +25,7 @@ ref table 'Sales Territory'
 ref table _Internet_Sales_Reason
 ref table 'Sales Reason'
 ref table 'Time Calcs'
+ref table Escala
 ref table 'Multi Idioma product'
 ref table 'Multi Idioma Promotion'
 ref table Idiomas

@@ -1,0 +1,20 @@
+// visual: Nombre traducido de cada producto y lo que vende
+// pagina: B4 · Multi-idioma
+// tipo: tableEx
+// visualId: b514b68fd6ea119a8557
+DEFINE
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS(
+			ROLLUPADDISSUBTOTAL('Product'[ProductKey], "IsGrandTotalRowTotal"),
+			"Sales_Amount", 'Internet Sales'[Sales Amount],
+			"Producto_traducido", 'Internet Sales'[Producto traducido]
+		)
+
+	VAR __DS0PrimaryWindowed = 
+		TOPN(502, __DS0Core, [IsGrandTotalRowTotal], 0, [Sales_Amount], 0, 'Product'[ProductKey], 1)
+
+EVALUATE
+	__DS0PrimaryWindowed
+
+ORDER BY
+	[IsGrandTotalRowTotal] DESC, [Sales_Amount] DESC, 'Product'[ProductKey]

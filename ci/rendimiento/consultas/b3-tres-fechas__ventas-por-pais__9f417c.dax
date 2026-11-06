@@ -1,0 +1,30 @@
+// visual: Ventas por país
+// pagina: B3 · Tres fechas
+// tipo: tableEx
+// visualId: 9f417c77ae33923dcfaf
+DEFINE
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS(
+			ROLLUPADDISSUBTOTAL('Sales Territory'[SalesTerritoryCountry], "IsGrandTotalRowTotal"),
+			"Ventas", 'Internet Sales'[Ventas]
+		)
+
+	VAR __DS0PrimaryWindowed = 
+		TOPN(
+			502,
+			__DS0Core,
+			[IsGrandTotalRowTotal],
+			0,
+			[Ventas],
+			0,
+			'Sales Territory'[SalesTerritoryCountry],
+			1
+		)
+
+EVALUATE
+	__DS0PrimaryWindowed
+
+ORDER BY
+	[IsGrandTotalRowTotal] DESC,
+	[Ventas] DESC,
+	'Sales Territory'[SalesTerritoryCountry]

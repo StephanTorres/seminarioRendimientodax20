@@ -1,0 +1,23 @@
+// visual: Cuadre por mes y método (0 = cuadra)
+// pagina: B3 · Año anterior
+// tipo: clusteredColumnChart
+// visualId: 95e260cd3bf3d9ece772
+DEFINE
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS(
+			'Fecha'[Month Name Short],
+			'Fecha'[Month],
+			"Cuadre_29_feb___SPLY", 'Internet Sales'[Cuadre 29-feb · SPLY],
+			"Cuadre_29_feb___Offset", 'Internet Sales'[Cuadre 29-feb · Offset],
+			"Cuadre_29_feb___Calendario", 'Internet Sales'[Cuadre 29-feb · Calendario],
+			"Cuadre_29_feb___Columna", 'Internet Sales'[Cuadre 29-feb · Columna]
+		)
+
+	VAR __DS0PrimaryWindowed = 
+		TOPN(1001, __DS0Core, 'Fecha'[Month], 1, 'Fecha'[Month Name Short], 1)
+
+EVALUATE
+	__DS0PrimaryWindowed
+
+ORDER BY
+	'Fecha'[Month], 'Fecha'[Month Name Short]

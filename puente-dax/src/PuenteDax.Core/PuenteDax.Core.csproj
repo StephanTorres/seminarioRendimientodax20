@@ -4,4 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>PuenteDax.Core</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- reglas.yml del check de rendimiento en CI -->
+    <PackageReference Include="YamlDotNet" Version="16.3.0" />
+  </ItemGroup>
 </Project>

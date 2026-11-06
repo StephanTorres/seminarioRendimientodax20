@@ -1,0 +1,22 @@
+// visual: Ventas y año anterior por mes
+// pagina: B3 · Año anterior
+// tipo: lineChart
+// visualId: 5a90cf4f4e8731f9665d
+DEFINE
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS(
+			'Fecha'[Month Name Short],
+			'Fecha'[Month],
+			"Ventas", 'Internet Sales'[Ventas],
+			"Ventas_AA___SPLY", 'Internet Sales'[Ventas AA · SPLY],
+			"Ventas_AA___Columna", 'Internet Sales'[Ventas AA · Columna]
+		)
+
+	VAR __DS0PrimaryWindowed = 
+		TOPN(1001, __DS0Core, 'Fecha'[Month], 1, 'Fecha'[Month Name Short], 1)
+
+EVALUATE
+	__DS0PrimaryWindowed
+
+ORDER BY
+	'Fecha'[Month], 'Fecha'[Month Name Short]

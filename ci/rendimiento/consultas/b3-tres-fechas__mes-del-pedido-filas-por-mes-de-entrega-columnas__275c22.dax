@@ -1,0 +1,59 @@
+// visual: Mes del pedido (filas) por mes de entrega (columnas)
+// pagina: B3 · Tres fechas
+// tipo: pivotTable
+// visualId: 275c22d6d398e90f194f
+DEFINE
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS(
+			'Fecha'[Month Name Short],
+			'Fecha'[Month],
+			'Fecha entrega'[Month Name Short Complete],
+			"Ventas", 'Internet Sales'[Ventas]
+		)
+
+	VAR __DS0PrimaryWindowed = 
+		TOPN(
+			101,
+			SUMMARIZE(__DS0Core, 'Fecha'[Month Name Short], 'Fecha'[Month]),
+			'Fecha'[Month],
+			1,
+			'Fecha'[Month Name Short],
+			1
+		)
+
+	VAR __DS0SecondaryBase = 
+		SUMMARIZE(__DS0Core, 'Fecha entrega'[Month Name Short Complete])
+
+	VAR __DS0Secondary = 
+		TOPN(102, __DS0SecondaryBase, 'Fecha entrega'[Month Name Short Complete], 1)
+
+	VAR __DS0BodyLimited = 
+		NATURALLEFTOUTERJOIN(
+			__DS0PrimaryWindowed,
+			SUBSTITUTEWITHINDEX(
+				__DS0Core,
+				"ColumnIndex",
+				__DS0Secondary,
+				'Fecha entrega'[Month Name Short Complete],
+				ASC
+			)
+		)
+
+EVALUATE
+	GROUPBY(
+		__DS0Core,
+		"MinVentas", MINX(CURRENTGROUP(), [Ventas]),
+		"MaxVentas", MAXX(CURRENTGROUP(), [Ventas])
+	)
+
+EVALUATE
+	__DS0Secondary
+
+ORDER BY
+	'Fecha entrega'[Month Name Short Complete]
+
+EVALUATE
+	__DS0BodyLimited
+
+ORDER BY
+	'Fecha'[Month], 'Fecha'[Month Name Short], [ColumnIndex]

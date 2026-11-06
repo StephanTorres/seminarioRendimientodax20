@@ -1,0 +1,32 @@
+// visual: Importe por país y moneda
+// pagina: B1 · Moneda
+// tipo: tableEx
+// visualId: ca12f6775bea0b96735d
+DEFINE
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS(
+			ROLLUPADDISSUBTOTAL('Sales Territory'[SalesTerritoryCountry], "IsGrandTotalRowTotal"),
+			"Sales_Amount", 'Internet Sales'[Sales Amount],
+			"Total_Sales_Currency_Dolar", 'Internet Sales'[Total Sales Currency Dolar],
+			"Total_Sales_Currency_Euro", 'Internet Sales'[Total Sales Currency Euro]
+		)
+
+	VAR __DS0PrimaryWindowed = 
+		TOPN(
+			502,
+			__DS0Core,
+			[IsGrandTotalRowTotal],
+			0,
+			[Sales_Amount],
+			0,
+			'Sales Territory'[SalesTerritoryCountry],
+			1
+		)
+
+EVALUATE
+	__DS0PrimaryWindowed
+
+ORDER BY
+	[IsGrandTotalRowTotal] DESC,
+	[Sales_Amount] DESC,
+	'Sales Territory'[SalesTerritoryCountry]

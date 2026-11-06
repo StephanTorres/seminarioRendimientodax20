@@ -1,0 +1,21 @@
+// visual: Importe por año, en las tres monedas
+// pagina: B1 · Moneda
+// tipo: clusteredColumnChart
+// visualId: 27400db8649dfb25f1b9
+DEFINE
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS(
+			'Fecha'[Year],
+			"Sales_Amount", 'Internet Sales'[Sales Amount],
+			"Total_Sales_Currency_Dolar", 'Internet Sales'[Total Sales Currency Dolar],
+			"Total_Sales_Currency_Euro", 'Internet Sales'[Total Sales Currency Euro]
+		)
+
+	VAR __DS0BodyLimited = 
+		SAMPLE(3502, __DS0Core, 'Fecha'[Year], 1)
+
+EVALUATE
+	__DS0BodyLimited
+
+ORDER BY
+	'Fecha'[Year]

@@ -19,7 +19,8 @@ public sealed record QueryRequest(
     string? Role = null,
     string? EffectiveUser = null);
 
-public sealed record ResultSet(IReadOnlyList<string> Columns, IReadOnlyList<object?[]> Rows, int RowCount, bool Truncated);
+/// <summary>Hash: huella del resultado completo (todas las filas, sin depender del orden).</summary>
+public sealed record ResultSet(IReadOnlyList<string> Columns, IReadOnlyList<object?[]> Rows, int RowCount, bool Truncated, string? Hash = null);
 
 /// <summary>Source: live (Power BI Desktop) · mock (simulado).</summary>
 public sealed record QueryResponse(

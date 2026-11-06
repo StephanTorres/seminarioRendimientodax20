@@ -1,0 +1,16 @@
+// visual: Segmentación de datos
+// pagina: B4 · Multi-idioma
+// tipo: slicer
+// visualId: eba2c74b7f6f38032703
+DEFINE
+	VAR __DS0Core = 
+		VALUES('Idiomas'[Name])
+
+	VAR __DS0PrimaryWindowed = 
+		TOPN(101, __DS0Core, 'Idiomas'[Name], 1)
+
+EVALUATE
+	__DS0PrimaryWindowed
+
+ORDER BY
+	'Idiomas'[Name]

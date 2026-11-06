@@ -1,11 +1,8 @@
-# Power BI: la caché de datos del PBIP (cientos de MB) no se versiona
-powerbi/**/.pbi/cache.abf
-powerbi/**/.pbi/localSettings.json
-powerbi/**/.pbi/unappliedChanges.json
-# Copia «después» del modelo (demo antes/después del bloque 1)
-powerbi-*/**/.pbi/cache.abf
-powerbi-*/**/.pbi/localSettings.json
-powerbi-*/**/.pbi/unappliedChanges.json
+# Power BI: la caché de datos del PBIP (cientos de MB) y los ajustes locales no se versionan.
+# Sin depender de mayúsculas (en Windows git las ignora; en Linux y en GitHub, no).
+**/.pbi/cache.abf
+**/.pbi/localSettings.json
+**/.pbi/unappliedChanges.json
 *.pbix
 
 # Puente DAX: binarios generados y ajustes locales del depurador
@@ -13,3 +10,9 @@ puente-dax/instalar/*.exe
 puente-dax/instalar/*.dll
 puente-dax/**/launchSettings.json
 puente-dax/bin-local/
+
+# Check de rendimiento (salidas locales de PuenteDax.exe ci y del workflow)
+resultado.json
+resumen.md
+origen.md
+puente-bin/

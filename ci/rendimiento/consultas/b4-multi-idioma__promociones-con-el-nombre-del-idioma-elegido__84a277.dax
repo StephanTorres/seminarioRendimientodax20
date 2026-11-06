@@ -1,0 +1,35 @@
+// visual: Promociones con el nombre del idioma elegido
+// pagina: B4 · Multi-idioma
+// tipo: barChart
+// visualId: 84a277a40c2c957e2d3c
+DEFINE
+	VAR __DS0Core = 
+		SUMMARIZECOLUMNS(
+			'Multi Idioma Promotion'[Promotion Name],
+			'Multi Idioma Promotion'[Multi Idioma Promotion Orden],
+			'Multi Idioma Promotion'[Multi Idioma Promotion],
+			"Sales_Amount", 'Internet Sales'[Sales Amount]
+		)
+
+	VAR __DS0PrimaryWindowed = 
+		TOPN(
+			1001,
+			__DS0Core,
+			[Sales_Amount],
+			0,
+			'Multi Idioma Promotion'[Multi Idioma Promotion Orden],
+			1,
+			'Multi Idioma Promotion'[Multi Idioma Promotion],
+			1,
+			'Multi Idioma Promotion'[Promotion Name],
+			1
+		)
+
+EVALUATE
+	__DS0PrimaryWindowed
+
+ORDER BY
+	[Sales_Amount] DESC,
+	'Multi Idioma Promotion'[Multi Idioma Promotion Orden],
+	'Multi Idioma Promotion'[Multi Idioma Promotion],
+	'Multi Idioma Promotion'[Promotion Name]

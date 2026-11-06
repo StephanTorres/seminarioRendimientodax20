@@ -5,6 +5,20 @@ using System.Text;
 using Microsoft.Extensions.FileProviders;
 using PuenteDax.Bridge;
 
+// Check de rendimiento para CI: mide y sale, sin servidor HTTP.
+if (args.Length > 0 && args[0].Equals("ci", StringComparison.OrdinalIgnoreCase))
+{
+    try
+    {
+        return await CiRunner.RunAsync(args[1..]);
+    }
+    catch (Exception ex)
+    {
+        Console.Error.WriteLine(ex.Message);
+        return 2;
+    }
+}
+
 BridgeOptions options;
 try
 {
